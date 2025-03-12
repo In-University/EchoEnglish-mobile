@@ -80,40 +80,44 @@
             android:orientation="horizontal">
 
             <!-- US Audio Button -->
-            <com.google.android.material.chip.Chip
+            <Button
                 android:id="@+id/usAudioButton"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="36dp"
                 android:layout_marginEnd="6dp"
                 android:layout_weight="1"
-                android:checkable="false"
                 android:text="US"
                 android:textColor="#3D4A73"
-                android:textSize="13sp"
-                app:chipBackgroundColor="#F0F7FF"
-                app:chipEndPadding="12dp"
-                app:chipIconSize="18dp"
-                app:chipIconTint="#3399FF"
-                app:chipStartPadding="12dp"
-                app:chipStrokeWidth="0dp" />
+                android:textSize="12sp"
+                android:backgroundTint="#F0F7FF"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp"
+                android:drawableTint="#3399FF"
+                android:gravity="center_vertical"
+                android:elevation="0dp"
+                android:stateListAnimator="@null" />
 
             <!-- UK Audio Button -->
-            <com.google.android.material.chip.Chip
+            <Button
                 android:id="@+id/ukAudioButton"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginHorizontal="6dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="6dp"
                 android:layout_weight="1"
-                android:checkable="false"
                 android:text="UK"
                 android:textColor="#3D4A73"
-                android:textSize="13sp"
-                app:chipBackgroundColor="#F0F7FF"
-                app:chipEndPadding="12dp"
-                app:chipIconSize="18dp"
-                app:chipIconTint="#3399FF"
-                app:chipStartPadding="12dp"
-                app:chipStrokeWidth="0dp" />
+                android:textSize="12sp"
+                android:backgroundTint="#F0F7FF"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp"
+                android:drawableTint="#3399FF"
+                android:gravity="center_vertical"
+                android:elevation="0dp"
+                android:stateListAnimator="@null" />
 
             <!-- Bookmark Button -->
             <Button
@@ -175,9 +179,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:src="@drawable/ic_voice2"
+        android:src="@drawable/ic_mic"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:pressedTranslationZ="0dp"
+        app:rippleColor="@null"
         app:backgroundTint="#3399FF"
         app:fabCustomSize="72dp"
+        android:focusable="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -185,5 +194,21 @@
         app:layout_constraintTop_toBottomOf="@+id/word_info_container"
         app:layout_constraintVertical_bias="0.0"
         app:maxImageSize="36dp"
+        app:tint="@android:color/white" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabPlayRecording"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginBottom="92dp"
+        android:onClick="playRecording"
+        android:src="@drawable/ic_mic"
+        app:backgroundTint="#33CC33"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/fabMicrophone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:maxImageSize="20dp"
+        app:fabCustomSize="36dp"
+        android:foregroundGravity="center"
         app:tint="@android:color/white" />
 </androidx.constraintlayout.widget.ConstraintLayout>
