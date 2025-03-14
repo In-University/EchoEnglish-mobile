@@ -72,7 +72,12 @@ public class PronunciationAssessmentActivity extends AppCompatActivity {
             intent.putExtra("URL", "https://content-media.elsanow.co/_static_/youglish.html?communication");
             startActivity(intent);
         });
+
+        PhoneticFeedbackFragment dialogFragment = PhoneticFeedbackFragment.newInstance();
+        dialogFragment.show(getSupportFragmentManager(), "phonetic_feedback");
+
     }
+
 
     private void startRecording() {
         try {
@@ -91,8 +96,6 @@ public class PronunciationAssessmentActivity extends AppCompatActivity {
 
             fabMicrophone.setImageResource(R.drawable.audio_wave);
             ((AnimatedImageDrawable) fabMicrophone.getDrawable()).start();
-            ImageView imgWave = findViewById(R.id.imgWave);
-            imgWave.setVisibility(View.VISIBLE);
             fabMicrophone.setScaleX(3.0f);
             fabMicrophone.setScaleY(2.0f);
             fabMicrophone.setBackground(ContextCompat.getDrawable(this, R.color.white));
