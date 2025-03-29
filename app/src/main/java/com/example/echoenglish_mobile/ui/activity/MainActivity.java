@@ -1,14 +1,12 @@
-package com.example.echoenglish_mobile;
+package com.example.echoenglish_mobile.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
+import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.ui.pronunciation_assessment.PronunciationAssessmentActivity;
 
 public class MainActivity extends AppCompatActivity {
