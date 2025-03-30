@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Phần hiển thị Score Circle -->
+            <include
+                layout="@layout/layout_score_circle"
+                android:id="@+id/scoreCircleLayout"/>
+
+            <!-- Text mô tả -->
+            <TextView
+                android:id="@+id/tvVolumeVariationDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="This will raise your Volume Variation Score and ensure your speech can be understood by everyone."
+                android:textColor="#444444"
+                android:textSize="14sp"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Performance Highlights Card -->
+            <include
+                layout="@layout/layout_performance_card"
+                android:id="@+id/performanceCard"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

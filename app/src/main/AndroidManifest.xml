@@ -30,6 +30,7 @@
         <activity android:name=".ui.activity.WebViewActivity"/>
         <activity android:name=".ui.activity.LoginActivity"/>
         <activity android:name=".ui.activity.SignupActivity"/>
+        <activity android:name=".ui.pronun_summary_result.SummaryResultsActivity"></activity>
     </application>
 
 </manifest>
