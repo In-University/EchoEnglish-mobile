@@ -1,4 +1,4 @@
-package com.example.echoenglish_mobile;
+package com.example.echoenglish_mobile.ui.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.example.echoenglish_mobile.R;
 
 class ScrollingFragment extends Fragment {
 

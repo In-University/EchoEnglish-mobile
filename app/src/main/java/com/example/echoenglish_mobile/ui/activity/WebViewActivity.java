@@ -1,4 +1,4 @@
-package com.example.echoenglish_mobile.ui;
+package com.example.echoenglish_mobile.ui.activity;
 
 import android.os.Bundle;
 import android.webkit.WebView;

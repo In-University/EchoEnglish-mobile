@@ -28,7 +28,7 @@ import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.data.model.PhonemeComparisonDTO;
 import com.example.echoenglish_mobile.data.remote.ApiClient;
 import com.example.echoenglish_mobile.data.remote.ApiService;
-import com.example.echoenglish_mobile.ui.WebViewActivity;
+import com.example.echoenglish_mobile.ui.activity.WebViewActivity;
 import com.example.echoenglish_mobile.utils.AudioHandler;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 

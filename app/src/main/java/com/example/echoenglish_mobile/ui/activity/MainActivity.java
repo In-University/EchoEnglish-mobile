@@ -1,0 +1,38 @@
+package com.example.echoenglish_mobile.ui.activity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.echoenglish_mobile.R;
+import com.example.echoenglish_mobile.ui.pronunciation_assessment.PronunciationAssessmentActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    private Button btnLogin;
+    private Button btnSignup;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        btnLogin = findViewById(R.id.btnLogin);
+        btnSignup = findViewById(R.id.btnSignup);
+
+        btnLogin.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+        });
+
+        btnSignup.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SignupActivity.class);
+            startActivity(intent);
+        });
+
+    }
+}
