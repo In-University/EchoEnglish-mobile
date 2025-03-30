@@ -1,6 +1,8 @@
 package com.example.echoenglish_mobile.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,52 +21,41 @@ import java.util.List;
 public class LoginActivity extends AppCompatActivity {
     private LoginViewModel viewModel;
 
+    private Button btnLogin;
+    private Button btnSignup;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
 
-        ActivityLoginBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
+        btnLogin = findViewById(R.id.btnLogin);
+        btnSignup = findViewById(R.id.btnSignup);
 
-        viewModel = new LoginViewModel();
-        binding.setViewModel(viewModel); // Gán ViewModel vào layout để EditText và Button có thể truy cập.
-        binding.setLifecycleOwner(this); // Giúp LiveData tự động cập nhật UI khi dữ liệu thay đổi.
-
-        viewModel.isLoggedIn.observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isLoggedIn) {
-                if (isLoggedIn) {
-                    Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-                    // Chuyển sang màn hình khác khi cần
-                }
-            }
+        btnLogin.setOnClickListener(v -> {
+            Toast.makeText(LoginActivity.this,"Log in success!",Toast.LENGTH_SHORT).show();
         });
-    }
 
-//    private UserViewModel userViewModel;
-//    private TextView textViewUsers;
+        btnSignup.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+            startActivity(intent);
+        });
+
+
+//        ActivityLoginBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
 //
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
+//        viewModel = new LoginViewModel();
+//        binding.setViewModel(viewModel); // Gán ViewModel vào layout để EditText và Button có thể truy cập.
+//        binding.setLifecycleOwner(this); // Giúp LiveData tự động cập nhật UI khi dữ liệu thay đổi.
 //
-//        textViewUsers = findViewById(R.id.textViewUsers);
-//        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-//
-//        // Quan sát LiveData để cập nhật UI khi dữ liệu thay đổi
-//        userViewModel.getUsers().observe(this, new Observer<List<User>>() {
+//        viewModel.isLoggedIn.observe(this, new Observer<Boolean>() {
 //            @Override
-//            public void onChanged(List<User> users) {
-//                if (users != null) {
-//                    StringBuilder builder = new StringBuilder();
-//                    for (User user : users) {
-//                        builder.append(user.getName()).append("\n");
-//                    }
-//                    textViewUsers.setText(builder.toString());
-//                } else {
-//                    textViewUsers.setText("Lỗi khi tải dữ liệu!");
+//            public void onChanged(Boolean isLoggedIn) {
+//                if (isLoggedIn) {
+//                    Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+//                    // Chuyển sang màn hình khác khi cần
 //                }
 //            }
 //        });
-//    }
+    }
 }
