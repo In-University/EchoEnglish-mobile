@@ -25,6 +25,9 @@ android {
             )
         }
     }
+    buildFeatures {
+        dataBinding = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -32,7 +35,10 @@ android {
 }
 
 dependencies {
-
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:3.12.0")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

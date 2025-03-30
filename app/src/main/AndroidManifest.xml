@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <application
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -25,6 +26,7 @@
         </activity>
         <activity android:name=".ui.pronunciation_assessment.PronunciationAssessmentActivity"></activity>
         <activity android:name=".ui.WebViewActivity"></activity>
+        <activity android:name=".ui.pronun_summary_result.SummaryResultsActivity"></activity>
     </application>
 
 </manifest>

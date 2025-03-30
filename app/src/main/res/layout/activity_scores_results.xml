@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <!-- Có thể khai báo biến của layout cha nếu cần -->
+    </data>
+    <LinearLayout
+        android:id="@+id/layoutScoresResults"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@android:color/white">
+
+        <include
+            layout="@layout/layout_appbar"
+            android:id="@+id/includeCustomAppBar"
+            />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:background="#F9F9F9"
+            android:clipToPadding="false"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/chipGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <include
+                    layout="@layout/layout_tab_item"
+                    android:id="@+id/tabPronunciation" />
+
+                <include
+                    layout="@layout/layout_tab_item"
+                    android:id="@+id/tabFluency" />
+
+                <include
+                    layout="@layout/layout_tab_item"
+                    android:id="@+id/tabIntonation" />
+
+                <include
+                    layout="@layout/layout_tab_item"
+                    android:id="@+id/tabGrammar" />
+
+                <include
+                    layout="@layout/layout_tab_item"
+                    android:id="@+id/tabVocabulary" />
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+        <FrameLayout
+            android:id="@+id/fragmentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/chipGroup"/>
+
+
+        <!-- Nút Continue Practice -->
+        <Button
+            android:id="@+id/btnContinuePractice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Continue Practice"
+            android:textAllCaps="false"
+            android:layout_margin="16dp"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+</layout>
