@@ -1,6 +1,8 @@
 package com.example.echoenglish_mobile.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,9 +21,20 @@ import java.util.List;
 public class LoginActivity extends AppCompatActivity {
     private LoginViewModel viewModel;
 
+    private Button btnSignup;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+
+        btnSignup = findViewById(R.id.btnSignup); // Chưa binding cái này
+
+        btnSignup.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+            startActivity(intent);
+        });
+
 
         ActivityLoginBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
 
@@ -39,32 +52,4 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
-//    private UserViewModel userViewModel;
-//    private TextView textViewUsers;
-//
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//
-//        textViewUsers = findViewById(R.id.textViewUsers);
-//        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-//
-//        // Quan sát LiveData để cập nhật UI khi dữ liệu thay đổi
-//        userViewModel.getUsers().observe(this, new Observer<List<User>>() {
-//            @Override
-//            public void onChanged(List<User> users) {
-//                if (users != null) {
-//                    StringBuilder builder = new StringBuilder();
-//                    for (User user : users) {
-//                        builder.append(user.getName()).append("\n");
-//                    }
-//                    textViewUsers.setText(builder.toString());
-//                } else {
-//                    textViewUsers.setText("Lỗi khi tải dữ liệu!");
-//                }
-//            }
-//        });
-//    }
 }
