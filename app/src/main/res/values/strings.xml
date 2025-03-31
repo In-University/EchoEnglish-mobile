@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">EchoEnglish</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_word_form">WordFormActivity</string>
+    <string name="right_chevron"><![CDATA[>]]></string>
+    <string name="left_chevron"><![CDATA[<]]></string>
+    <string name="index_format">%d/%d</string>
+    <string name="correct_count_format">Correct: %d</string>
+    <string name="incorrect_count_format">Incorrect: %d</string>
+    <string name="folder_preferences">FolderPreferences</string>
+    <string name="current_folder_name">currentFolderName</string>
+    <string name="current_folder_id">currentFolderId</string>
+    <string name="app_description">Visit https://github.com/In-University/EchoEnglish-mobile for support</string>
 </resources>

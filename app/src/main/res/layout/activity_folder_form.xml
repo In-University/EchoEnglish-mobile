@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/folderNameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:padding="15dp"
+        android:background="@drawable/edit_text_border_rounded"
+        android:hint="Enter folder name" />
+
+    <Button
+        android:id="@+id/submitFolderButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/folderNameEditText"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/button_border_rounded"
+        android:text="Create" />
+</RelativeLayout>

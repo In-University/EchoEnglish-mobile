@@ -77,4 +77,12 @@ dependencies {
 
     // Glide Compiler: Dùng để sinh code cho Glide, giúp tối ưu hiệu suất load ảnh
     annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")
+
+    // Navigation Component: Hỗ trợ điều hướng giữa các Fragment
+    implementation("androidx.navigation:navigation-fragment:2.5.2") // Quản lý điều hướng Fragment
+    implementation("androidx.navigation:navigation-ui:2.5.2") // Tích hợp với UI như BottomNavigationView, Toolbar
+
+    // UI Components: Thêm hỗ trợ cho giao diện CardView (thẻ) với hiệu ứng bóng đổ.
+    implementation("androidx.cardview:cardview:1.0.0")
+
 }
