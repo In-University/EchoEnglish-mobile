@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.data.model.User;
 import com.example.echoenglish_mobile.databinding.ActivityLoginBinding;
+import com.example.echoenglish_mobile.ui.dashboard.DashboardActivity;
 import com.example.echoenglish_mobile.ui.viewmodel.LoginViewModel;
 
 import java.util.List;
@@ -35,7 +37,8 @@ public class LoginActivity extends AppCompatActivity {
         btnSignup = findViewById(R.id.btnSignup);
 
         btnLogin.setOnClickListener(v -> {
-            Toast.makeText(LoginActivity.this,"Log in success!",Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+            startActivity(intent);
         });
 
         btnSignup.setOnClickListener(v -> {
