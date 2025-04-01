@@ -20,6 +20,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        String targetWord = "about";
+        if (!targetWord.isEmpty()) {
+            Intent intent = new Intent(MainActivity.this, PronunciationAssessmentActivity.class);
+            intent.putExtra("targetWord", targetWord);
+            startActivity(intent);
+        }
 
         btnLogin = findViewById(R.id.btnLogin);
         btnSignup = findViewById(R.id.btnSignup);

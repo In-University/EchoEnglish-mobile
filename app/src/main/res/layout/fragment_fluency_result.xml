@@ -1,37 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <ScrollView
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:orientation="vertical"
         android:padding="16dp">
+
+        <include
+            layout="@layout/layout_score_circle"
+            android:id="@+id/scoreCircleLayout"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginTop="12dp">
 
-            <!-- Phần hiển thị Score Circle -->
-            <include
-                layout="@layout/layout_score_circle"
-                android:id="@+id/scoreCircleLayout"/>
-
-            <!-- Text mô tả -->
             <TextView
                 android:id="@+id/tvVolumeVariationDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="This will raise your Volume Variation Score and ensure your speech can be understood by everyone."
+                android:text="This will raise your Speech Score and ensure your speech can be understood by everyone."
                 android:textColor="#444444"
                 android:textSize="14sp"
                 android:layout_marginBottom="24dp" />
-
-            <!-- Performance Highlights Card -->
-            <include
-                layout="@layout/layout_performance_card"
-                android:id="@+id/performanceCard"/>
         </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llSkillContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"/>
+
+        <include
+            layout="@layout/fragment_my_answer" />
+    </LinearLayout>
+</ScrollView>
