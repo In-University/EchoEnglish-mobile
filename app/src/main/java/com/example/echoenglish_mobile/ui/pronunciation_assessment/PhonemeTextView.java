@@ -9,7 +9,9 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
 import android.util.AttributeSet;
+import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import com.example.echoenglish_mobile.data.model.PhonemeComparison;
@@ -30,7 +32,7 @@ public class PhonemeTextView extends AppCompatTextView {
         super(context, attrs, defStyleAttr);
     }
 
-    public void setPhonemeData(String targetWord, List<PhonemeComparison> dtoList, String errorType) {
+    public void setPhonemeData(String targetWord, List<PhonemeComparison> dtoList) {
         if (dtoList == null || dtoList.isEmpty() || dtoList.get(0).getResult() == null) {
             setText("");
             return;
@@ -40,18 +42,38 @@ public class PhonemeTextView extends AppCompatTextView {
         SpannableString spannable = new SpannableString(text);
 
         for (PhonemeComparison dto : dtoList) {
+            int start = dto.getStartIndex();
+            int end = dto.getEndIndex();
+            end = Math.min(end + 1, text.length());
 
-            if (dto == null) continue;
-            if (dto.getActualPhoneme() != null && dto.getActualPhoneme().equals(dto.getCorrectPhoneme())) {
+            if (start < 0 || end > text.length()) {
+                continue;
+            }
+
+            if ("correct".equals(dto.getResult())) {
                 spannable.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")),
-                        dto.getStartIndex(), dto.getEndIndex(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             } else {
                 spannable.setSpan(new ForegroundColorSpan(Color.RED),
-                        dto.getStartIndex(), dto.getEndIndex(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
 
         setText(spannable);
+
+        this.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (dtoList != null && targetWord != null) {
+                    if (getContext() instanceof AppCompatActivity) {
+                        AppCompatActivity activity = (AppCompatActivity) getContext();
+                        PhoneticFeedbackFragment dialogFragment =
+                                PhoneticFeedbackFragment.newInstance(dtoList, targetWord);
+                        dialogFragment.show(activity.getSupportFragmentManager(), "phonetic_feedback");
+                    }
+                }
+            }
+        });
     }
 
     public void setPhonemeData(String targetWord, String errorType) {

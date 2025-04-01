@@ -2,7 +2,6 @@ package com.example.echoenglish_mobile.ui.pronunciation_assessment;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -130,7 +129,7 @@ public class PhoneticFeedbackFragment extends DialogFragment {
     }
     private void updateUI() {
         tvWord.setText(word);
-        tvWord.setPhonemeData(word, phonemeComparisons, "none");
+        tvWord.setPhonemeData(word, phonemeComparisons);
         int headerRowCount = 1;
         if (tablePhonemes.getChildCount() > headerRowCount) {
             tablePhonemes.removeViews(headerRowCount, tablePhonemes.getChildCount() - headerRowCount);

@@ -1,5 +1,6 @@
 package com.example.echoenglish_mobile.ui.pronun_summary_result;
 
+import androidx.fragment.app.Fragment;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -9,14 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
 import com.example.echoenglish_mobile.R;
-import com.example.echoenglish_mobile.data.model.PhonemeComparison;
 import com.example.echoenglish_mobile.data.model.SentenceAnalysisResult;
 import com.example.echoenglish_mobile.data.model.WordDetail;
 import com.example.echoenglish_mobile.ui.pronunciation_assessment.PhonemeTextView;
@@ -29,34 +28,13 @@ import com.google.android.flexbox.FlexboxLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-public class FluencyFragment extends Fragment {
-    private float totalDuration;
-    private int wordCount;
-    private float speakingRate;
-    private int filterWordCount;
+public class PronunciationFragment extends Fragment {
     private SentenceAnalysisResult result;
-    private List<PhonemeComparison> phonemeComparisons;
-
-    private LinearLayout llSkillContainer;
-    private FlexboxLayout container;
     private static final String ARG_RESULT = "sentence_analysis_result";
+    private FlexboxLayout container;
 
-    private static class SkillData {
-        String label;
-        String value;
-        String feedback;
-
-        SkillData(String label, String value, String feedback) {
-            this.label = label;
-            this.value = value;
-            this.feedback = feedback;
-        }
-    }
-
-    // Phương thức newInstance nhận SentenceAnalysisResult
-    public static FluencyFragment newInstance(SentenceAnalysisResult result) {
-        FluencyFragment fragment = new FluencyFragment();
+    public static PronunciationFragment newInstance(SentenceAnalysisResult result) {
+        PronunciationFragment fragment = new PronunciationFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_RESULT, result);
         fragment.setArguments(args);
@@ -66,70 +44,21 @@ public class FluencyFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_fluency_result, container, false);
+        return inflater.inflate(R.layout.fragment_pronunciation_result, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        llSkillContainer = view.findViewById(R.id.llSkillContainer);
-        container = view.findViewById(R.id.myAnswerContainer);
-
-        // Lấy dữ liệu từ Bundle
-        if (getArguments() != null && getArguments().containsKey(ARG_RESULT)) {
-            result = (SentenceAnalysisResult) getArguments().getSerializable(ARG_RESULT);
-
-            totalDuration = (float) result.getSummary().getTotal_duration();
-            wordCount = result.getSummary().getWord_count();
-            speakingRate = (float) result.getSummary().getSpeaking_rate_wpm();
-            filterWordCount = result.getSummary().getFilter_word_count();
-//            phonemeComparisons = result.getChunks().;
-        }
-
-        List<SkillData> skillDataList = new ArrayList<>();
-        skillDataList.add(new SkillData("Duration", String.format(Locale.US, "%.1f s", totalDuration), result.getSummary().getTotal_duration_feedback()));
-        skillDataList.add(new SkillData("Words", String.format(Locale.US, "%d", wordCount), result.getSummary().getWord_count_feedback()));
-        skillDataList.add(new SkillData("Speed", String.format(Locale.US, "%.2f WPM", speakingRate), result.getSummary().getSpeaking_rate_wpm_feedback()));
-        skillDataList.add(new SkillData("Filtered", String.format(Locale.US, "%d", filterWordCount), result.getSummary().getFilter_word_count_feedback()));
-
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-        for (SkillData skill : skillDataList) {
-            View skillView = inflater.inflate(R.layout.skill_item, llSkillContainer, false);
-            TextView tvSkillTitle = skillView.findViewById(R.id.tvSkillTitle);
-            TextView tvSkillFeedback = skillView.findViewById(R.id.tvSkillFeedback);
-            TextView tvSkillProgress = skillView.findViewById(R.id.tvSkillProgress);
-
-            tvSkillTitle.setText(skill.label);
-            tvSkillFeedback.setText(skill.feedback);
-            tvSkillProgress.setText(skill.value);
-
-            llSkillContainer.addView(skillView);
-        }
-
-        // Thêm PhonemeTextView vào container, truyền phonemeComparisons từ API (nếu có)
-        addPhonemeTextView();
-
         // Cấu hình PieChart với điểm tổng hợp
         PieChart pieChart = view.findViewById(R.id.pieChart);
-        float score = calculateOverallScore();
+        float score = 92;
         setupPieChart(pieChart, score);
-    }
-
-    private float calculateOverallScore() {
-        float durationScore = Math.min(totalDuration / 3f * 100, 100);
-        float wordScore = (wordCount / 10f) * 100;
-        float rateScore = (speakingRate / 200f) * 100;
-        float filterScore = 100 - (filterWordCount * 10);
-
-        return (durationScore * 0.2f) + (wordScore * 0.3f) +
-                (rateScore * 0.4f) + (filterScore * 0.1f);
-    }
-
-    private String getScoreLevel(float score) {
-        if (score >= 90) return "Expert";
-        if (score >= 75) return "Advanced";
-        if (score >= 50) return "Intermediate";
-        return "Beginner";
+        container = view.findViewById(R.id.myAnswerContainer);
+        if (getArguments() != null && getArguments().containsKey(ARG_RESULT)) {
+            result = (SentenceAnalysisResult) getArguments().getSerializable(ARG_RESULT);
+        }
+        addPhonemeTextView();
     }
 
     private void addPhonemeTextView() {
@@ -138,7 +67,7 @@ public class FluencyFragment extends Fragment {
             for (WordDetail wordDetail : phonemeData) {
                 PhonemeTextView phonemeTextView = new PhonemeTextView(requireContext());
                 phonemeTextView.setTextSize(18);
-                phonemeTextView.setPhonemeData(wordDetail.getText(), wordDetail.getError());
+                phonemeTextView.setPhonemeData(wordDetail.getText(), wordDetail.getPronunciation().getMapping());
 
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -151,7 +80,6 @@ public class FluencyFragment extends Fragment {
             }
         }
     }
-
 
     private void setupPieChart(PieChart pieChart, float score) {
         // Cấu hình cơ bản cho PieChart
@@ -191,7 +119,7 @@ public class FluencyFragment extends Fragment {
 
     private SpannableString generateCenterText(float score) {
         String scoreText = String.format(Locale.US, "%.0f%%", score); // Định dạng điểm số thành phần trăm
-        String levelText = getScoreLevel(score); // Lấy cấp độ dựa trên điểm số
+        String levelText = "Fixed level"; // Lấy cấp độ dựa trên điểm số
         SpannableString centerText = new SpannableString(scoreText + "\n" + levelText); // Kết hợp điểm số và cấp độ
 
         // Định dạng kích thước và màu sắc

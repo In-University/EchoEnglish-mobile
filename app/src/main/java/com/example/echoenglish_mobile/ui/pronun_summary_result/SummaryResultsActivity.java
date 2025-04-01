@@ -63,6 +63,14 @@ public class SummaryResultsActivity extends AppCompatActivity {
                 Toast.makeText(this, "Data chưa sẵn sàng", Toast.LENGTH_SHORT).show();
             }
         });
+
+        chipPronunciation.setOnClickListener(v -> {
+            if (sentenceAnalysisResult != null) {
+                replaceFragment(PronunciationFragment.newInstance(sentenceAnalysisResult));
+            } else {
+                Toast.makeText(this, "Data chưa sẵn sàng", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void getSentenceAnalysisResult() {
@@ -78,7 +86,7 @@ public class SummaryResultsActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     sentenceAnalysisResult = response.body();
                     Toast.makeText(SummaryResultsActivity.this, "Sentences Analysis complete", Toast.LENGTH_SHORT).show();
-                    replaceFragment(FluencyFragment.newInstance(sentenceAnalysisResult));
+//                    replaceFragment(FluencyFragment.newInstance(sentenceAnalysisResult));
                 } else {
                     Toast.makeText(SummaryResultsActivity.this, "Sentences Analysis failed: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
