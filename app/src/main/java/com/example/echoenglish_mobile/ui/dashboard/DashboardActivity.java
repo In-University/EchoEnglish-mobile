@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.ui.activity.MainActivity;
 import com.example.echoenglish_mobile.ui.activity.MainFlashcardActivity;
+import com.example.echoenglish_mobile.ui.quizz_app.MainQuizzAppActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -43,6 +44,12 @@ public class DashboardActivity extends AppCompatActivity {
         LinearLayout btnFlashcard = findViewById(R.id.btnFlashcard);
         btnFlashcard.setOnClickListener(v -> {
             Intent intent = new Intent(DashboardActivity.this, MainFlashcardActivity.class);
+            startActivity(intent);
+        });
+
+        LinearLayout btnQuizz = findViewById(R.id.btnQuizz);
+        btnQuizz.setOnClickListener(v -> {
+            Intent intent = new Intent(DashboardActivity.this, MainQuizzAppActivity.class);
             startActivity(intent);
         });
     }

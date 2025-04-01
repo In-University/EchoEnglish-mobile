@@ -122,14 +122,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Quizz"
-                        android:textStyle="bold"
-                        android:textColor="#FF0000"
-                        android:textSize="20sp"
+                        android:text="Flashcard"
                         android:textAlignment="center" />
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/btnQuizz"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.25"
@@ -146,7 +144,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Network"
+                        android:text="Quizz"
                         android:textAlignment="center" />
                 </LinearLayout>
 

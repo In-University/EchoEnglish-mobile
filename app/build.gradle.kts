@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services") // Thêm Firebase plugin (Đồ án k dùng Firebase, khi hoàn thành nhớ xóa)
 }
 
 android {
@@ -51,6 +52,9 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    // Firebase Realtime Database (Nhớ xóa)
+    implementation("com.google.firebase:firebase-database:20.3.0")
+
     // ViewModel: Quản lý dữ liệu và vòng đời UI, giúp lưu trạng thái khi xoay màn hình
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
 
@@ -84,5 +88,7 @@ dependencies {
 
     // Hiển thị ảnh dưới dạng hình tròn
     implementation("de.hdodenhof:circleimageview:3.1.0")
+
+
 
 }
