@@ -5,32 +5,51 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>-->
+<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
 
     <application
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_enjoy"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_enjoy"
         android:supportsRtl="true"
         android:theme="@style/Theme.EchoEnglishMobile"
         tools:targetApi="31">
+
+        <!-- <activity android:name=".ui.activity.MainActivity"/> -->
+<!--        <activity android:name=".ui.dashboard.DashboardActivity"/>-->
+
+        <activity android:name=".ui.pronunciation_assessment.PronunciationAssessmentActivity"/>
+        <activity android:name=".ui.activity.WebViewActivity"/>
+        <activity android:name=".ui.activity.LoginActivity"/>
+        <activity android:name=".ui.activity.SignupActivity"/>
+        <activity android:name=".ui.pronun_summary_result.SummaryResultsActivity"/>
+        <activity android:name=".ui.flashcard.about.AboutActivity"/>
+        <activity android:name=".ui.flashcard.score.ScoreActivity"/>
+        <activity android:name=".ui.flashcard.folders.FolderListActivity"/>
+        <activity android:name=".ui.flashcard.card.CardFlip"/>
+        <activity android:name=".ui.flashcard.wordlist.WordList"/>
+        <activity android:name=".ui.flashcard.form.FolderFormActivity"/>
+        <activity android:name=".ui.flashcard.form.WordFormActivity"/>
+        <activity android:name=".ui.activity.MainFlashcardActivity"/>
+        <activity android:name=".ui.quizz_app.MainQuizzAppActivity"/>
+        <activity android:name=".ui.quizz_app.QuizActivity"/>
+        <activity android:name=".ui.activity.WebGameActivity"/>
+
+
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name=".ui.dashboard.DashboardActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.pronunciation_assessment.PronunciationAssessmentActivity"/>
-        <activity android:name=".ui.activity.WebViewActivity"/>
-        <activity android:name=".ui.activity.LoginActivity"/>
-        <activity android:name=".ui.activity.SignupActivity"/>
-        <activity android:name=".ui.pronun_summary_result.SummaryResultsActivity"></activity>
+
     </application>
 
 </manifest>

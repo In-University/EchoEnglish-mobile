@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services") // Thêm Firebase plugin (Đồ án k dùng Firebase, khi hoàn thành nhớ xóa)
 }
 
 android {
@@ -43,11 +44,6 @@ android {
 
 dependencies {
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:3.12.0")
-    implementation("com.google.android.flexbox:flexbox:3.0.0")
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -55,6 +51,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    // Firebase Realtime Database (Nhớ xóa)
+    implementation("com.google.firebase:firebase-database:20.3.0")
 
     // ViewModel: Quản lý dữ liệu và vòng đời UI, giúp lưu trạng thái khi xoay màn hình
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
@@ -79,4 +78,17 @@ dependencies {
 
     // Glide Compiler: Dùng để sinh code cho Glide, giúp tối ưu hiệu suất load ảnh
     annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")
+
+    // Navigation Component: Hỗ trợ điều hướng giữa các Fragment
+    implementation("androidx.navigation:navigation-fragment:2.5.2") // Quản lý điều hướng Fragment
+    implementation("androidx.navigation:navigation-ui:2.5.2") // Tích hợp với UI như BottomNavigationView, Toolbar
+
+    // UI Components: Thêm hỗ trợ cho giao diện CardView (thẻ) với hiệu ứng bóng đổ.
+    implementation("androidx.cardview:cardview:1.0.0")
+
+    // Hiển thị ảnh dưới dạng hình tròn
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+
+
+
 }
