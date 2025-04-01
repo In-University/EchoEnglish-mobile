@@ -22,6 +22,7 @@
 
         <!-- <activity android:name=".ui.activity.MainActivity"/> -->
 <!--        <activity android:name=".ui.dashboard.DashboardActivity"/>-->
+
         <activity android:name=".ui.pronunciation_assessment.PronunciationAssessmentActivity"/>
         <activity android:name=".ui.activity.WebViewActivity"/>
         <activity android:name=".ui.activity.LoginActivity"/>
@@ -37,6 +38,7 @@
         <activity android:name=".ui.activity.MainFlashcardActivity"/>
         <activity android:name=".ui.quizz_app.MainQuizzAppActivity"/>
         <activity android:name=".ui.quizz_app.QuizActivity"/>
+        <activity android:name=".ui.activity.WebGameActivity"/>
 
 
         <activity
