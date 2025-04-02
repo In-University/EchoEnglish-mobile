@@ -15,6 +15,7 @@ import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.ui.activity.MainActivity;
 import com.example.echoenglish_mobile.ui.activity.MainFlashcardActivity;
 import com.example.echoenglish_mobile.ui.activity.WebGameActivity;
+import com.example.echoenglish_mobile.ui.chatbot.ChatActivity;
 import com.example.echoenglish_mobile.ui.quizz_app.MainQuizzAppActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -59,6 +60,13 @@ public class DashboardActivity extends AppCompatActivity {
             Intent intent = new Intent(DashboardActivity.this, WebGameActivity.class);
             startActivity(intent);
         });
+
+        LinearLayout btnChat = findViewById(R.id.btnChat);
+        btnChat.setOnClickListener(v -> {
+            Intent intent = new Intent(DashboardActivity.this, ChatActivity.class);
+            startActivity(intent);
+        });
+
     }
 
 }

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:background="@color/light_gray">
+
+    <!-- RecyclerView để hiển thị tin nhắn -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:overScrollMode="never"
+        android:scrollbars="none" />
+
+    <!-- Khu vực nhập tin nhắn -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="@android:color/white"
+        android:elevation="6dp"
+        android:layout_margin="4dp"
+        android:clipToPadding="false">
+
+        <!-- EditText để nhập tin nhắn -->
+        <EditText
+            android:id="@+id/input_message"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:background="@drawable/input_background"
+        android:hint="Nhập tin nhắn..."
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:textColorHint="@android:color/darker_gray"
+        android:gravity="center_vertical" />
+
+        <!-- Nút gửi tin nhắn -->
+        <Button
+            android:id="@+id/send_button"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Send"
+            android:background="@drawable/background_btn_send"
+        android:drawablePadding="12dp"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:layout_marginStart="8dp"
+        android:gravity="center" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.recyclerview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -88,6 +89,8 @@ dependencies {
 
     // Hiển thị ảnh dưới dạng hình tròn
     implementation("de.hdodenhof:circleimageview:3.1.0")
+
+    implementation("com.google.code.gson:gson:2.8.8")
 
 
 
