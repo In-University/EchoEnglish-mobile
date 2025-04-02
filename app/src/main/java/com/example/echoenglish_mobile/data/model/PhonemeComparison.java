@@ -1,14 +1,28 @@
 package com.example.echoenglish_mobile.data.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
-public class PhonemeComparisonDTO implements Serializable {
-
+public class PhonemeComparison implements Serializable {
+    @SerializedName("correct_phoneme")
     private String correctPhoneme;
+
+    @SerializedName("actual_phoneme")
     private String actualPhoneme;
+
+    @SerializedName("start_index")
     private int startIndex;
+
+    @SerializedName("end_index")
     private int endIndex;
+
+    @SerializedName("result")
     private String result;
+
+    public PhonemeComparison() {
+
+    }
 
     public String getResult() {
         return result;
@@ -51,7 +65,7 @@ public class PhonemeComparisonDTO implements Serializable {
     }
 
 
-    public PhonemeComparisonDTO(String result, String correctPhoneme, String actualPhoneme, int startIndex, int endIndex) {
+    public PhonemeComparison(String result, String correctPhoneme, String actualPhoneme, int startIndex, int endIndex) {
         this.result = result;
         this.correctPhoneme = correctPhoneme;
         this.actualPhoneme = actualPhoneme;

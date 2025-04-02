@@ -1,6 +1,8 @@
 package com.example.echoenglish_mobile.data.model;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     private String email;
     private String password;
 

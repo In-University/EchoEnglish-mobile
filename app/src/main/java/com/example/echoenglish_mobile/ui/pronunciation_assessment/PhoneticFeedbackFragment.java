@@ -1,9 +1,7 @@
 package com.example.echoenglish_mobile.ui.pronunciation_assessment;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,12 +10,11 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.echoenglish_mobile.R;
-import com.example.echoenglish_mobile.data.model.PhonemeComparisonDTO;
+import com.example.echoenglish_mobile.data.model.PhonemeComparison;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,12 +36,12 @@ public class PhoneticFeedbackFragment extends DialogFragment {
 
     // Data
     private String word;
-    private List<PhonemeComparisonDTO> phonemeComparisons;
+    private List<PhonemeComparison> phonemeComparisons;
 
     private static final String ARG_COMPARISON_LIST = "comparison_list";
     private static final String ARG_WORD = "word";
 
-    public static PhoneticFeedbackFragment newInstance(List<PhonemeComparisonDTO> comparisonList, String word) {
+    public static PhoneticFeedbackFragment newInstance(List<PhonemeComparison> comparisonList, String word) {
         PhoneticFeedbackFragment fragment = new PhoneticFeedbackFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_COMPARISON_LIST, (Serializable) comparisonList);
@@ -73,12 +70,12 @@ public class PhoneticFeedbackFragment extends DialogFragment {
         btnPlayWord.setOnClickListener(v -> playWordAudio());
         btnSlowPlay.setOnClickListener(v -> playSlowAudio());
         if (getArguments() != null && getArguments().containsKey(ARG_COMPARISON_LIST)) {
-            phonemeComparisons = (List<PhonemeComparisonDTO>) getArguments().getSerializable(ARG_COMPARISON_LIST);
-            word = getArguments().getString(ARG_WORD, "communication");
+            phonemeComparisons = (List<PhonemeComparison>) getArguments().getSerializable(ARG_COMPARISON_LIST);
+            word = getArguments().getString(ARG_WORD, "");
         } else {
             loadData(); // fake data
         }
-        loadData();
+
         updateUI();
     }
 
@@ -127,25 +124,23 @@ public class PhoneticFeedbackFragment extends DialogFragment {
             int start = currentIndex;
             int end = currentIndex + correctPhoneme.length();
             currentIndex = end;
-            phonemeComparisons.add(new PhonemeComparisonDTO(result, actualPhoneme, correctPhoneme, start, end));
+            phonemeComparisons.add(new PhonemeComparison(result, actualPhoneme, correctPhoneme, start, end));
         }
     }
-
     private void updateUI() {
         tvWord.setText(word);
-        tvWord.setPhonemeData(phonemeComparisons, "none");
-
+        tvWord.setPhonemeData(word, phonemeComparisons);
         int headerRowCount = 1;
         if (tablePhonemes.getChildCount() > headerRowCount) {
             tablePhonemes.removeViews(headerRowCount, tablePhonemes.getChildCount() - headerRowCount);
         }
 
-        for (PhonemeComparisonDTO dto : phonemeComparisons) {
+        for (PhonemeComparison dto : phonemeComparisons) {
             addPhonemeRow(dto);
         }
     }
 
-    private void addPhonemeRow(PhonemeComparisonDTO dto) {
+    private void addPhonemeRow(PhonemeComparison dto) {
         LayoutInflater inflater = getLayoutInflater();
         View rowView = inflater.inflate(R.layout.item_phonetic_feedback_row, tablePhonemes, false);
 
@@ -154,11 +149,11 @@ public class PhoneticFeedbackFragment extends DialogFragment {
         TextView tvWrongPhoneme = rowView.findViewById(R.id.tv_wrong_phoneme);
         ImageButton btnPlayPhoneme = rowView.findViewById(R.id.btn_play_phoneme);
 
-        tvPhoneme.setText("/" + dto.getActualPhoneme() + "/");
+        tvPhoneme.setText("/" + dto.getCorrectPhoneme() + "/");
 
-        btnPlayPhoneme.setOnClickListener(v -> playPhonemeAudio(dto.getActualPhoneme()));
+        btnPlayPhoneme.setOnClickListener(v -> playPhonemeAudio(dto.getCorrectPhoneme()));
 
-        boolean isCorrect = dto.getActualPhoneme().equals(dto.getCorrectPhoneme());
+        boolean isCorrect = dto.getResult().equals("correct");
         if (isCorrect) {
             tvResult.setText("Correct!");
             tvResult.setTextColor(Color.parseColor("#4CAF50"));
