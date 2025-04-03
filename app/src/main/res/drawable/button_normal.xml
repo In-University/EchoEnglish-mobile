@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/button_normal.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#3F51B5"/>  <!-- Màu nền nút -->
+    <corners android:radius="12dp"/>  <!-- Bo góc cho nút -->
+    <stroke android:color="#2C387E" android:width="2dp"/>  <!-- Viền nút -->
+</shape>

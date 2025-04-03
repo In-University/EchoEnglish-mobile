@@ -39,6 +39,7 @@
         <activity android:name=".ui.quizz_app.MainQuizzAppActivity"/>
         <activity android:name=".ui.quizz_app.QuizActivity"/>
         <activity android:name=".ui.activity.WebGameActivity"/>
+        <activity android:name=".ui.chatbot.ChatActivity"/>
 
 
         <activity

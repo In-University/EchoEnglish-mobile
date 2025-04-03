@@ -13,6 +13,10 @@
     <color name="correct">#1BD171</color>
     <color name="incorrect">#EB4B4D</color>
     <color name="card">#FED766</color>
+    <color name="light_gray">#F2F2F2</color>
+    <color name="chatbot_blue">#4285F4</color>
+    <color name="user_gray">#E0E0E0</color>
+    <color name="button_blue">#1A73E8</color>
     <array name="android_colors">
         <item>#FED766</item>
         <item>#C6EBBE</item>
