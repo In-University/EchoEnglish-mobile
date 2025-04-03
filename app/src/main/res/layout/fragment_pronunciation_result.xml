@@ -60,7 +60,14 @@
                 android:textSize="14sp"
                 android:layout_marginBottom="24dp" />
         </LinearLayout>
-
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewPhonemeChart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="8dp"/>
         <LinearLayout
             android:id="@+id/llPhoneticError"
             android:layout_width="match_parent"
