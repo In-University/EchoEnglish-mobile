@@ -5,9 +5,19 @@ import java.io.Serializable;
 public class WordDetail implements Serializable {
     private String text;
     private double start_time;
+
+    public AnalysisDetail getAnalysis() {
+        return analysis;
+    }
+
+    public void setAnalysis(AnalysisDetail analysis) {
+        this.analysis = analysis;
+    }
+
     private double end_time;
     private String error;
     private Pronunciation pronunciation;
+    private AnalysisDetail analysis;
 
     public String getText() {
         return text;

@@ -42,7 +42,7 @@ public class SummaryResultsActivity extends AppCompatActivity {
         chipGrammar.setText("Grammar");
         Chip chipVocabulary = findViewById(R.id.tabVocabulary);
         chipVocabulary.setText("Vocabulary");
-        chipFluency.setOnClickListener(v -> replaceFragment(new FluencyFragment()));
+        chipFluency.setOnClickListener(v -> replaceFragment(new FluencyResultFragment()));
         targetWord = getIntent().getStringExtra("targetWord");
         if(targetWord == null || targetWord.isEmpty()){
             targetWord = "test audio";
@@ -58,9 +58,9 @@ public class SummaryResultsActivity extends AppCompatActivity {
 
         chipFluency.setOnClickListener(v -> {
             if (sentenceAnalysisResult != null) {
-                replaceFragment(FluencyFragment.newInstance(sentenceAnalysisResult));
+                replaceFragment(FluencyResultFragment.newInstance(sentenceAnalysisResult));
             } else {
-                Toast.makeText(this, "Data chưa sẵn sàng", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Data not found!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -68,7 +68,23 @@ public class SummaryResultsActivity extends AppCompatActivity {
             if (sentenceAnalysisResult != null) {
                 replaceFragment(PronunciationFragment.newInstance(sentenceAnalysisResult));
             } else {
-                Toast.makeText(this, "Data chưa sẵn sàng", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Data not found!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        chipVocabulary.setOnClickListener(v -> {
+            if (sentenceAnalysisResult != null) {
+                replaceFragment(VocabularyResultFragment.newInstance(sentenceAnalysisResult));
+            } else {
+                Toast.makeText(this, "Data not found!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        chipIntonation.setOnClickListener(v -> {
+            if (sentenceAnalysisResult != null) {
+                replaceFragment(IntonationResultFragment.newInstance(sentenceAnalysisResult));
+            } else {
+                Toast.makeText(this, "Data not found!", Toast.LENGTH_SHORT).show();
             }
         });
     }

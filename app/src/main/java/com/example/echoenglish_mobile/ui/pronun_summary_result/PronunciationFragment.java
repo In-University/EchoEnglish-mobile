@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +15,11 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.echoenglish_mobile.R;
+import com.example.echoenglish_mobile.data.model.PhonemeStats;
 import com.example.echoenglish_mobile.data.model.SentenceAnalysisResult;
 import com.example.echoenglish_mobile.data.model.WordDetail;
 import com.example.echoenglish_mobile.ui.pronunciation_assessment.PhonemeTextView;
@@ -32,6 +36,8 @@ public class PronunciationFragment extends Fragment {
     private SentenceAnalysisResult result;
     private static final String ARG_RESULT = "sentence_analysis_result";
     private FlexboxLayout container;
+    private RecyclerView recyclerViewPhonemeChart;
+    private ProgressChartAdapter adapter;
 
     public static PronunciationFragment newInstance(SentenceAnalysisResult result) {
         PronunciationFragment fragment = new PronunciationFragment();
@@ -50,7 +56,9 @@ public class PronunciationFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Cấu hình PieChart với điểm tổng hợp
+        recyclerViewPhonemeChart = view.findViewById(R.id.recyclerViewPhonemeChart);
+        recyclerViewPhonemeChart.setLayoutManager(new LinearLayoutManager(this.getContext()));
+
         PieChart pieChart = view.findViewById(R.id.pieChart);
         float score = 92;
         setupPieChart(pieChart, score);
@@ -58,6 +66,9 @@ public class PronunciationFragment extends Fragment {
         if (getArguments() != null && getArguments().containsKey(ARG_RESULT)) {
             result = (SentenceAnalysisResult) getArguments().getSerializable(ARG_RESULT);
         }
+
+        adapter = new ProgressChartAdapter(this.getContext(), result.getPhonemeStatsList());
+        recyclerViewPhonemeChart.setAdapter(adapter);
         addPhonemeTextView();
     }
 

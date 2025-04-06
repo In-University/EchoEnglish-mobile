@@ -85,8 +85,11 @@ public class PhonemeTextView extends AppCompatTextView {
         } else if ("filter".equalsIgnoreCase(errorType)) {
             spannable.setSpan(new BackgroundColorSpan(Color.GRAY),
                     0, targetWord.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        } else if ("stressed".equalsIgnoreCase(errorType)) {
+        } else if ("high".equalsIgnoreCase(errorType)) {
             spannable.setSpan(new RelativeSizeSpan(2f),
+                    0, targetWord.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        } else if ("low".equalsIgnoreCase(errorType)) {
+            spannable.setSpan(new RelativeSizeSpan(1.3f),
                     0, targetWord.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         setText(spannable);

@@ -7,6 +7,16 @@ public class SentenceAnalysisResult implements Serializable {
     private String text;
     private List<WordDetail> chunks;
     private SentenceSummary summary;
+    private List<PhonemeStats> phoneme_statistics;
+
+    public List<PhonemeStats> getPhonemeStatsList() {
+        return phoneme_statistics;
+    }
+
+    public void setPhonemeStatsList(List<PhonemeStats> phonemeStatsList) {
+        this.phoneme_statistics = phonemeStatsList;
+    }
+
     //    private List<> wordTranscriptions;
     public SentenceAnalysisResult(String text, List<WordDetail> chunks, SentenceSummary summary) {
         this.text = text;

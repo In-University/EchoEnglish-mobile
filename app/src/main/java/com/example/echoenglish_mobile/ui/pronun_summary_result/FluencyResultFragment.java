@@ -16,7 +16,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.echoenglish_mobile.R;
-import com.example.echoenglish_mobile.data.model.PhonemeComparison;
 import com.example.echoenglish_mobile.data.model.SentenceAnalysisResult;
 import com.example.echoenglish_mobile.data.model.WordDetail;
 import com.example.echoenglish_mobile.ui.pronunciation_assessment.PhonemeTextView;
@@ -30,14 +29,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class FluencyFragment extends Fragment {
+public class FluencyResultFragment extends Fragment {
     private float totalDuration;
     private int wordCount;
     private float speakingRate;
     private int filterWordCount;
     private SentenceAnalysisResult result;
-    private List<PhonemeComparison> phonemeComparisons;
-
     private LinearLayout llSkillContainer;
     private FlexboxLayout container;
     private static final String ARG_RESULT = "sentence_analysis_result";
@@ -54,9 +51,8 @@ public class FluencyFragment extends Fragment {
         }
     }
 
-    // Phương thức newInstance nhận SentenceAnalysisResult
-    public static FluencyFragment newInstance(SentenceAnalysisResult result) {
-        FluencyFragment fragment = new FluencyFragment();
+    public static FluencyResultFragment newInstance(SentenceAnalysisResult result) {
+        FluencyResultFragment fragment = new FluencyResultFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_RESULT, result);
         fragment.setArguments(args);
@@ -106,7 +102,6 @@ public class FluencyFragment extends Fragment {
             llSkillContainer.addView(skillView);
         }
 
-        // Thêm PhonemeTextView vào container, truyền phonemeComparisons từ API (nếu có)
         addPhonemeTextView();
 
         // Cấu hình PieChart với điểm tổng hợp

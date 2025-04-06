@@ -27,7 +27,7 @@
         <activity android:name=".ui.activity.WebViewActivity"/>
         <activity android:name=".ui.activity.LoginActivity"/>
         <activity android:name=".ui.activity.SignupActivity"/>
-        <activity android:name=".ui.pronun_summary_result.SummaryResultsActivity"/>
+<!--        <activity android:name=".ui.pronun_summary_result.SummaryResultsActivity"/>-->
         <activity android:name=".ui.flashcard.about.AboutActivity"/>
         <activity android:name=".ui.flashcard.score.ScoreActivity"/>
         <activity android:name=".ui.flashcard.folders.FolderListActivity"/>
