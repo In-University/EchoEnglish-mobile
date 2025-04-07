@@ -4,7 +4,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-    private static final String BASE_URL = "http://192.168.1.44:8080";  // Gõ ipconfig để lấy IP máy chủ của bạn
+    private static final String BASE_URL = "https://mobile.mkhoavo.space";  // Gõ ipconfig để lấy IP máy chủ của bạn
     private static RetrofitClient instance;
     private Retrofit retrofit;
     private ChatbotApi api;
