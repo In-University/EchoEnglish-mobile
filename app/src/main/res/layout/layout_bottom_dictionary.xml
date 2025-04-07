@@ -1,0 +1,151 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+            android:layout_width="match_parent"
+            android:layout_height="27dp"
+            android:paddingVertical="0dp" />
+        <!-- Header Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvWord"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:text="Communication"
+                android:textColor="?attr/colorOnSurface"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageButton
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/btnUkPronunciation"
+                    app:icon="@drawable/ic_close"/>
+
+                <TextView
+                    android:id="@+id/tvUkPhonetic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:text="US"
+                    android:layout_marginEnd="8dp"/>
+
+                <ImageButton
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/btnUsPronunciation"
+                    app:iconTint="?attr/colorPrimary"
+                    app:icon="@drawable/ic_close"/>
+
+                <TextView
+                    android:id="@+id/tvUsPhonetic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="UK"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_pronunciation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#666666"
+            android:textSize="16sp"
+            android:text="/test/" />
+
+        <!-- Meanings Container -->
+        <LinearLayout
+            android:id="@+id/meaningsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="4dp">
+
+            <!-- Meaning Item Example Structure -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:text="Noun"/>
+
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="1dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="•"
+                        android:textColor="?attr/colorOnSurface"/>
+
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="1dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_level_tag"
+                        android:paddingHorizontal="4dp"
+                        android:text="A1"
+                        android:textColor="#FFFFFF" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp"
+                    android:paddingStart="8dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="1. A building for human habitation"
+                        android:textColor="?attr/colorOnSurface"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="2. A family of people living together 2. A family of people living together"
+                        android:layout_marginTop="4dp"
+                        android:textColor="?attr/colorOnSurface"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
