@@ -11,7 +11,7 @@
         android:layout_marginTop="60dp"
         android:padding="16dp"
         android:src="@drawable/background_button_rectangle"
-        app:tint="@color/purple_500" />
+        app:tint="@color/cyan_500" />
 
     <TextView
         style="@style/Base.TextAppearance.AppCompat.Display1"
