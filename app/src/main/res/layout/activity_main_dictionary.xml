@@ -34,7 +34,7 @@
             android:layout_height="200dp"
             android:layout_marginTop="16dp"
             android:layout_gravity="center"
-            android:src="@drawable/profile" />
+            android:src="@drawable/image_profile" />
 
         <!-- Tên từ -->
         <TextView

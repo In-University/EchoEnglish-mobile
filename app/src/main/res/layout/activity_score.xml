@@ -92,7 +92,7 @@
         android:layout_below="@id/linearLayout"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="24dp"
-        android:background="@drawable/rounded_button"
+        android:background="@drawable/background_cyan_rounded"
         android:elevation="8dp"
         android:text="Review Again"
         android:textSize="14dp" />

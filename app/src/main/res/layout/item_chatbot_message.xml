@@ -10,7 +10,7 @@
         android:id="@+id/chatbot_message_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/background_chatbot_message"
+        android:background="@drawable/background_message_chatbot"
         android:padding="12dp"
         android:textSize="16sp"
         android:textColor="@android:color/white"

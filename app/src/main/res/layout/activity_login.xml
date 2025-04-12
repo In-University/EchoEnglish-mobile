@@ -32,7 +32,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="1.0"
-                    app:srcCompat="@drawable/top_background" />
+                    app:srcCompat="@drawable/image_top_background" />
 
                 <ImageView
                     android:id="@+id/imageView5"
@@ -40,7 +40,7 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:srcCompat="@drawable/women2" />
+                    app:srcCompat="@drawable/image_women2" />
 
                 <TextView
                     android:id="@+id/textView3"
@@ -130,21 +130,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/facebook" />
+                    app:srcCompat="@drawable/ic_image_facebook" />
 
                 <ImageView
                     android:id="@+id/imageView8"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/twitter" />
+                    app:srcCompat="@drawable/ic_image_twitter" />
 
                 <ImageView
                     android:id="@+id/imageView7"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/google" />
+                    app:srcCompat="@drawable/ic_image_google" />
             </LinearLayout>
 
             <androidx.appcompat.widget.AppCompatButton
@@ -155,13 +155,13 @@
                 android:layout_marginTop="32dp"
                 android:layout_marginStart="32dp"
                 android:layout_marginEnd="32dp"
-                android:background="@drawable/background_btn_2"
+                android:background="@drawable/background_button_2"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="#ffffff"
                 android:paddingStart="64dp"
                 android:padding="4dp"
-                android:drawableEnd="@drawable/circle"
+                android:drawableEnd="@drawable/ic_image_circle_next"
                 android:text="Log in" />
 
             <androidx.appcompat.widget.AppCompatButton
@@ -173,7 +173,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="32dp"
                 android:layout_marginBottom="32dp"
-                android:background="@drawable/background_btn_1"
+                android:background="@drawable/background_button_1"
                 android:text="Don't have an account? Sign up"
                 android:textSize="16dp" />
 

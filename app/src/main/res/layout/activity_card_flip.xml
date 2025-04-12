@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:onClick="flipCard"
-    tools:context=".ui.card.CardFlip">
+    tools:context=".view.card.CardFlip">
 
     <LinearLayout
         android:layout_width="match_parent"

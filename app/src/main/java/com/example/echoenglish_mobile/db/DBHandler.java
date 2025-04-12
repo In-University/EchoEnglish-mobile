@@ -7,11 +7,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 
-import com.example.echoenglish_mobile.data.model.FolderModal;
-import com.example.echoenglish_mobile.data.model.WordModel;
+import com.example.echoenglish_mobile.model.FolderModal;
+import com.example.echoenglish_mobile.model.WordModel;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class DBHandler extends SQLiteOpenHelper {
 

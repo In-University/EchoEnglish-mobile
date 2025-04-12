@@ -41,7 +41,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:id="@+id/btnUkPronunciation"
-                    app:icon="@drawable/ic_close"/>
+                    app:icon="@drawable/ic_image_close"/>
 
                 <TextView
                     android:id="@+id/tvUkPhonetic"
@@ -56,7 +56,7 @@
                     android:layout_height="match_parent"
                     android:id="@+id/btnUsPronunciation"
                     app:iconTint="?attr/colorPrimary"
-                    app:icon="@drawable/ic_close"/>
+                    app:icon="@drawable/ic_image_close"/>
 
                 <TextView
                     android:id="@+id/tvUsPhonetic"
@@ -119,7 +119,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_level_tag"
+                        android:background="@drawable/background_button_oval"
                         android:paddingHorizontal="4dp"
                         android:text="A1"
                         android:textColor="#FFFFFF" />

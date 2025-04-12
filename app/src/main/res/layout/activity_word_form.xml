@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/titleTextView"
         android:layout_marginTop="50dp"
-        android:background="@drawable/edit_text_border_rounded"
+        android:background="@drawable/background_edittext_border_rounded"
         android:hint="Enter word" />
 
     <EditText
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/wordEditText"
         android:layout_marginTop="16dp"
-        android:background="@drawable/edit_text_border_rounded"
+        android:background="@drawable/background_edittext_border_rounded"
         android:hint="Enter description"
         android:inputType="textMultiLine"
         android:lines="5" />
@@ -49,6 +49,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/descriptionEditText"
         android:layout_marginTop="16dp"
-        android:background="@drawable/button_border_rounded"
+        android:background="@drawable/background_button_border_rounded"
         android:text="Save" />
 </RelativeLayout>

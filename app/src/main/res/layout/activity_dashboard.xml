@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="32dp"
-                app:srcCompat="@drawable/profile" />
+                app:srcCompat="@drawable/image_profile" />
 
             <TextView
                 android:id="@+id/textView"
@@ -61,8 +61,8 @@
                     android:layout_height="50dp"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/background_edit_search"
-                    android:drawableStart="@drawable/search"
+                    android:background="@drawable/background_edittext_search"
+                    android:drawableStart="@drawable/ic_image_search"
                     android:drawablePadding="10dp"
                     android:hint="Search..."
                     android:paddingStart="20dp"
@@ -71,7 +71,7 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:background="@drawable/background_blue">
+                    android:background="@drawable/background_button_blue">
 
                     <ImageView
                         android:id="@+id/imageView2"
@@ -81,7 +81,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/equalizer" />
+                        app:srcCompat="@drawable/ic_image_equalizer" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>
 
@@ -115,7 +115,7 @@
                         android:id="@+id/imageView3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:srcCompat="@drawable/map" />
+                        app:srcCompat="@drawable/ic_image_map" />
 
                     <TextView
                         android:id="@+id/textView512"
@@ -137,7 +137,7 @@
                         android:id="@+id/imageView32"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:srcCompat="@drawable/network" />
+                        app:srcCompat="@drawable/ic_image_network" />
 
                     <TextView
                         android:id="@+id/textView531"
@@ -159,7 +159,7 @@
                         android:id="@+id/imageView233"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:srcCompat="@drawable/inbox" />
+                        app:srcCompat="@drawable/ic_image_inbox" />
 
                     <TextView
                         android:id="@+id/textView5"
@@ -181,7 +181,7 @@
                         android:id="@+id/imageView31"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:srcCompat="@drawable/chat" />
+                        app:srcCompat="@drawable/ic_image_chat" />
 
                     <TextView
                         android:id="@+id/textView53"
@@ -200,7 +200,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="32dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/background_blue">
+                android:background="@drawable/background_button_blue">
 
                 <ImageView
                     android:id="@+id/imageView4"
@@ -209,7 +209,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/illu" />
+                    app:srcCompat="@drawable/image_illu" />
 
                 <TextView
                     android:id="@+id/textView6"
@@ -316,14 +316,14 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
-                    android:src="@drawable/btn1" />
+                    android:src="@drawable/ic_image_more" />
 
                 <ImageView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
-                    android:src="@drawable/btn2" />
+                    android:src="@drawable/ic_image_chat_info" />
 
                 <!-- Chỗ trống để FAB nằm giữa -->
                 <View
@@ -337,14 +337,14 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
-                    android:src="@drawable/btn3" />
+                    android:src="@drawable/ic_image_chat_question" />
 
                 <ImageView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
-                    android:src="@drawable/btn4" />
+                    android:src="@drawable/ic_image_setting" />
             </LinearLayout>
         </com.google.android.material.bottomappbar.BottomAppBar>
 
@@ -354,7 +354,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="#6034f6"
             android:contentDescription="Search Button"
-            android:src="@drawable/search_white"
+            android:src="@drawable/ic_image_search_white"
             app:layout_anchor="@id/app_bar"
             app:layout_anchorGravity="center"
             app:maxImageSize="30dp"

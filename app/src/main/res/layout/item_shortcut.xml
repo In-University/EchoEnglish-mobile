@@ -24,7 +24,7 @@
             android:layout_height="28dp"
             android:layout_gravity="center"
             android:scaleType="fitCenter"
-            tools:srcCompat="@drawable/ic_launcher_background"
+            tools:srcCompat="@drawable/ic_xml_launcher_background"
             android:contentDescription="@null" />
     </FrameLayout>
 

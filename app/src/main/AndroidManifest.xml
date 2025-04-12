@@ -23,27 +23,26 @@
         <!-- <activity android:name=".ui.activity.MainActivity"/> -->
 <!--        <activity android:name=".ui.dashboard.DashboardActivity"/>-->
 
-        <activity android:name=".ui.pronunciation_assessment.PronunciationAssessmentActivity"/>
-        <activity android:name=".ui.activity.WebViewActivity"/>
-        <activity android:name=".ui.activity.LoginActivity"/>
-        <activity android:name=".ui.activity.SignupActivity"/>
+        <activity android:name=".view.activity.pronunciation_assessment.PronunciationAssessmentActivity"/>
+        <activity android:name=".view.activity.webview.WebViewActivity"/>
+        <activity android:name=".view.activity.auth.LoginActivity"/>
+        <activity android:name=".view.activity.auth.SignupActivity"/>
 <!--        <activity android:name=".ui.pronun_summary_result.SummaryResultsActivity"/>-->
-        <activity android:name=".ui.flashcard.about.AboutActivity"/>
-        <activity android:name=".ui.flashcard.score.ScoreActivity"/>
-        <activity android:name=".ui.flashcard.folders.FolderListActivity"/>
-        <activity android:name=".ui.flashcard.card.CardFlip"/>
-        <activity android:name=".ui.flashcard.wordlist.WordList"/>
-        <activity android:name=".ui.flashcard.form.FolderFormActivity"/>
-        <activity android:name=".ui.flashcard.form.WordFormActivity"/>
-        <activity android:name=".ui.activity.MainFlashcardActivity"/>
-        <activity android:name=".ui.quizz_app.MainQuizzAppActivity"/>
-        <activity android:name=".ui.quizz_app.QuizActivity"/>
-        <activity android:name=".ui.activity.WebGameActivity"/>
-        <activity android:name=".ui.chatbot.ChatActivity"/>
+        <activity android:name=".view.activity.flashcard.ScoreActivity"/>
+        <activity android:name=".view.activity.flashcard.FolderListActivity"/>
+        <activity android:name=".view.activity.flashcard.CardFlip"/>
+        <activity android:name=".view.activity.flashcard.WordList"/>
+        <activity android:name=".view.activity.flashcard.FolderFormActivity"/>
+        <activity android:name=".view.activity.flashcard.WordFormActivity"/>
+        <activity android:name=".view.activity.flashcard.MainFlashcardActivity"/>
+        <activity android:name=".view.activity.quiz.MainQuizzAppActivity"/>
+        <activity android:name=".view.activity.quiz.QuizActivity"/>
+        <activity android:name=".view.activity.webview.WebGameActivity"/>
+        <activity android:name=".view.activity.chatbot.ChatActivity"/>
 
 
         <activity
-            android:name=".ui.dictionary.MainDictionaryActivity"
+            android:name=".view.activity.dashboard.DashboardActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

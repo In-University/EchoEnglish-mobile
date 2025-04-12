@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Ripple effect khi nhấn nút -->
-    <item android:drawable="@drawable/button_ripple" android:state_pressed="true"/>
-
-    <!-- Màu nền khi không nhấn -->
-    <item android:drawable="@drawable/button_normal"/>
-</selector>

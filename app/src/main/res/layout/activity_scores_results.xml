@@ -31,23 +31,23 @@
                 android:orientation="horizontal">
 
                 <include
-                    layout="@layout/layout_tab_item"
+                    layout="@layout/item_layout_tab"
                     android:id="@+id/tabPronunciation" />
 
                 <include
-                    layout="@layout/layout_tab_item"
+                    layout="@layout/item_layout_tab"
                     android:id="@+id/tabFluency" />
 
                 <include
-                    layout="@layout/layout_tab_item"
+                    layout="@layout/item_layout_tab"
                     android:id="@+id/tabIntonation" />
 
                 <include
-                    layout="@layout/layout_tab_item"
+                    layout="@layout/item_layout_tab"
                     android:id="@+id/tabGrammar" />
 
                 <include
-                    layout="@layout/layout_tab_item"
+                    layout="@layout/item_layout_tab"
                     android:id="@+id/tabVocabulary" />
 
             </LinearLayout>

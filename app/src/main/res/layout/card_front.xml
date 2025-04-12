@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="60dp"
         android:padding="4dp"
-        android:src="@drawable/rectangle"
+        android:src="@drawable/background_button_rectangle"
         app:tint="@color/cardview_dark_background" />
 
     <TextView

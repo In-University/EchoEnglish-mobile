@@ -51,6 +51,6 @@
         android:layout_marginBottom="16dp"
         android:backgroundTint="@color/purple_500"
         android:contentDescription="Add button"
-        app:srcCompat="@drawable/icons8_plus_60" />
+        app:srcCompat="@drawable/ic_xml_plus_60" />
 
 </RelativeLayout>

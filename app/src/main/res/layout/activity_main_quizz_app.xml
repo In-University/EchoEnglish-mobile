@@ -11,13 +11,13 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="160dp"
-        android:src="@drawable/main_image" />
+        android:src="@drawable/image_study" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="@drawable/rounded_corner"
+        android:background="@drawable/background_rounded_corner"
         android:backgroundTint="@color/blue"
         android:padding="8dp"
         android:orientation="vertical">
