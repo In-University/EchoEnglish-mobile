@@ -23,11 +23,11 @@
         <!-- <activity android:name=".ui.activity.MainActivity"/> -->
 <!--        <activity android:name=".ui.dashboard.DashboardActivity"/>-->
 
-        <activity android:name=".view.activity.pronunciation_assessment.PronunciationAssessmentActivity"/>
+<!--        <activity android:name=".view.activity.pronunciation_assessment.PronunciationAssessmentActivity"/>-->
         <activity android:name=".view.activity.webview.WebViewActivity"/>
 <!--        <activity android:name=".view.activity.auth.LoginActivity"/>-->
-        <activity android:name=".view.activity.auth.SignupActivity"/>
-<!--        <activity android:name=".ui.pronun_summary_result.SummaryResultsActivity"/>-->
+<!--        <activity android:name=".view.activity.auth.SignupActivity"/>-->
+        <activity android:name=".view.activity.pronun_summary_result.SummaryResultsActivity"/>
         <activity android:name=".view.activity.flashcard.ScoreActivity"/>
         <activity android:name=".view.activity.flashcard.FolderListActivity"/>
         <activity android:name=".view.activity.flashcard.CardFlip"/>
@@ -39,10 +39,11 @@
         <activity android:name=".view.activity.quiz.QuizActivity"/>
         <activity android:name=".view.activity.webview.WebGameActivity"/>
         <activity android:name=".view.activity.chatbot.ChatActivity"/>
+        <activity android:name=".view.activity.dictionary.DictionaryWordDetailActivity" />
 
 
         <activity
-            android:name=".view.activity.auth.LoginActivity"
+            android:name=".view.activity.dictionary.DictionaryActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

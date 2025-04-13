@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Word -->
+        <TextView
+            android:id="@+id/tvWord"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceHeadline4"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Test" />
+
+        <!-- UK Pronunciation -->
+        <TextView
+            android:id="@+id/labelUkPron"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="UK:"
+            android:textAppearance="?attr/textAppearanceBody2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvWord" />
+
+        <TextView
+            android:id="@+id/tvUkPronunciation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textStyle="italic"
+            app:layout_constraintBaseline_toBaselineOf="@id/labelUkPron"
+            app:layout_constraintStart_toEndOf="@id/labelUkPron"
+            tools:text="/test/" />
+
+        <ImageView
+            android:id="@+id/btnPlayUkAudio"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Play UK pronunciation"
+            android:src="@drawable/ic_image_volume"
+            app:layout_constraintBottom_toBottomOf="@id/labelUkPron"
+            app:layout_constraintStart_toEndOf="@id/tvUkPronunciation"
+            app:layout_constraintTop_toTopOf="@id/labelUkPron"
+            app:tint="?attr/colorPrimary" />
+
+        <!-- US Pronunciation -->
+        <TextView
+            android:id="@+id/labelUsPron"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="US:"
+            android:textAppearance="?attr/textAppearanceBody2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/labelUkPron" />
+
+        <TextView
+            android:id="@+id/tvUsPronunciation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textStyle="italic"
+            app:layout_constraintBaseline_toBaselineOf="@id/labelUsPron"
+            app:layout_constraintStart_toEndOf="@id/labelUsPron"
+            tools:text="/test/" />
+
+        <ImageView
+            android:id="@+id/btnPlayUsAudio"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Play US pronunciation"
+            android:src="@drawable/ic_image_volume"
+            app:layout_constraintBottom_toBottomOf="@id/labelUsPron"
+            app:layout_constraintStart_toEndOf="@id/tvUsPronunciation"
+            app:layout_constraintTop_toTopOf="@id/labelUsPron"
+            app:tint="?attr/colorPrimary" />
+
+
+        <!-- Image -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivImage"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Image illustrating the word"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/labelUsPron"
+            app:layout_constraintWidth_max="300dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium"
+            tools:src="@mipmap/ic_launcher" />
+
+
+        <!-- Meanings Section -->
+        <TextView
+            android:id="@+id/labelMeanings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Meanings"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivImage" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/meaningsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:nestedScrollingEnabled="false"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/labelMeanings"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_dictionary_meaning" />
+
+
+        <!-- Synonyms Section -->
+        <TextView
+            android:id="@+id/labelSynonyms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Synonyms"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/meaningsRecyclerView" />
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/synonymsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:flexWrap="wrap"
+            app:justifyContent="flex_start"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/labelSynonyms" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

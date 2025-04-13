@@ -1,6 +1,8 @@
 package com.example.echoenglish_mobile.model;
 
-public class Synonym {
+import java.io.Serializable;
+
+public class Synonym implements Serializable {
     private String synonym;
 
     public String getSynonym() {

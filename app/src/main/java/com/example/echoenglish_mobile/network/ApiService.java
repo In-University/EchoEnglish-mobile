@@ -39,4 +39,7 @@ public interface ApiService {
 
     @GET("words/{word}")
     Call<Word> getWordDetails(@Path("word") String word);
+
+    @GET("words/search/{prefix}")
+    Call<List<Word>> getWordSuggestions(@Path("prefix") String prefix);
 }

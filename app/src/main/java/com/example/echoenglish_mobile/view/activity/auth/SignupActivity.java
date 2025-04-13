@@ -20,15 +20,9 @@ public class SignupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_signup);
 
         btnSignup = findViewById(R.id.btnSignup);
-        btnLogin = findViewById(R.id.btnLogin);
 
         btnSignup.setOnClickListener(v -> {
             Toast.makeText(SignupActivity.this, "Sign up success!", Toast.LENGTH_SHORT).show();
-        });
-
-        btnLogin.setOnClickListener(v -> {
-            Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-            startActivity(intent);
         });
 
 
