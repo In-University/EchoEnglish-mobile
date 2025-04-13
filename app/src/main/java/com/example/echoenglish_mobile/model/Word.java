@@ -13,12 +13,6 @@ public class Word implements Serializable {
     private List<Meaning> meanings;
     private List<Synonym> synonyms;
 
-    public Word(String word, String ukPronunciation, String usPronunciation, String partOfSpeech /* Bỏ các trường không dùng */) {
-        this.word = word;
-        this.ukPronunciation = ukPronunciation;
-        // ... khởi tạo các trường khác nếu cần, nhưng cho mock data cơ bản là đủ
-    }
-
     public Word(String word, String imageUrl, String ukPronunciation, String usPronunciation, String ukAudio, String usAudio, List<Meaning> meanings, List<Synonym> synonyms) {
         this.word = word;
         this.imageUrl = imageUrl;

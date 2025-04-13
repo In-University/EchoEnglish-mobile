@@ -1,35 +1,57 @@
-package com.example.echoenglish_mobile.view.dialog; // Use your actual package name
+package com.example.echoenglish_mobile.view.dialog;
 
-import android.content.res.ColorStateList;
-import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.echoenglish_mobile.R;
+import com.example.echoenglish_mobile.model.Meaning;
+import com.example.echoenglish_mobile.model.Word;
+import com.example.echoenglish_mobile.network.ApiClient;
+import com.example.echoenglish_mobile.network.ApiService;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.button.MaterialButton;
+
+import java.util.List;
+import java.util.Objects;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DictionaryBottomSheetDialog extends BottomSheetDialogFragment {
 
     public static final String TAG = "DictionaryBottomSheet";
     private static final String ARG_SELECTED_WORD = "selected_word";
 
-    // Updated View variables to match new IDs and types
-    private TextView tvSelectedWord;
+    // --- Views ---
+    private TextView tvWord;
     private TextView tvPronunciation;
-    private TextView tvWordType;
-    private TextView tvDefinition;
-    private MaterialButton btnCloseSheet;
-    private MaterialButton btnSaveWord;
+    private ImageButton btnUkPronunciationAudio;
+    private ImageButton btnUsPronunciationAudio;
+    private LinearLayout meaningsContainer;
 
+    // --- Data ---
     private String selectedWord;
-    private boolean isSaved = false;
+    private ApiService apiService;
+    private Call<Word> currentApiCall;
+    private ExoPlayer exoPlayer;
 
     public static DictionaryBottomSheetDialog newInstance(String selectedWord) {
         DictionaryBottomSheetDialog fragment = new DictionaryBottomSheetDialog();
@@ -45,102 +67,270 @@ public class DictionaryBottomSheetDialog extends BottomSheetDialogFragment {
         if (getArguments() != null) {
             selectedWord = getArguments().getString(ARG_SELECTED_WORD);
         }
+        apiService = ApiClient.getApiService();
+        exoPlayer = new ExoPlayer.Builder(requireContext()).build();
+        exoPlayer.addListener(new Player.Listener() {
+            @Override
+            public void onPlaybackStateChanged(int playbackState) {
+                if (playbackState == Player.STATE_ENDED) {
+                    Log.d(TAG, "ExoPlayer playback ended.");
+                }
+            }
+
+            @Override
+            public void onPlayerError(@NonNull PlaybackException error) {
+                Log.e(TAG, "ExoPlayer Error: " + error.getMessage(), error);
+                if (getContext() != null && isAdded()) {
+                    Toast.makeText(getContext(), "Lỗi khi phát âm thanh: " + error.getErrorCodeName(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the NEW layout
         View view = inflater.inflate(R.layout.layout_bottom_dictionary, container, false);
 
-        // Find views using the NEW IDs
-        tvSelectedWord = view.findViewById(R.id.tvWord);
+        tvWord = view.findViewById(R.id.tvWord);
         tvPronunciation = view.findViewById(R.id.tv_pronunciation);
-//        tvWordType = view.findViewById(R.id.tv_word_type);
-//        tvDefinition = view.findViewById(R.id.tv_definition);
-//        btnCloseSheet = view.findViewById(R.id.btn_close_sheet);
-//        btnSaveWord = view.findViewById(R.id.btn_save_word);
+        btnUkPronunciationAudio = view.findViewById(R.id.btnUkPronunciationAudio);
+        btnUsPronunciationAudio = view.findViewById(R.id.btnUsPronunciationAudio);
+        meaningsContainer = view.findViewById(R.id.meaningsContainer);
 
-        // --- Set Initial Text ---
-        tvSelectedWord.setText(selectedWord);
+        tvPronunciation.setText("Loading...");
+        tvPronunciation.setVisibility(View.INVISIBLE);
 
-        // --- Placeholder Data (Replace with actual dictionary lookup) ---
-        tvPronunciation.setText("/" + selectedWord.toLowerCase() + "/"); // Simple placeholder
-//        tvWordType.setText("..."); // Placeholder - e.g., "Noun", "Verb"
-//        tvDefinition.setText("Đang tải định nghĩa cho '" + selectedWord + "'...");
-        // --- End Placeholder Data ---
-
-        // TODO: Perform actual dictionary lookup here and update tvPronunciation, tvWordType, tvDefinition
-
-        // --- Check initial saved state ---
-        // In a real app, query SharedPreferences or Database here
-//        isSaved = checkWordSavedState(selectedWord); // Example method call
-//        updateSaveButtonState(); // Set initial text/icon for Save button
-//
-//        // --- Setup Listeners ---
-//        btnCloseSheet.setOnClickListener(v -> dismiss()); // Simply close the bottom sheet
-//
-//        btnSaveWord.setOnClickListener(v -> {
-//            isSaved = !isSaved; // Toggle state
-//            updateSaveButtonState(); // Update button appearance
-//            saveWordState(selectedWord, isSaved); // Save the new state
-//
-//            String message = isSaved ? "Đã lưu '" : "Đã bỏ lưu '";
-//            Toast.makeText(getContext(), message + selectedWord + "'", Toast.LENGTH_SHORT).show();
-//        });
-
-        // Direct styling example (use with caution, prefer themes/styles)
-        // tvSelectedWord.setTextColor(Color.parseColor("#1a237e")); // Example: Dark blue color
 
         return view;
     }
 
-    // Updated method to handle MaterialButton (text + optional icon)
-    private void updateSaveButtonState() {
-        if (isSaved) {
-            btnSaveWord.setText("Unsave"); // Or "Đã lưu"
-            // Set filled icon
-            btnSaveWord.setIconResource(R.drawable.ic_xml_timer); // Use your filled bookmark icon
-            // Optional: Change button style slightly if needed (e.g., background tint)
-            // btnSaveWord.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.your_saved_color))); // Requires color resource
-            btnSaveWord.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#DDDDDD"))); // Example direct grey tint for saved state
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        if (selectedWord != null && !selectedWord.isEmpty()) {
+            tvWord.setText(selectedWord);
+            fetchWordDetails(selectedWord);
         } else {
-            btnSaveWord.setText("Save"); // Or "Lưu"
-            // Set outline icon
-            btnSaveWord.setIconResource(R.drawable.ic_image_chat_info); // Use your outline bookmark icon
-            // Optional: Reset tint to default (or primary color)
-            btnSaveWord.setIconTint(null); // Use default icon tint
-            btnSaveWord.setBackgroundTintList(null); // Use default background tint from theme/style
+            Log.e(TAG, "Selected word is null or empty.");
+            Toast.makeText(getContext(), "Không có từ nào được chọn", Toast.LENGTH_SHORT).show();
         }
-        // Ensure the icon is visible (MaterialButton defaults might hide it if text is present)
-        btnSaveWord.setIconGravity(MaterialButton.ICON_GRAVITY_TEXT_START); // Or START
     }
 
-    // --- Placeholder methods for saving/checking state ---
-    // Replace these with your actual SharedPreferences or Database logic
-    private boolean checkWordSavedState(String word) {
-        // Example using SharedPreferences (very basic)
-        // SharedPreferences prefs = requireActivity().getSharedPreferences("SavedWords", Context.MODE_PRIVATE);
-        // return prefs.getBoolean(word, false);
-        return false; // Default: word is not saved
+    private void fetchWordDetails(String word) {
+        showLoading(true);
+        meaningsContainer.removeAllViews();
+        meaningsContainer.setVisibility(View.GONE);
+        tvPronunciation.setVisibility(View.INVISIBLE);
+        disableAudioButtonsOnError();
+
+        if (currentApiCall != null) {
+            currentApiCall.cancel();
+        }
+
+        currentApiCall = apiService.getWordDetails(word);
+        currentApiCall.enqueue(new Callback<Word>() {
+            @Override
+            public void onResponse(@NonNull Call<Word> call, @NonNull Response<Word> response) {
+                showLoading(false);
+                meaningsContainer.setVisibility(View.VISIBLE);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    updateUI(response.body());
+                } else {
+                    Log.e(TAG, "API Error: " + response.code() + " - " + response.message());
+                    handleApiError(response.code());
+                }
+                currentApiCall = null;
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Word> call, @NonNull Throwable t) {
+                if (call.isCanceled()) {
+                    Log.d(TAG, "API Call was cancelled.");
+                } else {
+                    showLoading(false);
+                    meaningsContainer.setVisibility(View.VISIBLE);
+                    Log.e(TAG, "API Failure: " + t.getMessage(), t);
+                    meaningsContainer.removeAllViews();
+                    TextView errorText = new TextView(getContext());
+                    errorText.setText("Network or unknown error");
+                    Log.e(TAG, "Network or unknown error", t);
+                    meaningsContainer.addView(errorText);
+                    disableAudioButtonsOnError();
+                }
+                currentApiCall = null;
+            }
+        });
     }
 
-    private void saveWordState(String word, boolean saved) {
-        // Example using SharedPreferences (very basic)
-        // SharedPreferences prefs = requireActivity().getSharedPreferences("SavedWords", Context.MODE_PRIVATE);
-        // SharedPreferences.Editor editor = prefs.edit();
-        // if (saved) {
-        //     editor.putBoolean(word, true);
-        // } else {
-        //     editor.remove(word);
-        // }
-        // editor.apply();
-        System.out.println("Simulating save state for '" + word + "': " + saved); // Log simulation
+    private void updateUI(Word wordDetail) {
+        tvWord.setText(wordDetail.getWord());
+
+        String ukPhonetic = formatPhonetic(wordDetail.getUkPronunciation());
+        String usPhonetic = formatPhonetic(wordDetail.getUsPronunciation());
+        String combinedPhonetics = "";
+
+        boolean hasUk = !ukPhonetic.isEmpty();
+        boolean hasUs = !usPhonetic.isEmpty();
+
+        if (hasUk && hasUs) {
+            combinedPhonetics = "UK " + ukPhonetic + "  US " + usPhonetic;
+        } else if (hasUk) {
+            combinedPhonetics = "UK " + ukPhonetic;
+        } else if (hasUs) {
+            combinedPhonetics = "US " + usPhonetic;
+        } else {
+            combinedPhonetics = "IPA not found";
+        }
+
+        tvPronunciation.setText(combinedPhonetics);
+        tvPronunciation.setVisibility(View.VISIBLE);
+
+        setupPronunciationButton(btnUkPronunciationAudio, wordDetail.getUkAudio());
+        setupPronunciationButton(btnUsPronunciationAudio, wordDetail.getUsAudio());
+
+        meaningsContainer.removeAllViews();
+        List<Meaning> meanings = wordDetail.getMeanings();
+        if (meanings != null && !meanings.isEmpty()) {
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            int count = 0;
+            for (Meaning meaning : meanings) {
+                if (count >= 5) break;
+
+                View meaningView = inflater.inflate(R.layout.item_meaning, meaningsContainer, false);
+                TextView tvPartOfSpeech = meaningView.findViewById(R.id.tvPartOfSpeech);
+                TextView tvBulletPoint = meaningView.findViewById(R.id.tvBulletPoint);
+                TextView tvLevel = meaningView.findViewById(R.id.tvLevel);
+                TextView tvDefinition = meaningView.findViewById(R.id.tvDefinition);
+
+                // Dùng Objects.requireNonNullElse để tránh NullPointerException nếu getPartOfSpeech trả về null
+                tvPartOfSpeech.setText(Objects.requireNonNullElse(meaning.getPartOfSpeech(), "").toUpperCase());
+                tvDefinition.setText(formatDefinition(count + 1, meaning.getDefinition()));
+
+                String level = meaning.getLevel();
+                if (level != null && !level.trim().isEmpty()) {
+                    tvLevel.setText(level);
+                    tvLevel.setVisibility(View.VISIBLE);
+                    tvBulletPoint.setVisibility(View.VISIBLE);
+                } else {
+                    tvLevel.setVisibility(View.GONE);
+                    tvBulletPoint.setVisibility(View.GONE);
+                }
+                meaningsContainer.addView(meaningView);
+                count++;
+            }
+        } else {
+            TextView noMeaningText = new TextView(getContext());
+            noMeaningText.setText("Not found any meaning...");
+            meaningsContainer.addView(noMeaningText);
+        }
     }
-    // --- End Placeholder methods ---
+
+    // --- Setup nút phát âm (Giữ nguyên logic này) ---
+    private void setupPronunciationButton(ImageButton button, final String audioUrl) {
+        if (audioUrl != null && !audioUrl.isEmpty()) {
+            button.setEnabled(true);
+            button.setAlpha(1.0f); // Đảm bảo button rõ ràng
+            button.setOnClickListener(v -> playAudio(audioUrl));
+            Log.e(TAG, "setupPronunciationButton::::: ");
+        } else {
+            button.setEnabled(false);
+            button.setOnClickListener(null);
+            button.setAlpha(0.5f);
+        }
+    }
+
+    private void playAudio(String url) {
+        if (exoPlayer == null || getContext() == null || url == null || url.isEmpty()) {
+            Log.w(TAG, "ExoPlayer not initialized or URL is invalid.");
+            return;
+        }
+
+        try {
+            DefaultHttpDataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
+            String userAgent = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36";
+            dataSourceFactory.setUserAgent(userAgent);
+            MediaItem mediaItem = MediaItem.fromUri(Uri.parse(url));
+            MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(mediaItem);
+
+            exoPlayer.setMediaSource(mediaSource);
+            exoPlayer.prepare();
+            exoPlayer.play();
+
+            Log.d(TAG, "ExoPlayer prepare called for: " + url + " with User-Agent: " + userAgent);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error setting up ExoPlayer: " + e.getMessage(), e);
+            if (getContext() != null && isAdded()) {
+                Toast.makeText(getContext(), "Cannot play audio.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private String formatPhonetic(String phonetic) {
+        if (phonetic == null || phonetic.isEmpty()) {
+            return "";
+        }
+        phonetic = phonetic.trim();
+        if (!phonetic.startsWith("/")) {
+            phonetic = "/" + phonetic;
+        }
+        if (!phonetic.endsWith("/")) {
+            phonetic = phonetic + "/";
+        }
+        return phonetic;
+    }
+
+    private String formatDefinition(int index, String definition) {
+        if (definition == null) return index + ". ";
+        return index + ". " + definition.trim();
+    }
+
+    private void handleApiError(int errorCode) {
+        meaningsContainer.removeAllViews();
+        TextView errorText = new TextView(getContext());
+        if (errorCode == 404) {
+            errorText.setText("Not found '" + selectedWord + "' in dictionary.");
+        } else {
+            errorText.setText("Error when fetching data (Code: " + errorCode + ").");
+        }
+        meaningsContainer.addView(errorText);
+
+        tvPronunciation.setText("IPA not found");
+        tvPronunciation.setVisibility(View.VISIBLE);
+        disableAudioButtonsOnError();
+    }
+
+    private void disableAudioButtonsOnError() {
+        btnUkPronunciationAudio.setEnabled(false);
+        btnUkPronunciationAudio.setAlpha(0.5f);
+        btnUsPronunciationAudio.setEnabled(false);
+        btnUsPronunciationAudio.setAlpha(0.5f);
+    }
+
+    private void showLoading(boolean isLoading) {
+        float alpha = isLoading ? 0.5f : 1.0f;
+        btnUkPronunciationAudio.setAlpha(alpha);
+        btnUsPronunciationAudio.setAlpha(alpha);
+    }
 
 
-    // Removed searchWordOnline method as the button is no longer present in the new layout.
-    // If you need search functionality, you'll have to add a button or another trigger for it.
-
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (currentApiCall != null) {
+            currentApiCall.cancel();
+            currentApiCall = null;
+        }
+        if (exoPlayer != null) {
+            if (exoPlayer.isPlaying()) {
+                exoPlayer.stop();
+            }
+            exoPlayer.release();
+            exoPlayer = null;
+        }
+    }
 }

@@ -15,6 +15,8 @@
         android:padding="12dp">
 
         <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
@@ -34,18 +36,21 @@
                 android:textStyle="bold"
                 tools:text="noun" />
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
             <TextView
                 android:id="@+id/tvLevel"
-                android:layout_width="0dp"
+                android:background="@drawable/background_button_oval"
+                android:textColor="#FFFFFF"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:textColor="?attr/colorPrimary"
+                android:paddingHorizontal="4dp"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 tools:text="A1" />
-
         </LinearLayout>
 
         <TextView
