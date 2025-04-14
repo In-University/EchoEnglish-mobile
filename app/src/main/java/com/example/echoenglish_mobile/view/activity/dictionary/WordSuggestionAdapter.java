@@ -66,15 +66,11 @@ public class WordSuggestionAdapter extends RecyclerView.Adapter<WordSuggestionAd
         String firstPos = getFirstPartOfSpeech(word);
         boolean hasPos = !TextUtils.isEmpty(firstPos);
         if (hasPos) {
-            // Để dạng viết hoa cho đẹp hơn
             holder.tvSuggestedPos.setText(firstPos);
             holder.tvSuggestedPos.setVisibility(View.VISIBLE);
         } else {
             holder.tvSuggestedPos.setVisibility(View.GONE);
         }
-
-        // Không cần đặt visibility cho LinearLayout cha nữa,
-        // vì nếu cả hai con là GONE, LinearLayout sẽ tự co lại.
 
         // --- Handle Click ---
         holder.itemView.setOnClickListener(v -> {
