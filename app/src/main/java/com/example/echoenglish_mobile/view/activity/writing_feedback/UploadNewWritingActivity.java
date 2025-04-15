@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -19,20 +21,37 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager; // Use GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.echoenglish_mobile.R;
+import com.example.echoenglish_mobile.model.request.WritingAnalysisRequest;
+import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.util.FileUtils;
+import com.example.echoenglish_mobile.view.activity.webview.WebViewFragment;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class UploadNewWritingActivity extends AppCompatActivity {
     private static final String TAG = "CreatePostActivity";
-
+    // Executor để chạy tác vụ nền
+    private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
+    // Handler để chạy tác vụ trên luồng UI
+    private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
     // Views
     private ImageButton btnClose;
     private EditText editTextTopic;
@@ -55,25 +74,27 @@ public class UploadNewWritingActivity extends AppCompatActivity {
     private ActivityResultLauncher<Uri> cameraLauncher;
     private ActivityResultLauncher<String> requestCameraPermissionLauncher;
 
-    private Uri tempCameraUri; // To store URI for camera photo
+    private Uri tempCameraUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Use the correct layout file name from your XML
-        setContentView(R.layout.activity_upload_writing); // Or whatever you named it
+        setContentView(R.layout.activity_upload_writing);
 
         findViews();
         setupRecyclerView();
         setupResultLaunchers();
         setupClickListeners();
-        updateAttachmentVisibility(); // Initial state
+        updateAttachmentVisibility();
     }
 
     private void findViews() {
         btnClose = findViewById(R.id.btnClose);
         editTextTopic = findViewById(R.id.editTextTopic);
         editTextContent = findViewById(R.id.editTextContent);
+        editTextContent.setText("Social media is very popular today especialy among young persons. It have changed the way we communicate signifcantly. One main advantage are connecting with friends and family who live far away. People shares photos updates and keep in touch easily. Also businesses can use platforms like facebook or instagram for reach customers and promote there products cheap. However there is also negative sides. Too much time spent on social media might leads to addiction and affect real life relationships. Comparing yourself to others online perfect lifes can cause feelings of inadequacy or depression." +
+                "" +
+                "Another problem are the spread of fake news and misinformation which is difficult controlling. Privacy concern is also a big issue because personal datas can be misused. In conclude social media has both good points and bad points. Using it moderation and being aware of the risks seem the best approach. We must to learn how use these tools responsible for maximize benefits and minimize harmfull effects.");
         attachmentsWrapper = findViewById(R.id.recyclerAttachments); // Ensure this ID exists if needed
         emptyAttachmentsState = findViewById(R.id.emptyAttachmentsState);
         recyclerAttachments = findViewById(R.id.recyclerAttachments);
@@ -81,17 +102,13 @@ public class UploadNewWritingActivity extends AppCompatActivity {
         btnCamera = findViewById(R.id.btnCamera);
         btnGallery = findViewById(R.id.btnGallery);
         btnSubmit = findViewById(R.id.btnSubmit);
-        // filePreviewContainer and fileItemsContainer are ignored based on analysis
     }
 
     private void setupRecyclerView() {
-        attachmentAdapter = new AttachmentAdapter(attachmentsList, this); // Pass listener
-        // Use GridLayoutManager for a grid appearance
-        int numberOfColumns = 1; // Adjust as needed
+        attachmentAdapter = new AttachmentAdapter(attachmentsList, this);
+        int numberOfColumns = 1;
         recyclerAttachments.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
         recyclerAttachments.setAdapter(attachmentAdapter);
-        // Add item decoration for spacing if needed
-        // recyclerAttachments.addItemDecoration(new GridSpacingItemDecoration(numberOfColumns, spacingInPixels, true));
     }
 
     private void setupResultLaunchers() {
@@ -284,46 +301,131 @@ public class UploadNewWritingActivity extends AppCompatActivity {
             editTextContent.requestFocus();
             return;
         }
+        callWritingAnalysisApi(content, topic);
+//
+//        for(Attachment att : attachmentsList) {
+//            Log.d(TAG, "  -> File: " + att.getFileName() + " (URI: " + att.getUri() + ")");
+//        }
+//        Log.i(TAG, "----------------------");
 
-        // --- Gathered Data ---
-        Log.i(TAG, "--- Submitting Post ---");
-        Log.i(TAG, "Topic: " + (topic.isEmpty() ? "[None]" : topic));
-        Log.i(TAG, "Content Length: " + content.length());
-        Log.i(TAG, "Attachment Count: " + attachmentsList.size());
-        for(Attachment att : attachmentsList) {
-            Log.d(TAG, "  -> File: " + att.getFileName() + " (URI: " + att.getUri() + ")");
-        }
-        Log.i(TAG, "----------------------");
 
-        // --- TODO: Actual Submission Implementation ---
-        // 1. Show a loading indicator (ProgressBar, disable button).
-        // 2. Handle File Uploads: This is the most complex part.
-        //    - For each Uri in attachmentsList:
-        //    - Get an InputStream using `getContentResolver().openInputStream(uri)`.
-        //    - Upload the stream to your server (e.g., using Retrofit multipart request, Firebase Storage, S3).
-        //    - This should ideally happen in a background thread or WorkManager job.
-        //    - Collect the URLs or IDs of the uploaded files from the server response.
-        // 3. Send Post Data to API:
-        //    - Create a request object (e.g., `PostRequest`) containing topic, content, and the list of uploaded attachment URLs/IDs.
-        //    - Use Retrofit to send this request to your backend API endpoint.
-        // 4. Handle API Response:
-        //    - On success: Show success message, maybe clear fields, finish activity or navigate elsewhere.
-        //    - On failure: Show error message to the user, hide loading indicator.
-        // 5. Hide loading indicator.
-        // -----------------------------------------------
+    }
+    private void callWritingAnalysisApi(String inputText, String inputContext) {
+        WritingAnalysisRequest requestBody = new WritingAnalysisRequest(
+                inputText,
+                inputContext
+        );
+        Call<ResponseBody> call = ApiClient.getApiService().analyzeWriting(requestBody);
 
-        // --- Placeholder ---
-        Toast.makeText(this, "Submitting post... (Simulation)", Toast.LENGTH_LONG).show();
-        // Disable button during fake "submission"
-        btnSubmit.setEnabled(false);
-        // Simulate network delay and finish
-        new android.os.Handler().postDelayed(() -> {
-            Toast.makeText(this, "Post Submitted Successfully! (Simulation)", Toast.LENGTH_SHORT).show();
-            finish();
-        }, 2000); // 2 second delay
-        // -----------------
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    final ResponseBody responseBody = response.body();
+
+                    backgroundExecutor.execute(() -> {
+                        String jsonResponse = null;
+                        String jsCode = null;
+                        boolean processingSuccess = false;
+                        String errorMsg = null;
+
+                        try {
+                            jsonResponse = responseBody.string();
+                            if (jsonResponse != null && !jsonResponse.isEmpty()) {
+                                // Tạm thời chưa escape, chỉ tạo jsCode
+                                jsCode = jsonResponse;
+                                processingSuccess = true;
+                                Log.d(TAG, "Background: jsCode prepared (length=" + jsCode.length() + ")");
+                            } else {
+                                errorMsg = "API response body string is empty after reading.";
+                                Log.e(TAG, "Background: " + errorMsg);
+                            }
+                        } catch (IOException e) {
+                            errorMsg = "IOException while reading ResponseBody";
+                            Log.e(TAG, "Background: " + errorMsg, e);
+                        } catch (OutOfMemoryError e) {
+                            errorMsg = "OutOfMemoryError while reading ResponseBody to string";
+                            Log.e(TAG, "Background: " + errorMsg, e);
+                        } finally {
+                            responseBody.close();
+                            Log.d(TAG,"Background: ResponseBody closed.");
+                        }
+
+                        final String finalJsCode = jsonResponse;
+                        final boolean success = processingSuccess;
+                        final String finalErrorMsg = errorMsg;
+
+                        mainThreadHandler.post(() -> {
+                            Log.d(TAG, "UI Thread: Received result from background processing. Success: " + success);
+
+                            if (success && finalJsCode != null) {
+                                openAnalysisFragment(finalJsCode);
+                            } else {
+                                showError(finalErrorMsg != null ? finalErrorMsg : "Failed to process server response.");
+                            }
+                        });
+                    });
+
+                } else {
+                    String errorBodyStr = "Unknown error";
+                    int responseCode = response.code();
+                    if (!response.isSuccessful() && response.errorBody() != null) {
+                        try {
+                            errorBodyStr = response.errorBody().string();
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error reading errorBody", e);
+                            errorBodyStr = "Error reading error body";
+                        }
+                    } else if(response.isSuccessful() && response.body() == null) {
+                        errorBodyStr = "Response successful but body is null";
+                        Log.e(TAG, errorBodyStr);
+                    }
+                    Log.e(TAG, "API Error Response Code: " + responseCode + " - Body: " + errorBodyStr);
+                    showError("API Error: " + responseCode);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                Log.e(TAG, "<<< onFailure CALLED on Thread: " + Thread.currentThread().getName(), t);
+                showError("Network error: " + t.getMessage());
+            }
+        });
     }
 
+    private void openAnalysisFragment(String jsCodeToInject) {
+        Log.d(TAG, "UI Thread: Attempting to open Analysis Fragment...");
+        if (!isFinishing() && !isDestroyed()) {
+            try {
+                // ** QUAN TRỌNG: Đảm bảo tên class WebViewFragment là đúng **
+                WebViewFragment fragment = WebViewFragment.newInstance(jsCodeToInject); // Truyền mã JS, không phải JSON thô nữa
+
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+                transaction.replace(android.R.id.content, fragment); // Hoặc ID container của bạn
+                transaction.addToBackStack(null);
+                transaction.commit();
+                Log.d(TAG, "UI Thread: Fragment transaction committed.");
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "Error committing Fragment transaction (Activity state issue?): ", e);
+                showError("Could not display results. Please try again.");
+            } catch (Exception e) {
+                Log.e(TAG, "Error during Fragment handling: ", e);
+                showError("An unexpected error occurred while showing results.");
+            }
+        } else {
+            Log.w(TAG, "Activity was finishing or destroyed before Fragment could be shown.");
+            // Có thể thông báo cho người dùng hoặc không làm gì cả
+        }
+    }
+
+
+    // Hàm hiển thị lỗi đơn giản
+    private void showError(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        Log.e(TAG, "Error Displayed: " + message);
+    }
     // --- Utility ---
     private void showNoFileManagerToast() {
         Toast.makeText(this, "No app found to handle this action. Please install a file manager or gallery app.", Toast.LENGTH_LONG).show();

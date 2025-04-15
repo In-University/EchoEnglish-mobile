@@ -4,11 +4,13 @@ import com.example.echoenglish_mobile.model.ApiResponse;
 import com.example.echoenglish_mobile.model.PhonemeComparison;
 import com.example.echoenglish_mobile.model.SentenceAnalysisResult;
 import com.example.echoenglish_mobile.model.Word;
+import com.example.echoenglish_mobile.model.request.WritingAnalysisRequest;
 
 import java.util.List;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -42,4 +44,7 @@ public interface ApiService {
 
     @GET("words/search/{prefix}")
     Call<List<Word>> getWordSuggestions(@Path("prefix") String prefix);
+
+    @POST("/writing/analyze")
+    Call<ResponseBody> analyzeWriting(@Body WritingAnalysisRequest request);
 }
