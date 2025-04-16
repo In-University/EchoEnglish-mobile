@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#dfe8f2"  >
+    android:background="#dfe8f2">
 
     <ScrollView
         android:id="@+id/scrollView2"
@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="8dp"
-                android:text="Good Evening Rechard"
+                android:text="Good Evening User"
                 android:textSize="18sp" />
 
             <TextView
@@ -280,6 +280,9 @@
                     android:id="@+id/view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -312,20 +315,23 @@
                 android:orientation="horizontal">
 
                 <ImageView
+                    android:id="@+id/btnHome"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
+                    android:padding="8dp"
                     android:src="@drawable/ic_image_more" />
 
                 <ImageView
+                    android:id="@+id/btnInfo"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
+                    android:padding="8dp"
                     android:src="@drawable/ic_image_chat_info" />
 
-                <!-- Chỗ trống để FAB nằm giữa -->
                 <View
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -333,18 +339,23 @@
                     android:visibility="invisible" />
 
                 <ImageView
+                    android:id="@+id/btnQuestion"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
+                    android:padding="8dp"
                     android:src="@drawable/ic_image_chat_question" />
 
                 <ImageView
+                    android:id="@+id/btnLogout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
-                    android:src="@drawable/ic_image_setting" />
+                    android:padding="8dp"
+                    android:src="@drawable/ic_image_setting"
+                    android:contentDescription="Logout Button" />
             </LinearLayout>
         </com.google.android.material.bottomappbar.BottomAppBar>
 
@@ -360,6 +371,5 @@
             app:maxImageSize="30dp"
             app:tint="#ffffff" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

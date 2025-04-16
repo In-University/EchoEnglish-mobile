@@ -1,5 +1,14 @@
 <resources>
     <string name="app_name">EchoEnglish</string>
+
+    <string name="error_field_required">This field is required</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">Password must be at least 6 characters</string>
+    <string name="error_password_mismatch">Passwords do not match</string>
+
+
+
+    <!--  Lụm -->
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
@@ -14,4 +23,9 @@
     <string name="current_folder_name">currentFolderName</string>
     <string name="current_folder_id">currentFolderId</string>
     <string name="app_description">Visit https://github.com/In-University/EchoEnglish-mobile for support</string>
+    <!--  Lụm -->
+
+
+
+
 </resources>
