@@ -7,6 +7,7 @@ import com.example.echoenglish_mobile.model.ResetPasswordRequest;
 import com.example.echoenglish_mobile.model.SentenceAnalysisResult;
 import com.example.echoenglish_mobile.model.User;
 import com.example.echoenglish_mobile.model.Word;
+import com.example.echoenglish_mobile.model.request.WritingAnalysisRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -66,5 +67,6 @@ public interface ApiService {
     @GET("words/search/{prefix}")
     Call<List<Word>> getWordSuggestions(@Path("prefix") String prefix);
 
-
+    @POST("/writing/analyze")
+    Call<ResponseBody> analyzeWriting(@Body WritingAnalysisRequest request);
 }
