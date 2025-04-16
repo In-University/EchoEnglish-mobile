@@ -2,11 +2,14 @@ package com.example.echoenglish_mobile.view.activity.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.echoenglish_mobile.R;
+import com.example.echoenglish_mobile.util.SharedPrefManager;
+import com.example.echoenglish_mobile.view.activity.dashboard.DashboardActivity;
 import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.PronunciationAssessmentActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,5 +35,18 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        checkIfLoggedIn();
+
     }
+
+    private void checkIfLoggedIn() {
+        String token = SharedPrefManager.getInstance(this).getAuthToken();
+        if (token != null && !token.isEmpty()) {
+            Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        }
+    }
+
 }

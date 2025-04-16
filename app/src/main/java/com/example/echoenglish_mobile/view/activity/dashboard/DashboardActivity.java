@@ -16,7 +16,9 @@ import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.adapter.DashboardAdapter;
 import com.example.echoenglish_mobile.model.ListDomain;
 // Đảm bảo import đúng LoginActivity của bạn
+import com.example.echoenglish_mobile.util.SharedPrefManager;
 import com.example.echoenglish_mobile.view.activity.auth.LoginActivity;
+import com.example.echoenglish_mobile.view.activity.auth.MainActivity;
 import com.example.echoenglish_mobile.view.activity.webview.WebGameActivity;
 import com.example.echoenglish_mobile.view.activity.chatbot.ChatActivity;
 import com.example.echoenglish_mobile.view.activity.flashcard.MainFlashcardActivity;
@@ -73,15 +75,13 @@ public class DashboardActivity extends AppCompatActivity {
     // Hàm xử lý logout
     private void performLogout() {
         // Xóa token đã lưu
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove("AUTH_TOKEN"); // Đảm bảo key "AUTH_TOKEN" giống với key khi lưu ở LoginActivity
-        editor.apply(); // Áp dụng thay đổi
+        SharedPrefManager.getInstance(this).clear();
 
         // Hiển thị thông báo (tùy chọn)
         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
 
         // Chuyển về màn hình Login và xóa các Activity trên stack
-        Intent intent = new Intent(DashboardActivity.this, LoginActivity.class); // Đảm bảo LoginActivity được import đúng
+        Intent intent = new Intent(DashboardActivity.this, MainActivity.class); // Đảm bảo LoginActivity được import đúng
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Xóa stack cũ
         startActivity(intent);
         finish(); // Đóng DashboardActivity hiện tại
