@@ -8,6 +8,13 @@ import com.example.echoenglish_mobile.model.SentenceAnalysisResult;
 import com.example.echoenglish_mobile.model.User;
 import com.example.echoenglish_mobile.model.Word;
 import com.example.echoenglish_mobile.model.request.WritingAnalysisRequest;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.FlashcardCreateRequest;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.LearningRecordRequest;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.VocabularyCreateRequest;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardDetailResponse;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningHistoryResponse;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -17,6 +24,7 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
@@ -69,4 +77,40 @@ public interface ApiService {
 
     @POST("/writing/analyze")
     Call<ResponseBody> analyzeWriting(@Body WritingAnalysisRequest request);
+
+    // --- Flashcards ---
+    @POST("api/flashcards/user-defined")
+    Call<FlashcardDetailResponse> createFlashcard(@Body FlashcardCreateRequest request);
+
+    @GET("api/flashcards/user-defined")
+    Call<List<FlashcardBasicResponse>> getUserDefinedFlashcards();
+
+    @GET("api/flashcards/public")
+    Call<List<FlashcardBasicResponse>> getPublicFlashcards();
+
+    @GET("api/flashcards/{flashcardId}")
+    Call<FlashcardDetailResponse> getFlashcardDetails(@Path("flashcardId") Long flashcardId);
+
+    @DELETE("api/flashcards/{flashcardId}")
+    Call<Void> deleteFlashcard(@Path("flashcardId") Long flashcardId);
+
+    // --- Vocabularies ---
+    @POST("api/flashcards/{flashcardId}/vocabularies")
+    Call<VocabularyResponse> addVocabulary(
+            @Path("flashcardId") Long flashcardId,
+            @Body VocabularyCreateRequest request
+    );
+
+    @GET("api/flashcards/{flashcardId}/vocabularies")
+    Call<List<VocabularyResponse>> getVocabularies(@Path("flashcardId") Long flashcardId);
+
+    @DELETE("api/flashcards/vocabularies/{vocabularyId}")
+    Call<Void> deleteVocabulary(@Path("vocabularyId") Long vocabularyId);
+
+    // --- Learning History ---
+    @POST("api/learnings")
+    Call<Void> recordLearning(@Body LearningRecordRequest request);
+
+    @GET("api/learnings/history/user/{userId}")
+    Call<List<LearningHistoryResponse>> getLearningHistory(@Path("userId") Long userId);
 }

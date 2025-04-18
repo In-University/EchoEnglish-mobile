@@ -31,13 +31,6 @@
         <activity android:name=".view.activity.auth.OtpVerificationActivity"/>
         <activity android:name=".view.activity.auth.ResetPasswordActivity"/>
         <activity android:name=".view.activity.pronun_summary_result.SummaryResultsActivity"/>
-        <activity android:name=".view.activity.flashcard.ScoreActivity"/>
-        <activity android:name=".view.activity.flashcard.FolderListActivity"/>
-        <activity android:name=".view.activity.flashcard.CardFlip"/>
-        <activity android:name=".view.activity.flashcard.WordList"/>
-        <activity android:name=".view.activity.flashcard.FolderFormActivity"/>
-        <activity android:name=".view.activity.flashcard.WordFormActivity"/>
-        <activity android:name=".view.activity.flashcard.MainFlashcardActivity"/>
         <activity android:name=".view.activity.quiz.MainQuizzAppActivity"/>
         <activity android:name=".view.activity.quiz.QuizActivity"/>
         <activity android:name=".view.activity.webview.WebGameActivity"/>
