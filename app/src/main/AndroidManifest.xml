@@ -46,7 +46,7 @@
 
 
         <activity
-            android:name=".view.activity.auth.MainActivity"
+            android:name=".view.activity.browser.BrowserActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
