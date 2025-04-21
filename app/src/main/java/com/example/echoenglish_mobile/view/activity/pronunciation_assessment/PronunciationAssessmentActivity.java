@@ -22,6 +22,7 @@ import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
 import com.example.echoenglish_mobile.util.AudioHandler;
 import com.example.echoenglish_mobile.view.activity.webview.WebViewActivity;
+import com.example.echoenglish_mobile.view.dialog.LoadingDialogFragment;
 import com.example.echoenglish_mobile.view.fragment.PhoneticFeedbackFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -43,7 +44,7 @@ public class PronunciationAssessmentActivity extends AppCompatActivity {
     private String targetWord;
     ApiService apiService;
 
-
+    private static final String LOADING_DIALOG_TAG = "PronunciationLoading";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,8 +82,6 @@ public class PronunciationAssessmentActivity extends AppCompatActivity {
             intent.putExtra("URL", "https://content-media.elsanow.co/_static_/youglish.html?" + targetWord);
             startActivity(intent);
         });
-
-
     }
 
     private void startRecording() throws IOException {
@@ -96,7 +95,7 @@ public class PronunciationAssessmentActivity extends AppCompatActivity {
         audioHandler.stopRecording();
         updateUIRecordingStopped();
         isRecording = false;
-        Toast.makeText(this, "Record saved", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Record saved", Toast.LENGTH_SHORT).show();
 //        PhoneticFeedbackFragment dialogFragment = PhoneticFeedbackFragment.newInstance(new ArrayList<>(), "communication");
 //        dialogFragment.show(getSupportFragmentManager(), "phonetic_feedback");
         analyzeSpeech();
@@ -169,12 +168,14 @@ public class PronunciationAssessmentActivity extends AppCompatActivity {
         File audioFile = new File(outputFile);
         RequestBody audioRequestBody = RequestBody.create(MediaType.parse("audio/3gp"), audioFile);
         MultipartBody.Part audioPart = MultipartBody.Part.createFormData("audio_file", audioFile.getName(), audioRequestBody);
-        RequestBody targetWordBody = RequestBody.create(MediaType.parse("text/plain"), targetWord);
+        RequestBody targetWordBody = RequestBody.create(MediaType.parse("text/plain"), "hello");
 
+        LoadingDialogFragment.showLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG, "Analyzing pronunciation...");
         Call<List<PhonemeComparison>> call = apiService.analyzeSpeech(audioPart, targetWordBody);
         call.enqueue(new retrofit2.Callback<List<PhonemeComparison>>() {
             @Override
             public void onResponse(Call<List<PhonemeComparison>> call, retrofit2.Response<List<PhonemeComparison>> response) {
+                LoadingDialogFragment.hideLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG);
                 if (response.isSuccessful() && response.body() != null) {
                     List<PhonemeComparison> resultList = response.body();
                     Toast.makeText(PronunciationAssessmentActivity.this, "Analysis complete", Toast.LENGTH_SHORT).show();
@@ -188,6 +189,7 @@ public class PronunciationAssessmentActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<PhonemeComparison>> call, Throwable t) {
+                LoadingDialogFragment.hideLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG);
                 Log.d("ERROR:::::", t.getMessage());
                 Toast.makeText(PronunciationAssessmentActivity.this, "API error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }

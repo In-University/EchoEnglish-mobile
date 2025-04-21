@@ -27,7 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.GridLayoutManager; // Use GridLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.echoenglish_mobile.R;
@@ -35,6 +35,7 @@ import com.example.echoenglish_mobile.model.request.WritingAnalysisRequest;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.util.FileUtils;
 import com.example.echoenglish_mobile.view.activity.webview.WebViewFragment;
+import com.example.echoenglish_mobile.view.dialog.LoadingDialogFragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,18 +49,15 @@ import retrofit2.Response;
 
 public class UploadNewWritingActivity extends AppCompatActivity {
     private static final String TAG = "CreatePostActivity";
-    // Executor để chạy tác vụ nền
     private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
-    // Handler để chạy tác vụ trên luồng UI
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
-    // Views
     private ImageButton btnClose;
     private EditText editTextTopic;
     private EditText editTextContent;
-    private RecyclerView attachmentsWrapper; // Container for recycler and empty state
+    private RecyclerView attachmentsWrapper;
     private LinearLayout emptyAttachmentsState;
     private RecyclerView recyclerAttachments;
-    private LinearLayout btnAddAttachment; // Main add button
+    private LinearLayout btnAddAttachment;
     private ImageButton btnCamera;
     private ImageButton btnGallery;
     private TextView btnSubmit;
@@ -75,11 +73,12 @@ public class UploadNewWritingActivity extends AppCompatActivity {
     private ActivityResultLauncher<String> requestCameraPermissionLauncher;
 
     private Uri tempCameraUri;
-
+    private static final String LOADING_DIALOG_TAG = "PronunciationLoading";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_writing);
+        LoadingDialogFragment.showLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG, "Analyzing pronunciation..."); // Có thể truyền message tùy chỉnh
 
         findViews();
         setupRecyclerView();
@@ -95,7 +94,7 @@ public class UploadNewWritingActivity extends AppCompatActivity {
         editTextContent.setText("Social media is very popular today especialy among young persons. It have changed the way we communicate signifcantly. One main advantage are connecting with friends and family who live far away. People shares photos updates and keep in touch easily. Also businesses can use platforms like facebook or instagram for reach customers and promote there products cheap. However there is also negative sides. Too much time spent on social media might leads to addiction and affect real life relationships. Comparing yourself to others online perfect lifes can cause feelings of inadequacy or depression." +
                 "" +
                 "Another problem are the spread of fake news and misinformation which is difficult controlling. Privacy concern is also a big issue because personal datas can be misused. In conclude social media has both good points and bad points. Using it moderation and being aware of the risks seem the best approach. We must to learn how use these tools responsible for maximize benefits and minimize harmfull effects.");
-        attachmentsWrapper = findViewById(R.id.recyclerAttachments); // Ensure this ID exists if needed
+        attachmentsWrapper = findViewById(R.id.recyclerAttachments);
         emptyAttachmentsState = findViewById(R.id.emptyAttachmentsState);
         recyclerAttachments = findViewById(R.id.recyclerAttachments);
         btnAddAttachment = findViewById(R.id.btnAddAttachment);
@@ -351,15 +350,15 @@ public class UploadNewWritingActivity extends AppCompatActivity {
                             Log.d(TAG,"Background: ResponseBody closed.");
                         }
 
-                        final String finalJsCode = jsonResponse;
+                        final String finalJsonData = jsonResponse;
                         final boolean success = processingSuccess;
                         final String finalErrorMsg = errorMsg;
 
                         mainThreadHandler.post(() -> {
                             Log.d(TAG, "UI Thread: Received result from background processing. Success: " + success);
 
-                            if (success && finalJsCode != null) {
-                                openAnalysisFragment(finalJsCode);
+                            if (success && finalJsonData != null) {
+                                openAnalysisFragment(finalJsonData);
                             } else {
                                 showError(finalErrorMsg != null ? finalErrorMsg : "Failed to process server response.");
                             }
@@ -393,12 +392,11 @@ public class UploadNewWritingActivity extends AppCompatActivity {
         });
     }
 
-    private void openAnalysisFragment(String jsCodeToInject) {
+    private void openAnalysisFragment(String finalJsonData) {
         Log.d(TAG, "UI Thread: Attempting to open Analysis Fragment...");
         if (!isFinishing() && !isDestroyed()) {
             try {
-                // ** QUAN TRỌNG: Đảm bảo tên class WebViewFragment là đúng **
-                WebViewFragment fragment = WebViewFragment.newInstance(jsCodeToInject); // Truyền mã JS, không phải JSON thô nữa
+                WebViewFragment fragment = WebViewFragment.newInstance(finalJsonData);
 
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();

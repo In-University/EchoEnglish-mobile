@@ -32,7 +32,6 @@ public class BrowserFragment extends Fragment {
     private ProgressBar progressBar;
     private String currentUrl;
 
-    // Flag to prevent injecting JS multiple times if onPageFinished is called again
     private boolean wordWrappingJsInjected = false;
 
     public static BrowserFragment newInstance(String url) {

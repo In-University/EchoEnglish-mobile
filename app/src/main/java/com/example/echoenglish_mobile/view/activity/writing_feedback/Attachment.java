@@ -5,10 +5,9 @@ import android.net.Uri;
 public class Attachment {
     private Uri uri;
     private String fileName;
-    private long fileSize; // Optional
-    private String mimeType; // Optional
+    private long fileSize;
+    private String mimeType;
 
-    // Constructor, Getters, Setters...
     public Attachment(Uri uri, String fileName, String mimeType, long fileSize) {
         this.uri = uri;
         this.fileName = fileName;
@@ -21,7 +20,6 @@ public class Attachment {
     public String getMimeType() { return mimeType; }
     public long getFileSize() { return fileSize; }
 
-    // Optional: equals() and hashCode() based on Uri might be useful
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

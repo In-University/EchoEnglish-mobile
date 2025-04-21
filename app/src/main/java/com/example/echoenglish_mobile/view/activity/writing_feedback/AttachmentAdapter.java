@@ -27,10 +27,9 @@ public class AttachmentAdapter extends RecyclerView.Adapter<AttachmentAdapter.At
     private Context context;
     private AttachmentActionListener actionListener;
 
-    // Interface for actions (Remove and Preview)
     public interface AttachmentActionListener {
         void onRemoveClicked(int position);
-        void onPreviewClicked(int position); // Add preview action
+        void onPreviewClicked(int position);
     }
 
     public AttachmentAdapter(List<Attachment> attachments, Context context, AttachmentActionListener listener) {
@@ -47,7 +46,6 @@ public class AttachmentAdapter extends RecyclerView.Adapter<AttachmentAdapter.At
     @NonNull
     @Override
     public AttachmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate the correct layout file: file_item.xml
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_file, parent, false);
         return new AttachmentViewHolder(view, actionListener);
     }
@@ -63,25 +61,24 @@ public class AttachmentAdapter extends RecyclerView.Adapter<AttachmentAdapter.At
         return attachments.size();
     }
 
-    // --- ViewHolder ---
     static class AttachmentViewHolder extends RecyclerView.ViewHolder {
         ImageView imgFileType;
         TextView txtFileName;
         TextView txtFileSize;
-        TextView txtFileType; // New TextView for descriptive type
+        TextView txtFileType;
 //        ImageButton btnPreviewFile;
         ImageButton btnRemoveFile;
-        FrameLayout iconContainer; // Optional: To change background based on type
+        FrameLayout iconContainer;
 
         public AttachmentViewHolder(@NonNull View itemView, AttachmentActionListener listener) {
             super(itemView);
             imgFileType = itemView.findViewById(R.id.imgFileType);
             txtFileName = itemView.findViewById(R.id.txtFileName);
             txtFileSize = itemView.findViewById(R.id.txtFileSize);
-            txtFileType = itemView.findViewById(R.id.txtFileType); // Find the new TextView
+            txtFileType = itemView.findViewById(R.id.txtFileType);
 //            btnPreviewFile = itemView.findViewById(R.id.btnPreviewFile);
             btnRemoveFile = itemView.findViewById(R.id.btnRemoveFile);
-            // iconContainer = itemView.findViewById(R.id.YOUR_ICON_CONTAINER_ID); // Get container if you want to change its background
+            // iconContainer = itemView.findViewById(R.id.YOUR_ICON_CONTAINER_ID);
 
             // Set listeners using the interface
             btnRemoveFile.setOnClickListener(v -> {
@@ -163,13 +160,12 @@ public class AttachmentAdapter extends RecyclerView.Adapter<AttachmentAdapter.At
         }
         */
 
-    } // End ViewHolder Class
+    }
 
-    // --- Public methods for updating data ---
     public void updateData(List<Attachment> newAttachments) {
         this.attachments.clear();
         this.attachments.addAll(newAttachments);
-        notifyDataSetChanged(); // Simple way to update, consider DiffUtil for performance
+        notifyDataSetChanged();
     }
 
-} // End Adapter Class
+}
