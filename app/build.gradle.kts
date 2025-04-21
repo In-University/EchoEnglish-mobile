@@ -104,4 +104,6 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
 
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
+
 }

@@ -36,10 +36,17 @@
         <activity android:name=".view.activity.webview.WebGameActivity"/>
         <activity android:name=".view.activity.chatbot.ChatActivity"/>
         <activity android:name=".view.activity.dictionary.DictionaryWordDetailActivity" />
+        <activity android:name=".view.activity.flashcard.AddVocabularyActivity"/>
+        <activity android:name=".view.activity.flashcard.CreateFlashcardActivity"/>
+        <activity android:name=".view.activity.flashcard.FlashcardDetailActivity"/>
+        <activity android:name=".view.activity.flashcard.LearnActivity"/>
 
+        <!--
+        .view.activity.auth.MainActivity
+        -->
 
         <activity
-            android:name=".view.activity.auth.MainActivity"
+            android:name=".view.activity.flashcard.MainFlashcardActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Word & Phonetic + Delete Button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Left Side: Word & Phonetic -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textViewWord"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                    tools:text="Vocabulary Word" />
+
+                <TextView
+                    android:id="@+id/textViewPhonetic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textColor="?android:attr/textColorSecondary"
+                    tools:text="/ˈfoʊnɛtɪk/" />
+            </LinearLayout>
+
+            <!-- Right Side: Delete Button -->
+            <ImageButton
+                android:id="@+id/buttonDeleteVocabulary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                android:contentDescription="Xóa từ vựng"
+                app:srcCompat="@drawable/ic_delete"
+                app:tint="?android:attr/textColorSecondary" />
+        </LinearLayout>
+
+        <!-- Definition -->
+        <TextView
+            android:id="@+id/textViewDefinition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            tools:text="This is the definition of the vocabulary word. It can be quite long." />
+
+        <!-- Example -->
+        <TextView
+            android:id="@+id/textViewExample"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textStyle="italic"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            tools:text="Example: This is an example sentence using the word." />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
