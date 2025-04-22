@@ -40,6 +40,12 @@
         <activity android:name=".view.activity.flashcard.CreateFlashcardActivity"/>
         <activity android:name=".view.activity.flashcard.FlashcardDetailActivity"/>
         <activity android:name=".view.activity.flashcard.LearnActivity"/>
+        <activity android:name=".view.activity.flashcard.Game1Activity"/>
+        <activity android:name=".view.activity.flashcard.Game2Activity"/>
+        <activity android:name=".view.activity.flashcard.GameResultActivity"/>
+        <activity android:name=".view.activity.flashcard.MyFlashcardsActivity"/>
+        <activity android:name=".view.activity.flashcard.PublicCategoriesActivity"/>
+        <activity android:name=".view.activity.flashcard.PublicFlashcardsActivity"/>
 
         <!--
         .view.activity.auth.MainActivity

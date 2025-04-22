@@ -9,11 +9,14 @@ import com.example.echoenglish_mobile.model.User;
 import com.example.echoenglish_mobile.model.Word;
 import com.example.echoenglish_mobile.model.request.WritingAnalysisRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.FlashcardCreateRequest;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.FlashcardUpdateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.LearningRecordRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.VocabularyCreateRequest;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.CategoryResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardDetailResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningHistoryResponse;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningProgressResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
 
 import java.util.List;
@@ -30,6 +33,7 @@ import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 
@@ -113,4 +117,22 @@ public interface ApiService {
 
     @GET("api/learnings/history/user/{userId}")
     Call<List<LearningHistoryResponse>> getLearningHistory(@Path("userId") Long userId);
+
+    @GET("categories/public") // Lưu ý: Bỏ "api/" theo yêu cầu của bạn
+    Call<List<CategoryResponse>> getPublicCategories();
+
+    @GET("api/flashcards/category/{categoryId}")
+    Call<List<FlashcardBasicResponse>> getPublicFlashcardsByCategory(@Path("categoryId") Long categoryId);
+
+    @PUT("api/flashcards/{id}") // Thường dùng PUT cho update toàn bộ hoặc PATCH cho update một phần
+    Call<FlashcardDetailResponse> updateFlashcard(
+            @Path("id") Long flashcardId,
+            @Body FlashcardUpdateRequest request // Dùng DTO Update
+    );
+
+    @GET("api/learnings/user/{userId}/flashcard/{flashcardId}/progress")
+    Call<LearningProgressResponse> getLearningProgress(
+            @Path("userId") Long userId,
+            @Path("flashcardId") Long flashcardId
+    );
 }

@@ -40,7 +40,7 @@ public class AddVocabularyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_vocabulary);
+        setContentView(R.layout.activity_create_vocabulary);
 
         textFieldLayoutWord = findViewById(R.id.textFieldLayoutVocabWord);
         textFieldLayoutDefinition = findViewById(R.id.textFieldLayoutVocabDefinition);

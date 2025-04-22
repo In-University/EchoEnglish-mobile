@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp" >
+
+    <TextView
+        android:id="@+id/textGame1Progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Câu 1 / 10" />
+
+    <ImageView
+        android:id="@+id/imageGame1Word"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="16dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textGame1Progress"
+        tools:srcCompat="@drawable/ic_placeholder_image" />
+
+    <TextView
+        android:id="@+id/textGame1Definition"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageGame1Word"
+        tools:text="Nghĩa: Một loại quả" />
+
+    <!-- Khu vực hiển thị câu trả lời người dùng ghép -->
+    <LinearLayout
+        android:id="@+id/layoutGame1Answer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textGame1Definition">
+        <!-- Các ô chữ cái trả lời sẽ được thêm vào đây bằng code -->
+        <!-- Ví dụ một ô (chỉ để xem trước) -->
+        <!-- <TextView
+             style="@style/GameLetterBox.Answer"
+             android:text="A"/> -->
+    </LinearLayout>
+
+    <!-- Đường kẻ dưới câu trả lời -->
+    <View
+        android:id="@+id/dividerAnswer"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="@+id/layoutGame1Answer"
+        app:layout_constraintStart_toStartOf="@+id/layoutGame1Answer"
+        app:layout_constraintTop_toBottomOf="@+id/layoutGame1Answer" />
+
+
+    <!-- Khu vực chứa các lựa chọn chữ cái (dùng FlexboxLayout) -->
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/layoutGame1Choices"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:alignContent="flex_start"
+        app:alignItems="flex_start"
+        app:flexWrap="wrap"
+        app:justifyContent="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dividerAnswer" >
+        <!-- Các ô chữ cái lựa chọn sẽ được thêm vào đây bằng code -->
+        <!-- Ví dụ một ô (chỉ để xem trước) -->
+        <!-- <TextView
+             style="@style/GameLetterBox.Choice"
+             android:text="P"/> -->
+    </com.google.android.flexbox.FlexboxLayout>
+
+
+    <Button
+        android:id="@+id/buttonGame1Skip"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Bỏ qua"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Nút Check sẽ ẩn/hiện -->
+    <Button
+        android:id="@+id/buttonGame1Check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kiểm tra"
+        android:visibility="gone"
+        app:icon="@drawable/ic_xml_check_24px"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonGame1Skip"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
