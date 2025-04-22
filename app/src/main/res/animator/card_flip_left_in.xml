@@ -3,6 +3,6 @@
     android:propertyName="rotationY"
     android:valueFrom="-180"
     android:valueTo="0"
-    android:startOffset="@integer/card_flip_time_half"
+    android:startOffset="0"
     android:duration="@integer/card_flip_time_full"
     android:interpolator="@android:interpolator/accelerate_decelerate" />

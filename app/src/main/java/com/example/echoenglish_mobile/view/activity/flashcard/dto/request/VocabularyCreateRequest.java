@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class VocabularyCreateRequest {
     private String word;
-
     private String definition;
 
     private String phonetic;
