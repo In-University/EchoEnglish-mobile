@@ -104,7 +104,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <ImageButton
-            android:id="@+id/buttonMicCustom"
+            android:id="@+id/buttonMic"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_gravity="center"
@@ -112,6 +112,18 @@
             android:scaleType="center"
             android:elevation="3dp"
             android:contentDescription="Record voice" />
+        <EditText
+            android:visibility="gone"
+            android:id="@+id/editTextMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nhaapj text"></EditText>
+        <Button
+            android:visibility="gone"
+            android:id="@+id/buttonSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send"></Button>
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

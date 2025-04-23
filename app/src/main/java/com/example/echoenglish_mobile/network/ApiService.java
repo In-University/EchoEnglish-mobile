@@ -7,7 +7,10 @@ import com.example.echoenglish_mobile.model.ResetPasswordRequest;
 import com.example.echoenglish_mobile.model.SentenceAnalysisResult;
 import com.example.echoenglish_mobile.model.User;
 import com.example.echoenglish_mobile.model.Word;
+import com.example.echoenglish_mobile.model.request.ConverseRequest;
+import com.example.echoenglish_mobile.model.request.StartConversationRequest;
 import com.example.echoenglish_mobile.model.request.WritingAnalysisRequest;
+import com.example.echoenglish_mobile.model.response.ConversationResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -69,4 +72,10 @@ public interface ApiService {
 
     @POST("/writing/analyze")
     Call<ResponseBody> analyzeWriting(@Body WritingAnalysisRequest request);
+
+    @POST("/chatbot/start")
+    Call<ConversationResponse> startChat(@Body StartConversationRequest request);
+
+    @POST("/chatbot/converse")
+    Call<ConversationResponse> continueChat(@Body ConverseRequest request);
 }

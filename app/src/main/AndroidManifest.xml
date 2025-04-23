@@ -41,8 +41,9 @@
         <activity android:name=".view.activity.quiz.MainQuizzAppActivity"/>
         <activity android:name=".view.activity.quiz.QuizActivity"/>
         <activity android:name=".view.activity.webview.WebGameActivity"/>
-        <activity android:name=".view.activity.chatbot.ChatActivity"/>
+<!--        <activity android:name=".view.activity.chatbot.ChatActivity"/>-->
         <activity android:name=".view.activity.dictionary.DictionaryWordDetailActivity" />
+        <activity android:name=".view.activity.chatbot.ConversationActivity" />
 
 
         <activity
