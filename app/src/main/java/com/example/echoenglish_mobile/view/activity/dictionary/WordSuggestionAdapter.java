@@ -1,21 +1,18 @@
 package com.example.echoenglish_mobile.view.activity.dictionary;
 
 import android.content.Context;
-import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.model.Meaning;
 import com.example.echoenglish_mobile.model.Word;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,10 +20,18 @@ public class WordSuggestionAdapter extends RecyclerView.Adapter<WordSuggestionAd
 
     private List<Word> suggestions;
     private Context context;
+    private final OnSuggestionClickListener listener;
 
-    public WordSuggestionAdapter(Context context, List<Word> suggestions) {
+    public interface OnSuggestionClickListener {
+        void onSuggestionClick(Word word);
+        void onDeleteHistoryClick(String wordToDelete);
+        void onArrowClick(String wordText);
+    }
+
+    public WordSuggestionAdapter(Context context, List<Word> suggestions, OnSuggestionClickListener listener) {
         this.context = context;
         this.suggestions = suggestions != null ? suggestions : new ArrayList<>();
+        this.listener = listener;
     }
 
     public void updateData(List<Word> newSuggestions) {
@@ -40,43 +45,62 @@ public class WordSuggestionAdapter extends RecyclerView.Adapter<WordSuggestionAd
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Ensure you are using the correct layout file name here
         View view = LayoutInflater.from(context).inflate(R.layout.item_dictionary_word_suggestion, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Word word = suggestions.get(position);
+        int currentPosition = holder.getAdapterPosition();
+        if (currentPosition == RecyclerView.NO_POSITION) {
+            return;
+        }
+        Word word = suggestions.get(currentPosition);
 
-        // --- Bind Data ---
         holder.tvSuggestedWord.setText(word.getWord());
 
-        // Bind UK Pronunciation
-        boolean hasPronunciation = !TextUtils.isEmpty(word.getUkPronunciation());
-        if (hasPronunciation) {
-            // Thêm dấu gạch chéo nếu muốn
-            holder.tvSuggestedUkPronunciation.setText("/" + word.getUkPronunciation() + "/");
+        String ukPron = word.getUkPronunciation();
+        if (!TextUtils.isEmpty(ukPron)) {
+            holder.tvSuggestedUkPronunciation.setText("/" + ukPron + "/");
             holder.tvSuggestedUkPronunciation.setVisibility(View.VISIBLE);
         } else {
             holder.tvSuggestedUkPronunciation.setVisibility(View.GONE);
         }
 
-        // Bind First Part of Speech
         String firstPos = getFirstPartOfSpeech(word);
-        boolean hasPos = !TextUtils.isEmpty(firstPos);
-        if (hasPos) {
-            holder.tvSuggestedPos.setText(firstPos);
+        if (!TextUtils.isEmpty(firstPos)) {
+            holder.tvSuggestedPos.setText("(" + firstPos + ")");
             holder.tvSuggestedPos.setVisibility(View.VISIBLE);
         } else {
             holder.tvSuggestedPos.setVisibility(View.GONE);
         }
 
-        // --- Handle Click ---
+        // Sử dụng cờ isFromHistory để kiểm tra
+        if (word.isFromHistory()) {
+            holder.ivDeleteHistory.setVisibility(View.VISIBLE);
+            holder.ivDeleteHistory.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onDeleteHistoryClick(word.getWord());
+                }
+            });
+        } else {
+            holder.ivDeleteHistory.setVisibility(View.GONE);
+            holder.ivDeleteHistory.setOnClickListener(null);
+            holder.ivArrow.setVisibility(View.VISIBLE); // Hiện mũi tên cho gợi ý API
+        }
+
+        // Listener cho mũi tên (chỉ hoạt động khi visible)
+        holder.ivArrow.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onArrowClick(word.getWord());
+            }
+        });
+
+        // Listener cho toàn bộ item
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, DictionaryWordDetailActivity.class);
-            intent.putExtra("word_data", word);
-            context.startActivity(intent);
+            if (listener != null) {
+                listener.onSuggestionClick(word);
+            }
         });
     }
 
@@ -86,30 +110,33 @@ public class WordSuggestionAdapter extends RecyclerView.Adapter<WordSuggestionAd
     }
 
     private String getFirstPartOfSpeech(Word word) {
+        if (word == null) return null;
         if (word.getMeanings() != null && !word.getMeanings().isEmpty()) {
             Meaning firstMeaning = word.getMeanings().get(0);
             if (firstMeaning != null && !TextUtils.isEmpty(firstMeaning.getPartOfSpeech())) {
-                // Trả về loại từ, bỏ qua các ký tự như 'N/A' nếu API có thể trả về
                 String pos = firstMeaning.getPartOfSpeech();
-                return "N/A".equalsIgnoreCase(pos) ? null : pos;
+                if ("N/A".equalsIgnoreCase(pos) || TextUtils.isEmpty(pos.trim())) {
+                    return null;
+                }
+                return pos;
             }
         }
         return null;
     }
 
-    // --- ViewHolder ---
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvSuggestedWord;
         TextView tvSuggestedUkPronunciation;
         TextView tvSuggestedPos;
+        ImageView ivDeleteHistory;
         ImageView ivArrow;
-        // Không cần tham chiếu đến LinearLayout cha nếu không thao tác trực tiếp
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvSuggestedWord = itemView.findViewById(R.id.tvSuggestedWord);
             tvSuggestedUkPronunciation = itemView.findViewById(R.id.tvSuggestedUkPronunciation);
             tvSuggestedPos = itemView.findViewById(R.id.tvSuggestedPos);
+            ivDeleteHistory = itemView.findViewById(R.id.ivDeleteHistory);
             ivArrow = itemView.findViewById(R.id.ivArrow);
         }
     }

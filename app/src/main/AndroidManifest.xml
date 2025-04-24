@@ -46,12 +46,13 @@
         <activity android:name=".view.activity.flashcard.MyFlashcardsActivity"/>
         <activity android:name=".view.activity.flashcard.PublicCategoriesActivity"/>
         <activity android:name=".view.activity.flashcard.PublicFlashcardsActivity"/>
+
         <!--
         .view.activity.auth.MainActivity
         -->
 
         <activity
-            android:name=".view.activity.flashcard.MainFlashcardActivity"
+            android:name=".view.activity.dictionary.DictionaryActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
