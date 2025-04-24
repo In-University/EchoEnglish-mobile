@@ -12,12 +12,14 @@ import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.Flashc
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.FlashcardUpdateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.LearningRecordRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.VocabularyCreateRequest;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.VocabularyUpdateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.CategoryResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardDetailResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningHistoryResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningProgressResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
+import com.example.echoenglish_mobile.view.activity.flashcard.model.PexelsResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,8 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
+import retrofit2.http.Url;
 
 public interface ApiService {
     @POST("/register")
@@ -134,5 +138,22 @@ public interface ApiService {
     Call<LearningProgressResponse> getLearningProgress(
             @Path("userId") Long userId,
             @Path("flashcardId") Long flashcardId
+    );
+
+    @GET("pixels/search")
+    Call<PexelsResponse> searchImagesViaBackend(
+            @Query("query") String query,
+            @Query("perPage") int perPage, // Có thể bỏ nếu backend dùng giá trị mặc định
+            @Query("page") int page,       // Có thể bỏ
+            @Query("orientation") String orientation // Có thể bỏ
+    );
+
+    @GET("api/flashcards/creator/{creatorId}")
+    Call<List<FlashcardBasicResponse>> getFlashcardsByCreator(@Path("creatorId") Long creatorId);
+
+    @PUT("vocabularies/{id}") // Endpoint backend mới
+    Call<VocabularyResponse> updateVocabulary(
+            @Path("id") Long vocabularyId,
+            @Body VocabularyUpdateRequest request
     );
 }

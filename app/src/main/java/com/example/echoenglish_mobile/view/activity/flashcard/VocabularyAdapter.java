@@ -1,43 +1,41 @@
 package com.example.echoenglish_mobile.view.activity.flashcard;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageButton;
+import android.widget.LinearLayout; // Import LinearLayout
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import android.util.Log;
-import android.widget.Filter; // Import Filter
-import android.widget.Filterable; // Import Filterable
 import java.util.Locale;
 
-// Implement Filterable
 public class VocabularyAdapter extends RecyclerView.Adapter<VocabularyAdapter.VocabularyViewHolder> implements Filterable {
 
     private Context context;
-    private List<VocabularyResponse> vocabularyListFull; // Danh sách gốc
-    private List<VocabularyResponse> vocabularyListFiltered; // Danh sách hiển thị (đã lọc)
-    private OnVocabularyDeleteClickListener deleteListener;
+    private List<VocabularyResponse> vocabularyListFull;
+    private List<VocabularyResponse> vocabularyListFiltered;
+    private OnVocabularyActionsListener actionsListener;
 
-    public interface OnVocabularyDeleteClickListener {
-        void onVocabularyDeleteClick(VocabularyResponse vocabulary, int originalPosition); // Truyền vị trí gốc
+    public interface OnVocabularyActionsListener {
+        void onVocabularyDeleteClick(VocabularyResponse vocabulary, int originalPosition);
+        void onVocabularyItemClick(VocabularyResponse vocabulary); // Click để sửa
     }
 
-    public VocabularyAdapter(Context context, List<VocabularyResponse> vocabularyList, OnVocabularyDeleteClickListener deleteListener) {
+    public VocabularyAdapter(Context context, List<VocabularyResponse> vocabularyList, OnVocabularyActionsListener listener) {
         this.context = context;
         this.vocabularyListFull = new ArrayList<>(vocabularyList != null ? vocabularyList : new ArrayList<>());
         this.vocabularyListFiltered = new ArrayList<>(this.vocabularyListFull);
-        this.deleteListener = deleteListener;
+        this.actionsListener = listener;
     }
 
     @NonNull
@@ -49,45 +47,83 @@ public class VocabularyAdapter extends RecyclerView.Adapter<VocabularyAdapter.Vo
 
     @Override
     public void onBindViewHolder(@NonNull VocabularyViewHolder holder, int position) {
-        // Luôn lấy từ danh sách đã lọc
-        if (position < 0 || position >= vocabularyListFiltered.size()) return; // Kiểm tra an toàn
+        if (position < 0 || position >= vocabularyListFiltered.size()) return;
         VocabularyResponse vocab = vocabularyListFiltered.get(position);
 
         holder.textViewWord.setText(vocab.getWord());
         holder.textViewDefinition.setText(vocab.getDefinition());
-        holder.textViewPhonetic.setText(vocab.getPhonetic() != null ? vocab.getPhonetic() : "");
-        holder.textViewPhonetic.setVisibility(vocab.getPhonetic() != null ? View.VISIBLE : View.GONE);
-        holder.textViewExample.setText(vocab.getExample() != null ? "Ví dụ: " + vocab.getExample() : "");
-        holder.textViewExample.setVisibility(vocab.getExample() != null ? View.VISIBLE : View.GONE);
 
-        // Xử lý click xóa
-        holder.buttonDelete.setOnClickListener(v -> {
-            if (deleteListener != null) {
-                int currentPosition = holder.getAdapterPosition(); // Lấy vị trí mới nhất trong list đã lọc
-                if (currentPosition != RecyclerView.NO_POSITION && currentPosition < vocabularyListFiltered.size()) {
-                    VocabularyResponse itemToDelete = vocabularyListFiltered.get(currentPosition);
-                    int originalPosition = findPositionInFullList(itemToDelete.getId()); // Tìm vị trí trong list gốc
-                    if (originalPosition != -1) {
-                        deleteListener.onVocabularyDeleteClick(itemToDelete, originalPosition); // Gọi listener với vị trí gốc
-                    } else {
-                        // Hiếm khi xảy ra nếu logic đúng, nhưng nên log lại
-                        Log.w("VocabularyAdapter", "Could not find original position for item to delete: ID " + itemToDelete.getId());
-                        // Có thể fallback gọi listener với vị trí hiện tại và để Activity xử lý tìm kiếm lại
-                        // deleteListener.onVocabularyDeleteClick(itemToDelete, currentPosition);
+        if (vocab.getPhonetic() != null && !vocab.getPhonetic().isEmpty()) {
+            holder.textViewPhonetic.setText(vocab.getPhonetic());
+            holder.textViewPhonetic.setVisibility(View.VISIBLE);
+        } else {
+            holder.textViewPhonetic.setVisibility(View.GONE);
+        }
+
+        if (vocab.getExample() != null && !vocab.getExample().isEmpty()) {
+            holder.textViewExample.setText("Ví dụ: " + vocab.getExample());
+            holder.textViewExample.setVisibility(View.VISIBLE);
+        } else {
+            holder.textViewExample.setVisibility(View.GONE);
+        }
+
+        // Xử lý click nút Sửa
+        if (holder.buttonEdit != null) {
+            holder.buttonEdit.setOnClickListener(v -> {
+                if (actionsListener != null) {
+                    int currentPosition = holder.getAdapterPosition();
+                    if (currentPosition != RecyclerView.NO_POSITION && currentPosition < vocabularyListFiltered.size()) {
+                        actionsListener.onVocabularyItemClick(vocabularyListFiltered.get(currentPosition));
                     }
                 }
-            }
-        });
-        // Chỉ hiển thị nút xóa nếu có listener (dùng trong DetailActivity)
-        holder.buttonDelete.setVisibility(deleteListener != null ? View.VISIBLE : View.GONE);
+            });
+            // Chỉ hiển thị nút sửa nếu listener tồn tại (Activity truyền listener vào)
+            holder.buttonEdit.setVisibility(actionsListener != null ? View.VISIBLE : View.GONE);
+        }
+
+
+        // Xử lý click nút Xóa
+        if (holder.buttonDelete != null) {
+            holder.buttonDelete.setOnClickListener(v -> {
+                if (actionsListener != null) {
+                    int currentPosition = holder.getAdapterPosition();
+                    if (currentPosition != RecyclerView.NO_POSITION && currentPosition < vocabularyListFiltered.size()) {
+                        VocabularyResponse itemToDelete = vocabularyListFiltered.get(currentPosition);
+                        int originalPosition = findPositionInFullList(itemToDelete.getId());
+                        if (originalPosition != -1) {
+                            actionsListener.onVocabularyDeleteClick(itemToDelete, originalPosition);
+                        } else {
+                            Log.w("VocabularyAdapter", "Could not find original position for delete: ID " + itemToDelete.getId());
+                            // Fallback: Gọi với vị trí hiện tại, Activity cần xử lý tìm lại
+                            // actionsListener.onVocabularyDeleteClick(itemToDelete, currentPosition);
+                        }
+                    }
+                }
+            });
+            // Chỉ hiển thị nút xóa nếu listener tồn tại
+            holder.buttonDelete.setVisibility(actionsListener != null ? View.VISIBLE : View.GONE);
+        }
+
+        // Xử lý click vào vùng text (word/phonetic) để mở màn hình sửa
+        // Thay vì đặt listener vào itemView, đặt vào LinearLayout chứa text
+        if (holder.clickableArea != null) {
+            holder.clickableArea.setOnClickListener(v -> {
+                if (actionsListener != null) {
+                    int currentPosition = holder.getAdapterPosition();
+                    if (currentPosition != RecyclerView.NO_POSITION && currentPosition < vocabularyListFiltered.size()) {
+                        actionsListener.onVocabularyItemClick(vocabularyListFiltered.get(currentPosition));
+                    }
+                }
+            });
+        }
+
     }
 
     @Override
     public int getItemCount() {
-        return vocabularyListFiltered == null ? 0 : vocabularyListFiltered.size(); // Kích thước của list đã lọc
+        return vocabularyListFiltered == null ? 0 : vocabularyListFiltered.size();
     }
 
-    // Cập nhật cả hai danh sách khi có dữ liệu mới
     public void updateData(List<VocabularyResponse> newVocabularies) {
         if (newVocabularies != null) {
             this.vocabularyListFull = new ArrayList<>(newVocabularies);
@@ -96,28 +132,21 @@ public class VocabularyAdapter extends RecyclerView.Adapter<VocabularyAdapter.Vo
             this.vocabularyListFull.clear();
             this.vocabularyListFiltered.clear();
         }
-        notifyDataSetChanged(); // Cần dùng DiffUtil cho hiệu năng tốt hơn
+        notifyDataSetChanged();
     }
 
-    // Xóa item khỏi cả hai danh sách (dựa vào vị trí GỐC)
     public void removeItem(int originalPosition) {
         if (originalPosition >= 0 && originalPosition < vocabularyListFull.size()) {
-            VocabularyResponse removedItem = vocabularyListFull.remove(originalPosition); // Xóa khỏi list gốc
-
-            // Tìm và xóa khỏi list đã lọc (nếu nó đang hiển thị)
+            VocabularyResponse removedItem = vocabularyListFull.remove(originalPosition);
             int filteredPosition = findPositionInFilteredList(removedItem.getId());
             if (filteredPosition != -1) {
                 vocabularyListFiltered.remove(filteredPosition);
-                notifyItemRemoved(filteredPosition); // Thông báo xóa ở vị trí đã lọc
-                // Cập nhật lại các vị trí sau đó trong list đã lọc
+                notifyItemRemoved(filteredPosition);
                 notifyItemRangeChanged(filteredPosition, vocabularyListFiltered.size());
             }
-            // Nếu không tìm thấy trong list đã lọc (tức là đang không hiển thị do filter)
-            // thì không cần làm gì với RecyclerView cả, vì nó không nhìn thấy item đó
         }
     }
 
-    // Lấy item từ danh sách đã lọc
     public VocabularyResponse getItem(int position) {
         if (position >= 0 && position < vocabularyListFiltered.size()) {
             return vocabularyListFiltered.get(position);
@@ -125,34 +154,26 @@ public class VocabularyAdapter extends RecyclerView.Adapter<VocabularyAdapter.Vo
         return null;
     }
 
-    // Hàm để Activity lấy danh sách đầy đủ (cần cho Game)
     public List<VocabularyResponse> getFullList() {
         return vocabularyListFull;
     }
 
-    // Helper tìm vị trí trong list gốc
     private int findPositionInFullList(Long vocabId) {
         if (vocabId == null || vocabularyListFull == null) return -1;
         for (int i = 0; i < vocabularyListFull.size(); i++) {
-            if (vocabId.equals(vocabularyListFull.get(i).getId())) {
-                return i;
-            }
+            if (vocabId.equals(vocabularyListFull.get(i).getId())) return i;
         }
         return -1;
     }
-    // Helper tìm vị trí trong list đã lọc
+
     private int findPositionInFilteredList(Long vocabId) {
         if (vocabId == null || vocabularyListFiltered == null) return -1;
         for (int i = 0; i < vocabularyListFiltered.size(); i++) {
-            if (vocabId.equals(vocabularyListFiltered.get(i).getId())) {
-                return i;
-            }
+            if (vocabId.equals(vocabularyListFiltered.get(i).getId())) return i;
         }
         return -1;
     }
 
-
-    // --- Implement Filterable ---
     @Override
     public Filter getFilter() {
         return vocabularyFilter;
@@ -162,20 +183,17 @@ public class VocabularyAdapter extends RecyclerView.Adapter<VocabularyAdapter.Vo
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             List<VocabularyResponse> filteredList = new ArrayList<>();
-
             if (constraint == null || constraint.length() == 0 || vocabularyListFull == null) {
                 filteredList.addAll(vocabularyListFull != null ? vocabularyListFull : new ArrayList<>());
             } else {
                 String filterPattern = constraint.toString().toLowerCase(Locale.getDefault()).trim();
                 for (VocabularyResponse item : vocabularyListFull) {
-                    // Lọc theo word hoặc definition
                     if ((item.getWord() != null && item.getWord().toLowerCase(Locale.getDefault()).contains(filterPattern)) ||
                             (item.getDefinition() != null && item.getDefinition().toLowerCase(Locale.getDefault()).contains(filterPattern))) {
                         filteredList.add(item);
                     }
                 }
             }
-
             FilterResults results = new FilterResults();
             results.values = filteredList;
             results.count = filteredList.size();
@@ -188,15 +206,15 @@ public class VocabularyAdapter extends RecyclerView.Adapter<VocabularyAdapter.Vo
             if (results.values != null) {
                 vocabularyListFiltered.addAll((List<VocabularyResponse>) results.values);
             }
-            notifyDataSetChanged(); // Cập nhật RecyclerView
+            notifyDataSetChanged();
         }
     };
-    // --- Kết thúc Filterable ---
 
-    // ViewHolder giữ nguyên
     static class VocabularyViewHolder extends RecyclerView.ViewHolder {
         TextView textViewWord, textViewPhonetic, textViewDefinition, textViewExample;
-        ImageButton buttonDelete;
+        ImageButton buttonDelete, buttonEdit; // Thêm buttonEdit
+        LinearLayout clickableArea; // Vùng text có thể click
+
         VocabularyViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewWord = itemView.findViewById(R.id.textViewWord);
@@ -204,6 +222,8 @@ public class VocabularyAdapter extends RecyclerView.Adapter<VocabularyAdapter.Vo
             textViewDefinition = itemView.findViewById(R.id.textViewDefinition);
             textViewExample = itemView.findViewById(R.id.textViewExample);
             buttonDelete = itemView.findViewById(R.id.buttonDeleteVocabulary);
+            buttonEdit = itemView.findViewById(R.id.buttonEditVocabulary); // Tìm nút sửa
+            clickableArea = itemView.findViewById(R.id.layout_vocab_clickable_area); // Tìm vùng click
         }
     }
 }
