@@ -44,10 +44,12 @@
 <!--        <activity android:name=".view.activity.chatbot.ChatActivity"/>-->
         <activity android:name=".view.activity.dictionary.DictionaryWordDetailActivity" />
         <activity android:name=".view.activity.chatbot.ConversationActivity" />
+        <activity android:name=".view.activity.browser.BrowserActivity" />
+        <activity android:name=".view.activity.video_youtube.VideoYoutubeActivity" />
 
 
         <activity
-            android:name=".view.activity.browser.BrowserActivity"
+            android:name=".view.activity.dictionary.DictionaryActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

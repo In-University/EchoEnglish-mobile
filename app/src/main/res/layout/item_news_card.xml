@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginBottom="4dp"
+    android:layout_marginTop="4dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="140dp">
+
+        <ImageView
+            android:id="@+id/newsImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/image_background_intro"
+            android:background="#EAECEE"/>
+
+        <TextView
+            android:id="@+id/newsTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2h ago"
+            android:background="#9A000000"
+            android:textColor="#FFFFFF"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="10dp"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-medium"/>
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/newsSource"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NEWS SOURCE"
+            android:textSize="10sp"
+            android:textColor="#888888"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/newsHeadline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Modern Web Design Inspired News Headline Goes Here"
+            android:textSize="15sp"
+            android:textColor="#333333"
+            android:lineSpacingMultiplier="1.1"
+            android:maxLines="2"
+            android:ellipsize="end"/>
+
+    </LinearLayout>
+
+</LinearLayout>
