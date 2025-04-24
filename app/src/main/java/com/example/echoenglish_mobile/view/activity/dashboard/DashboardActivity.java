@@ -21,7 +21,6 @@ import com.example.echoenglish_mobile.view.activity.auth.LoginActivity;
 import com.example.echoenglish_mobile.view.activity.auth.MainActivity;
 import com.example.echoenglish_mobile.view.activity.webview.WebGameActivity;
 import com.example.echoenglish_mobile.view.activity.chatbot.ChatActivity;
-import com.example.echoenglish_mobile.view.activity.flashcard.MainFlashcardActivity;
 import com.example.echoenglish_mobile.view.activity.quiz.MainQuizzAppActivity;
 
 import java.util.ArrayList;
@@ -52,9 +51,6 @@ public class DashboardActivity extends AppCompatActivity {
         adapter = new DashboardAdapter(articles);
         recyclerViewList.setAdapter(adapter);
 
-        // --- Sự kiện click cho các nút chức năng ---
-        LinearLayout btnFlashcard = findViewById(R.id.btnFlashcard);
-        btnFlashcard.setOnClickListener(v -> startActivity(new Intent(DashboardActivity.this, MainFlashcardActivity.class)));
 
         LinearLayout btnQuizz = findViewById(R.id.btnQuizz);
         btnQuizz.setOnClickListener(v -> startActivity(new Intent(DashboardActivity.this, MainQuizzAppActivity.class)));

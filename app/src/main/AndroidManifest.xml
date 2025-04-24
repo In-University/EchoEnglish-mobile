@@ -31,20 +31,25 @@
         <activity android:name=".view.activity.auth.OtpVerificationActivity"/>
         <activity android:name=".view.activity.auth.ResetPasswordActivity"/>
         <activity android:name=".view.activity.pronun_summary_result.SummaryResultsActivity"/>
-        <activity android:name=".view.activity.flashcard.ScoreActivity"/>
-        <activity android:name=".view.activity.flashcard.FolderListActivity"/>
-        <activity android:name=".view.activity.flashcard.CardFlip"/>
-        <activity android:name=".view.activity.flashcard.WordList"/>
-        <activity android:name=".view.activity.flashcard.FolderFormActivity"/>
-        <activity android:name=".view.activity.flashcard.WordFormActivity"/>
-        <activity android:name=".view.activity.flashcard.MainFlashcardActivity"/>
         <activity android:name=".view.activity.quiz.MainQuizzAppActivity"/>
         <activity android:name=".view.activity.quiz.QuizActivity"/>
         <activity android:name=".view.activity.webview.WebGameActivity"/>
 <!--        <activity android:name=".view.activity.chatbot.ChatActivity"/>-->
         <activity android:name=".view.activity.dictionary.DictionaryWordDetailActivity" />
-        <activity android:name=".view.activity.chatbot.ConversationActivity" />
-        <activity android:name=".view.activity.browser.BrowserActivity" />
+		<activity android:name=".view.activity.flashcard.AddVocabularyActivity"/>
+        <activity android:name=".view.activity.flashcard.CreateFlashcardActivity"/>
+        <activity android:name=".view.activity.flashcard.FlashcardDetailActivity"/>
+        <activity android:name=".view.activity.flashcard.LearnActivity"/>
+        <activity android:name=".view.activity.flashcard.Game1Activity"/>
+        <activity android:name=".view.activity.flashcard.Game2Activity"/>
+        <activity android:name=".view.activity.flashcard.GameResultActivity"/>
+        <activity android:name=".view.activity.flashcard.MyFlashcardsActivity"/>
+        <activity android:name=".view.activity.flashcard.PublicCategoriesActivity"/>
+        <activity android:name=".view.activity.flashcard.PublicFlashcardsActivity"/>
+
+        <!--
+        .view.activity.auth.MainActivity
+        -->        <activity android:name=".view.activity.browser.BrowserActivity" />
         <activity android:name=".view.activity.video_youtube.VideoYoutubeActivity" />
 
 

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/learnCardContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <!-- *** XÓA CÁC THUỘC TÍNH CLICK KHỎI FrameLayout GỐC *** -->
+    <!-- android:clickable="true" -->
+    <!-- android:focusable="true" -->
+    <!-- android:foreground="?android:attr/selectableItemBackground" -->
+    <!-- android:onClick="flipCard" -->
+
+    <!-- Front View: Word, Type, Phonetic, Image -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/viewLearnCardFront"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardCornerRadius="16dp"
+        android:layout_margin="8dp"
+        android:backgroundTint="#FFFFFF"
+
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <!-- Nội dung mặt trước giữ nguyên -->
+        <ImageView
+            android:id="@+id/imageViewLearnCard"
+            android:layout_width="310dp"
+            android:layout_height="273dp"
+            android:layout_marginTop="8dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.494"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@drawable/ic_placeholder_image" />
+
+        <TextView
+            android:id="@+id/textViewLearnCardWord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageViewLearnCard"
+            tools:text="Word" />
+
+        <TextView
+            android:id="@+id/textViewLearnCardPhonetic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewLearnCardWord"
+            tools:text="/foʊˈnɛtɪk/" />
+
+        <TextView
+            android:id="@+id/textViewLearnCardType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toBottomOf="@+id/textViewLearnCardWord"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.153"
+            app:layout_constraintStart_toEndOf="@+id/textViewLearnCardWord"
+            app:layout_constraintTop_toTopOf="@+id/textViewLearnCardWord"
+            app:layout_constraintVertical_bias="0.692"
+            tools:text="(noun)" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
+
+    <!-- Back View: Definition, Example -->
+<com.google.android.material.card.MaterialCardView
+android:id="@+id/viewLearnCardBack"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:visibility="gone"
+android:rotationY="180"
+app:cardCornerRadius="16dp"
+android:layout_margin="8dp"
+android:backgroundTint="#FFFFFF"
+android:clickable="true"
+android:focusable="true"
+android:foreground="?android:attr/selectableItemBackground">
+
+<LinearLayout
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:gravity="center"
+android:orientation="vertical"
+android:padding="24dp">
+
+<!-- Nội dung mặt sau giữ nguyên -->
+<TextView
+    android:id="@+id/textViewLearnCardDefinition"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+    tools:text="Definition of the word goes here and it might be quite long." />
+
+<TextView
+    android:id="@+id/textViewLearnCardExample"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="24dp"
+    android:gravity="center"
+    android:textStyle="italic"
+    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+    tools:text="Example: This is an example sentence using the word." />
+
+</LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    </FrameLayout>

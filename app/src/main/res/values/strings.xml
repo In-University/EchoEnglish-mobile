@@ -25,7 +25,19 @@
     <string name="app_description">Visit https://github.com/In-University/EchoEnglish-mobile for support</string>
     <!--  Lụm -->
 
-
+    <string-array name="vocabulary_types">
+        <item>noun</item>
+        <item>verb</item>
+        <item>adjective</item>
+        <item>adverb</item>
+        <item>verb phrase</item>
+        <item>adverb phrase</item>
+        <item>adjective phrase</item>
+        <item>noun phrase</item>
+        <item>preposition</item>
+        <item>idiom</item>
+        <item>other</item>
+    </string-array>
 
 
 </resources>

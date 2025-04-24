@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".view.activity.flashcard.AddVocabularyActivity">
+
+<LinearLayout
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="vertical"
+android:padding="16dp">
+
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Thêm từ vựng mới"
+    android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginBottom="20dp"/>
+
+<!-- Flashcard Selection Dropdown -->
+<com.google.android.material.textfield.TextInputLayout
+    android:id="@+id/textFieldLayoutSelectFlashcard"
+    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    android:hint="Chọn bộ thẻ (*)">
+
+    <AutoCompleteTextView
+        android:id="@+id/autoCompleteTextViewSelectFlashcard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="none" />
+
+</com.google.android.material.textfield.TextInputLayout>
+<!-- Optional: Add "+" button here if needed -->
+
+<!-- Word Input -->
+<com.google.android.material.textfield.TextInputLayout
+    android:id="@+id/textFieldLayoutVocabWord"
+    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="Từ vựng (*)">
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/editTextVocabWord"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text" />
+</com.google.android.material.textfield.TextInputLayout>
+
+<!-- Image Search Progress -->
+<ProgressBar
+    android:id="@+id/progressBarImageSearch"
+    style="?android:attr/progressBarStyleSmall"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="end"
+    android:layout_marginTop="8dp"
+    android:visibility="gone"
+    tools:visibility="visible"/>
+
+<!-- Image Suggestions RecyclerView -->
+<androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/recyclerViewImageSuggestions"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginTop="8dp"
+    android:clipToPadding="false"
+    android:paddingEnd="8dp"
+    android:visibility="gone"
+    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+    tools:listitem="@layout/item_image_suggestion"
+    tools:visibility="visible"
+    tools:itemCount="5"/>
+
+<!-- Pexels Credit TextView -->
+<TextView
+    android:id="@+id/textViewPexelsCredit"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:gravity="center_horizontal"
+    android:text="Ảnh từ Pexels"
+    android:textSize="10sp"
+    android:visibility="gone"
+    tools:visibility="visible"/>
+
+<!-- Selected Image Preview -->
+<ImageView
+    android:id="@+id/imageViewSelectedPreview"
+    android:layout_width="100dp"
+    android:layout_height="100dp"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="16dp"
+    android:scaleType="centerCrop"
+    android:visibility="gone"
+    tools:srcCompat="@drawable/ic_placeholder_image"
+    tools:visibility="visible"
+    android:contentDescription="Ảnh đã chọn"/>
+
+<!-- Hidden EditText for Selected Image URL -->
+<EditText
+    android:id="@+id/editTextSelectedImageUrl"
+    android:layout_width="1dp"
+    android:layout_height="1dp"
+    android:visibility="gone"
+    android:importantForAutofill="no" /> <!-- Thêm thuộc tính này -->
+
+<!-- Definition Input -->
+<com.google.android.material.textfield.TextInputLayout
+    android:id="@+id/textFieldLayoutVocabDefinition"
+    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:hint="Định nghĩa (*)">
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/editTextVocabDefinition"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine|textCapSentences"
+        android:minLines="2"
+        android:gravity="top"/> <!-- Căn text từ trên xuống -->
+</com.google.android.material.textfield.TextInputLayout>
+
+<!-- Phonetic Input -->
+<com.google.android.material.textfield.TextInputLayout
+    android:id="@+id/textFieldLayoutVocabPhonetic"
+    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:hint="Phiên âm">
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/editTextVocabPhonetic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text" />
+</com.google.android.material.textfield.TextInputLayout>
+
+<!-- Type Input (Dropdown) -->
+<com.google.android.material.textfield.TextInputLayout
+    android:id="@+id/textFieldLayoutVocabType"
+    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:hint="Loại từ">
+    <AutoCompleteTextView
+        android:id="@+id/autoCompleteTextViewVocabType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="none" />
+</com.google.android.material.textfield.TextInputLayout>
+
+<!-- Example Input -->
+<com.google.android.material.textfield.TextInputLayout
+    android:id="@+id/textFieldLayoutVocabExample"
+    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:hint="Ví dụ">
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/editTextVocabExample"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine|textCapSentences"
+        android:minLines="2"
+        android:gravity="top"/>
+</com.google.android.material.textfield.TextInputLayout>
+
+<!-- Add Vocab Progress -->
+<ProgressBar
+    android:id="@+id/progressBarAddVocab"
+    style="?android:attr/progressBarStyle"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="24dp"
+    android:visibility="gone" />
+
+<!-- Submit Button -->
+<com.google.android.material.button.MaterialButton
+    android:id="@+id/buttonAddVocabSubmit"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="24dp"
+    android:layout_marginBottom="16dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:text="Thêm từ vào bộ thẻ" />
+
+</LinearLayout>
+    </ScrollView>
