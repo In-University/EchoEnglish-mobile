@@ -1,5 +1,6 @@
 package com.example.echoenglish_mobile.view.activity.chatbot;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -34,7 +35,10 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
+        Intent intent = new Intent(this, ConversationActivity.class);
+        String theContext = "Discuss favorite travel destinations and why you like them.";
+        intent.putExtra(ConversationActivity.EXTRA_CONTEXT, theContext);
+        startActivity(intent);
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         chatAdapter = new ChatAdapter(messages);
@@ -79,27 +83,27 @@ public class ChatActivity extends AppCompatActivity {
         Call<ApiResponse> call = ApiClient.getApiService().sendMessage(message);
 
         Log.d("ChatActivity", "Gọi API với message: " + message);
-        Log.d("ChatActivity", "Call: " + call.request().toString()); // Kiểm tra URL API có đúng không
+        Log.d("ChatActivity", "Call: " + call.request());
 
         call.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 Log.d("ChatActivity", "API response nhận được");
                 if (response.isSuccessful() && response.body() != null) {
-                    String botResponse = response.body().getText();  // Đúng với tên field trong ApiResponse
+                    String botResponse = response.body().getText();
                     Log.d("ChatActivity", "Chatbot trả lời: " + botResponse);
 
                     Message message = new Message(botResponse, false);
                     chatAdapter.addMessage(message);
-                    recyclerView.smoothScrollToPosition(chatAdapter.getItemCount() - 1);  // Cuộn xuống tin nhắn mới nhất
+                    recyclerView.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
                 } else {
-                    Log.e("ChatActivity", "API trả về lỗi: " + response.code());
+                    Log.e("ChatActivity", "Response error: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
-                Log.e("ChatActivity", "Lỗi khi gọi API: " + t.getMessage());
+                Log.e("ChatActivity", "Error: " + t.getMessage());
             }
         });
     }

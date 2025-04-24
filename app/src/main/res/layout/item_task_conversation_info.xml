@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Context -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Context"
+            android:textSize="18sp"
+            android:textColor="#333333"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginBottom="6dp"/>
+        <TextView
+            android:id="@+id/textViewContextDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="[Nội dung context sẽ được đặt ở đây]"
+            android:textSize="15sp"
+            android:textColor="#555555"
+            android:lineSpacingMultiplier="1.2"
+            android:background="#F9F9F9"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"/>
+
+
+        <!-- Requirements -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Requirements"
+            android:textSize="18sp"
+            android:textColor="#333333"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- REMOVED OLD TextView -->
+        <!-- <TextView
+            android:id="@+id/textViewRequirementsDetail" ... /> -->
+
+        <LinearLayout
+            android:id="@+id/requirementsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F9F9F9"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_marginBottom="16dp">
+
+            <!-- Todo items will be added here dynamically with Java -->
+
+        </LinearLayout>
+
+        <!-- Instructions -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Instructions"
+            android:textSize="18sp"
+            android:textColor="#333333"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginBottom="6dp"/>
+        <TextView
+            android:id="@+id/textViewInstructionsDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="[Nội dung instructions sẽ được đặt ở đây]"
+            android:textSize="15sp"
+            android:textColor="#555555"
+            android:lineSpacingMultiplier="1.2"
+            android:background="#F9F9F9"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Audio Controls -->
+        <LinearLayout
+            android:id="@+id/audioControlLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Audio Settings"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:id="@+id/playButtonContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:background="#4285F4"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:gravity="center_vertical"
+                android:elevation="2dp"
+                android:layout_marginBottom="12dp">
+
+                <ImageView
+                    android:id="@+id/playButtonIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_media_play"
+                    app:tint="#FFFFFF"/>
+
+                <TextView
+                    android:id="@+id/playButtonText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Play Audio"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Voice"
+                    android:textSize="14sp"
+                    android:textColor="#555555"
+                    android:layout_marginBottom="4dp"/>
+
+                <Spinner
+                    android:id="@+id/voiceSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:minHeight="45dp"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Speed"
+                    android:textSize="14sp"
+                    android:textColor="#555555"
+                    android:layout_marginBottom="4dp"/>
+
+                <Spinner
+                    android:id="@+id/speedSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:minHeight="45dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

@@ -7,7 +7,10 @@ import com.example.echoenglish_mobile.model.ResetPasswordRequest;
 import com.example.echoenglish_mobile.model.SentenceAnalysisResult;
 import com.example.echoenglish_mobile.model.User;
 import com.example.echoenglish_mobile.model.Word;
+import com.example.echoenglish_mobile.model.request.ConverseRequest;
+import com.example.echoenglish_mobile.model.request.StartConversationRequest;
 import com.example.echoenglish_mobile.model.request.WritingAnalysisRequest;
+import com.example.echoenglish_mobile.model.response.ConversationResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.FlashcardCreateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.FlashcardUpdateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.LearningRecordRequest;
@@ -86,7 +89,13 @@ public interface ApiService {
     @POST("/writing/analyze")
     Call<ResponseBody> analyzeWriting(@Body WritingAnalysisRequest request);
 
-    // --- Flashcards ---
+  	@POST("/chatbot/start")
+    Call<ConversationResponse> startChat(@Body StartConversationRequest request);
+
+    @POST("/chatbot/converse")
+    Call<ConversationResponse> continueChat(@Body ConverseRequest request);
+
+ // --- Flashcards ---
     @POST("api/flashcards/user-defined")
     Call<FlashcardDetailResponse> createFlashcard(@Body FlashcardCreateRequest request);
 
