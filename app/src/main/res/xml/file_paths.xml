@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Sử dụng external-files-path để lưu vào thư mục riêng của ứng dụng trên bộ nhớ ngoài -->
+    <!-- Dễ truy cập hơn cache path và không yêu cầu quyền ghi nếu chỉ dùng trong app -->
+    <external-files-path
+        name="my_images"
+        path="Pictures" />
+    <!-- Hoặc bạn có thể dùng cache path nếu muốn ảnh tự xóa -->
+    <!-- <cache-path name="my_images" path="images/"/> -->
+</paths>

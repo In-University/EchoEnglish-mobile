@@ -1,21 +1,21 @@
 package com.example.echoenglish_mobile.view.activity.translate_text;
 
+import androidx.activity.result.ActivityResultCallback; // Callback chung, vẫn dùng được nhưng không tối ưu bằng method reference
 import androidx.activity.result.ActivityResultLauncher;
+// Bỏ import này: import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
+import androidx.annotation.NonNull; // Cần thiết
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-// (Optional - Nếu dùng FileProvider cho ảnh full-res)
-// import androidx.core.content.FileProvider;
+import androidx.core.content.FileProvider;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-// (Optional - Nếu dùng FileProvider)
-// import android.os.Environment;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -27,12 +27,21 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+// Import các lớp cần thiết từ thư viện CanHub Cropper
+import com.canhub.cropper.CropImageContract; // <<--- QUAN TRỌNG: Contract mới
+import com.canhub.cropper.CropImageContractOptions; // <<--- QUAN TRỌNG: Options mới
+import com.canhub.cropper.CropImageOptions; // <<--- QUAN TRỌNG: Options chi tiết
+import com.canhub.cropper.CropImageView; // <<--- QUAN TRỌNG: Để lấy CropResult
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
-import com.example.echoenglish_mobile.view.activity.auth.MainActivity;
+// Bỏ import này nếu không dùng: import com.example.echoenglish_mobile.view.activity.auth.MainActivity;
+// Import đúng lớp Request/Response của bạn
 import com.example.echoenglish_mobile.view.activity.translate_text.TranslateRequest;
 import com.example.echoenglish_mobile.view.activity.translate_text.TranslateResponse;
+
+// Bỏ import BuildConfig của thư viện khác: import com.github.mikephil.charting.BuildConfig;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.mlkit.vision.common.InputImage;
@@ -41,13 +50,11 @@ import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
-// (Optional - Nếu dùng FileProvider)
-// import java.io.File;
+import java.io.File;
 import java.io.IOException;
-// (Optional - Nếu dùng FileProvider)
-// import java.text.SimpleDateFormat;
-// import java.util.Date;
-// import java.util.Locale;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -55,9 +62,9 @@ import retrofit2.Response;
 
 public class TranslateTextActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "TranslateTextActivity";
 
-    // --- Khai báo các View ---
+    // --- Views ---
     private EditText editTextSource;
     private RadioGroup radioGroupDirection;
     private RadioButton radioEngToVie;
@@ -66,26 +73,24 @@ public class TranslateTextActivity extends AppCompatActivity {
     private Button buttonCaptureImage;
     private ProgressBar progressBar;
     private TextView textViewResult;
-    // --- ---
 
-    // --- Khai báo các thành phần khác ---
+    // --- Logic Components ---
     private ApiService apiService;
     private TextRecognizer textRecognizer;
-    private Uri imageUri; // Để lưu URI ảnh chụp (nếu dùng FileProvider)
-    // --- ---
+    private Uri cameraImageUri;
 
     // --- ActivityResultLaunchers ---
     private ActivityResultLauncher<String> requestCameraPermissionLauncher;
     private ActivityResultLauncher<Intent> takePictureLauncher;
-    // --- ---
+    // Sửa lại kiểu dữ liệu cho launcher cắt ảnh
+    private ActivityResultLauncher<CropImageContractOptions> cropImageLauncher; // <<--- SỬA Ở ĐÂY
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Sử dụng setContentView với layout ID
-        setContentView(R.layout.activity_translate_text); // <<--- Đảm bảo tên layout của bạn là activity_main.xml
+        setContentView(R.layout.activity_translate_text);
 
-        // --- Ánh xạ View bằng findViewById ---
+        // --- Ánh xạ View ---
         editTextSource = findViewById(R.id.editTextSource);
         radioGroupDirection = findViewById(R.id.radioGroupDirection);
         radioEngToVie = findViewById(R.id.radioEngToVie);
@@ -94,19 +99,13 @@ public class TranslateTextActivity extends AppCompatActivity {
         buttonCaptureImage = findViewById(R.id.buttonCaptureImage);
         progressBar = findViewById(R.id.progressBar);
         textViewResult = findViewById(R.id.textViewResult);
-        // --- ---
 
-        // Khởi tạo Retrofit Service
-        // Đảm bảo bạn đã có lớp RetrofitClient và ApiService
-        apiService = ApiClient.getApiService();
-
-        // Khởi tạo ML Kit Text Recognizer
+        // --- Khởi tạo ---
+        apiService = ApiClient.getApiService(); // Đảm bảo ApiClient.getApiService() hoạt động đúng
         textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-
-        // --- Khởi tạo Launchers ---
         initializeLaunchers();
 
-        // --- Set Listeners cho Buttons ---
+        // --- Listeners ---
         buttonTranslate.setOnClickListener(v -> {
             String textToTranslate = editTextSource.getText().toString().trim();
             if (!textToTranslate.isEmpty()) {
@@ -115,169 +114,221 @@ public class TranslateTextActivity extends AppCompatActivity {
                 Toast.makeText(this, "Vui lòng nhập văn bản", Toast.LENGTH_SHORT).show();
             }
         });
-
         buttonCaptureImage.setOnClickListener(v -> checkCameraPermissionAndOpenCamera());
     }
 
-    /**
-     * Khởi tạo các ActivityResultLaunchers để xử lý quyền và kết quả camera.
-     */
     private void initializeLaunchers() {
-        // 1. Launcher xin quyền Camera
+        // 1. Launcher xin quyền Camera (Giữ nguyên)
         requestCameraPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
                 isGranted -> {
                     if (isGranted) {
-                        // Quyền được cấp, mở camera
                         Log.d(TAG, "Camera permission granted.");
                         openCamera();
                     } else {
-                        // Quyền bị từ chối
                         Log.w(TAG, "Camera permission denied.");
                         Toast.makeText(this, "Cần quyền Camera để chụp ảnh", Toast.LENGTH_LONG).show();
                     }
                 });
 
-        // 2. Launcher để nhận kết quả từ Camera
+        // 2. Launcher nhận kết quả từ Camera (Giữ nguyên)
         takePictureLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
-                        Log.d(TAG, "Camera returned OK result.");
-                        // Chụp ảnh thành công
-                        Bundle extras = result.getData() != null ? result.getData().getExtras() : null;
-                        InputImage inputImage = null;
-
-                        // Ưu tiên lấy ảnh bitmap (thumbnail) từ data trước
-                        if (extras != null && extras.get("data") != null) {
-                            Bitmap imageBitmap = (Bitmap) extras.get("data");
-                            inputImage = InputImage.fromBitmap(imageBitmap, 0);
-                            Log.d(TAG,"Got bitmap from camera intent data.");
-                        }
-                        // (Optional) Nếu dùng FileProvider và EXTRA_OUTPUT, xử lý URI ở đây
-                        /* else if (imageUri != null) {
-                            try {
-                                // Xóa cache cũ của URI nếu có để đảm bảo đọc file mới nhất
-                                getContentResolver().notifyChange(imageUri, null);
-                                inputImage = InputImage.fromFilePath(this, imageUri);
-                                Log.d(TAG,"Created InputImage from URI: " + imageUri);
-                            } catch (IOException e) {
-                                Log.e(TAG, "Error creating InputImage from URI", e);
-                                Toast.makeText(this, "Lỗi đọc ảnh từ URI", Toast.LENGTH_SHORT).show();
-                                imageUri = null; // Reset URI nếu lỗi
-                                return; // Dừng lại nếu lỗi
-                            }
-                        } */
-
-                        // Nếu lấy được ảnh thì xử lý bằng ML Kit
-                        if (inputImage != null) {
-                            processImageWithMlKit(inputImage);
+                        Log.d(TAG, "Camera returned OK result. Image URI: " + cameraImageUri);
+                        if (cameraImageUri != null) {
+                            // Khởi chạy Activity cắt ảnh với URI vừa nhận được
+                            startCropActivity(cameraImageUri);
                         } else {
-                            Toast.makeText(this, "Không thể lấy dữ liệu ảnh", Toast.LENGTH_SHORT).show();
-                            Log.e(TAG, "Could not get image data (bitmap or URI) from camera result.");
+                            Log.e(TAG, "Camera returned OK but cameraImageUri is null!");
+                            Toast.makeText(this, "Lỗi không lấy được URI ảnh đã chụp", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         Log.d(TAG, "Camera returned Cancelled or Error result: " + result.getResultCode());
+                        if (cameraImageUri != null) cameraImageUri = null; // Reset URI
                         Toast.makeText(this, "Hủy chụp ảnh", Toast.LENGTH_SHORT).show();
                     }
                 });
+
+        // 3. Launcher mới để nhận kết quả từ Activity Cắt Ảnh
+        // SỬ DỤNG CropImageContract VÀ NHẬN TRỰC TIẾP CropImageView.CropResult
+        cropImageLauncher = registerForActivityResult(
+                new CropImageContract(), // <<--- SỬA Ở ĐÂY: Dùng contract của thư viện
+                this::onCropImageResult // <<--- SỬA Ở ĐÂY: Gọi phương thức xử lý kết quả
+        );
     }
 
-    /**
-     * Kiểm tra quyền Camera. Nếu chưa có thì yêu cầu, nếu có thì mở Camera.
-     */
+    // Phương thức mới để xử lý kết quả từ CropImageContract
+    private void onCropImageResult(@NonNull CropImageView.CropResult result) {
+        if (result.isSuccessful()) {
+            // Lấy URI thành công
+            Uri croppedUri = result.getUriContent(); // <<--- SỬA Ở ĐÂY: Dùng getUriContent() hoặc getUriFilePath()
+            // getOriginalUri() : Lấy URI gốc trước khi cắt
+            // getBitmap() : Lấy ảnh bitmap đã cắt (nếu được yêu cầu trong options)
+            // getError() : Lấy lỗi nếu isSuccessful() là false (nhưng nên check isSuccessful trước)
+
+            Log.i(TAG, "Image cropping successful. Cropped URI: " + croppedUri);
+            if (croppedUri != null) {
+                try {
+                    InputImage inputImage = InputImage.fromFilePath(TranslateTextActivity.this, croppedUri);
+                    processImageWithMlKit(inputImage);
+                } catch (IOException e) {
+                    Log.e(TAG, "Failed to create InputImage from cropped URI", e);
+                    Toast.makeText(TranslateTextActivity.this, "Lỗi đọc ảnh đã cắt", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Log.e(TAG, "Crop was successful but getUriContent() returned null!");
+                Toast.makeText(TranslateTextActivity.this, "Lỗi không lấy được URI ảnh đã cắt", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // Xử lý lỗi cắt ảnh
+            Exception error = result.getError(); // <<--- SỬA Ở ĐÂY: Lấy lỗi từ CropResult
+            Log.e(TAG, "Image cropping failed", error);
+            String errorMessage = "Lỗi cắt ảnh";
+            if (error != null) {
+                errorMessage += ": " + error.getMessage();
+            }
+            Toast.makeText(TranslateTextActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+    // checkCameraPermissionAndOpenCamera() (Giữ nguyên)
     private void checkCameraPermissionAndOpenCamera() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            // Đã có quyền, mở camera
             Log.d(TAG, "Camera permission already granted. Opening camera.");
             openCamera();
         } else if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-            // Giải thích tại sao cần quyền (nếu người dùng đã từ chối trước đó)
             Log.i(TAG, "Showing rationale for camera permission.");
             Toast.makeText(this, "Ứng dụng cần quyền Camera để quét chữ từ ảnh.", Toast.LENGTH_LONG).show();
-            // Bạn có thể hiện Dialog giải thích kỹ hơn ở đây trước khi gọi launch
-            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA); // Xin lại quyền
+            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
         } else {
-            // Chưa có quyền hoặc người dùng chọn "Don't ask again", xin quyền
             Log.d(TAG, "Requesting camera permission.");
             requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
         }
     }
 
-    /**
-     * Mở ứng dụng Camera mặc định của hệ thống.
-     */
+    // openCamera() (Giữ nguyên)
     private void openCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-        // (Optional) Nếu dùng FileProvider để lấy ảnh full resolution:
-        /*
-        imageUri = createImageFileUri(); // Hàm tạo file và lấy URI (xem code ở dưới)
-        if (imageUri != null) {
-             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-             Log.d(TAG, "Putting image URI into camera intent: " + imageUri);
+        cameraImageUri = createImageFileUri();
+        if (cameraImageUri != null) {
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
+            Log.d(TAG, "Created cameraImageUri: " + cameraImageUri + ". Starting camera activity.");
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                takePictureLauncher.launch(takePictureIntent);
+            } else {
+                Log.e(TAG, "No camera application found.");
+                Toast.makeText(this, "Không tìm thấy ứng dụng Camera", Toast.LENGTH_SHORT).show();
+                cameraImageUri = null;
+            }
         } else {
-             Log.e(TAG, "Could not create image URI, cannot start camera for full-res.");
-             Toast.makeText(this, "Lỗi tạo file lưu ảnh", Toast.LENGTH_SHORT).show();
-             return; // Không mở camera nếu không tạo được file
-        }
-        */
-
-        // Kiểm tra xem có ứng dụng nào xử lý được Intent này không
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            Log.d(TAG, "Launching camera intent.");
-            takePictureLauncher.launch(takePictureIntent);
-        } else {
-            Log.e(TAG, "No camera application found to handle the intent.");
-            Toast.makeText(this, "Không tìm thấy ứng dụng Camera", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Failed to create image URI for camera.");
+            Toast.makeText(this, "Không thể tạo file để lưu ảnh", Toast.LENGTH_SHORT).show();
         }
     }
 
     /**
-     * Xử lý ảnh đầu vào bằng ML Kit Text Recognition.
-     * @param image InputImage đã được chuẩn bị từ Bitmap hoặc URI.
+     * Khởi chạy Activity cắt ảnh bằng cách sử dụng cropImageLauncher và CropImageContractOptions.
+     * @param sourceUri URI của ảnh gốc cần cắt (từ camera).
      */
+    private void startCropActivity(Uri sourceUri) {
+        Log.d(TAG, "Starting crop activity for source URI: " + sourceUri);
+
+        // Tạo đối tượng Options chi tiết (tùy chọn)
+        CropImageOptions cropOptions = new CropImageOptions();
+        cropOptions.guidelines = CropImageView.Guidelines.ON; // Bật lưới hướng dẫn
+        cropOptions.multiTouchEnabled = true; // Cho phép zoom/xoay đa điểm
+        // cropOptions.aspectRatioX = 1; // Tỉ lệ X (ví dụ)
+        // cropOptions.aspectRatioY = 1; // Tỉ lệ Y (ví dụ)
+        cropOptions.fixAspectRatio = false; // Cho phép tỉ lệ tự do
+        // cropOptions.outputCompressFormat = Bitmap.CompressFormat.PNG; // Định dạng output
+        // cropOptions.outputCompressQuality = 90; // Chất lượng nén
+        // ... và nhiều tùy chọn khác trong CropImageOptions
+
+        // Tạo đối tượng Contract Options, truyền vào URI nguồn và options chi tiết
+        CropImageContractOptions contractOptions = new CropImageContractOptions(sourceUri, cropOptions); // <<--- SỬA Ở ĐÂY
+
+        // Khởi chạy launcher với contract options
+        try {
+            cropImageLauncher.launch(contractOptions); // <<--- SỬA Ở ĐÂY
+        } catch (ActivityNotFoundException e) {
+            Log.e(TAG, "CropImageActivity not found (Check Manifest declaration?)", e);
+            Toast.makeText(this, "Lỗi: Không tìm thấy Activity cắt ảnh.", Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error launching crop activity", e);
+            Toast.makeText(this, "Lỗi khi mở màn hình cắt ảnh.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    // createImageFileUri() (Giữ nguyên, nhưng kiểm tra lại import BuildConfig)
+    private Uri createImageFileUri() {
+        Uri contentUri = null;
+        try {
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+            String imageFileName = "JPEG_" + timeStamp + "_";
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            if (storageDir == null) {
+                Log.e(TAG, "getExternalFilesDir(Environment.DIRECTORY_PICTURES) returned null.");
+                throw new IOException("Cannot access external files directory.");
+            }
+            File imageFile = File.createTempFile(imageFileName, ".jpg", storageDir);
+
+            // Đảm bảo bạn đang import đúng BuildConfig từ package của bạn
+            String authority = "com.example.echoenglish_mobile.provider"; // <<--- KIỂM TRA IMPORT
+            contentUri = FileProvider.getUriForFile(this, authority, imageFile);
+            Log.i(TAG, "Created temp image file: " + imageFile.getAbsolutePath() + ", Uri: " + contentUri);
+
+        } catch (IOException ex) {
+            Log.e(TAG, "Error creating image file", ex);
+            Toast.makeText(this, "Lỗi tạo file ảnh", Toast.LENGTH_SHORT).show();
+        } catch (IllegalArgumentException ex) {
+            Log.e(TAG, "Error getting FileProvider URI. Check authority 'com.example.echoenglish_mobile.provider.provider' in Manifest?", ex);
+            Toast.makeText(this, "Lỗi cấu hình FileProvider", Toast.LENGTH_SHORT).show();
+        }
+        return contentUri;
+    }
+
+
+    // processImageWithMlKit() (Giữ nguyên)
     private void processImageWithMlKit(InputImage image) {
-        Log.d(TAG, "Processing image with ML Kit Text Recognition.");
+        Log.d(TAG, "Processing CROPPED image with ML Kit Text Recognition.");
         showLoading(true);
         textViewResult.setText(""); // Xóa kết quả cũ
 
         textRecognizer.process(image)
-                .addOnSuccessListener(visionText -> { // Sử dụng lambda cho gọn
+                .addOnSuccessListener(visionText -> {
                     showLoading(false);
                     String extractedText = visionText.getText().trim();
-                    Log.d(TAG, "ML Kit Text Recognition Success. Extracted Text: \n" + extractedText);
+                    Log.i(TAG, "ML Kit Text Recognition Success (from cropped). Extracted Text: \n" + extractedText);
 
                     if (!extractedText.isEmpty()) {
                         editTextSource.setText(extractedText);
-                        // Tự động gọi dịch sau khi quét thành công
                         callTranslateApi(extractedText);
                     } else {
-                        Log.i(TAG, "ML Kit found no text in the image.");
-                        editTextSource.setText(""); // Xóa text cũ nếu có
-                        Toast.makeText(TranslateTextActivity.this, "Không nhận diện được chữ nào trong ảnh", Toast.LENGTH_SHORT).show();
+                        Log.i(TAG, "ML Kit found no text in the cropped image.");
+                        editTextSource.setText("");
+                        Toast.makeText(TranslateTextActivity.this, "Không nhận diện được chữ nào trong vùng đã chọn", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .addOnFailureListener(e -> { // Sử dụng lambda cho gọn
+                .addOnFailureListener(e -> {
                     showLoading(false);
-                    Log.e(TAG, "ML Kit Text Recognition Failed", e);
-                    editTextSource.setText(""); // Xóa text cũ nếu có
-                    Toast.makeText(TranslateTextActivity.this, "Lỗi quét chữ: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "ML Kit Text Recognition Failed (from cropped)", e);
+                    editTextSource.setText("");
+                    Toast.makeText(TranslateTextActivity.this, "Lỗi quét chữ từ vùng chọn: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 
-    /**
-     * Gọi API backend để dịch văn bản.
-     * @param originalText Văn bản gốc cần dịch (không bao gồm chỉ dẫn).
-     */
+    // callTranslateApi() (Giữ nguyên)
     private void callTranslateApi(String originalText) {
         Log.d(TAG, "Calling translate API for text: " + originalText);
         showLoading(true);
-        textViewResult.setText("Đang dịch..."); // Thông báo trạng thái
+        textViewResult.setText("Đang dịch...");
 
-        // --- Xây dựng message đầy đủ với chỉ dẫn ---
         String prompt;
-        String sourceLang, targetLang; // Để log cho dễ nhìn
+        String sourceLang, targetLang;
         if (radioEngToVie.isChecked()) { // Sử dụng biến radioEngToVie đã ánh xạ
             prompt = "Dịch đoạn tiếng Anh sau sang tiếng việt, chỉ thực hiện dịch đúng văn bản đó thôi, không cần làm gì thêm: ";
             sourceLang = "English";
@@ -287,36 +338,28 @@ public class TranslateTextActivity extends AppCompatActivity {
             sourceLang = "Vietnamese";
             targetLang = "English";
         }
+
         String fullMessage = prompt + originalText;
-        // --- ---
 
         Log.i(TAG, "Constructed API message (Translate " + sourceLang + " to " + targetLang + "): " + fullMessage);
-        TranslateRequest request = new TranslateRequest(fullMessage); // Dùng lớp Request đã tạo
+        TranslateRequest request = new TranslateRequest(fullMessage); // Đảm bảo lớp này tồn tại và đúng cấu trúc
 
-        // Thực hiện gọi API bất đồng bộ
-        apiService.translateText(request).enqueue(new Callback<TranslateResponse>() {
+        apiService.translateText(request).enqueue(new Callback<TranslateResponse>() { // Đảm bảo ApiService có phương thức translateText
             @Override
             public void onResponse(@NonNull Call<TranslateResponse> call, @NonNull Response<TranslateResponse> response) {
                 showLoading(false);
                 if (response.isSuccessful() && response.body() != null && response.body().getText() != null) {
-                    // Thành công và có dữ liệu trả về
-                    String translatedText = response.body().getText().trim();
-                    textViewResult.setText(translatedText); // Sử dụng biến textViewResult
+                    String translatedText = response.body().getText().trim(); // Đảm bảo TranslateResponse có getText()
+                    textViewResult.setText(translatedText);
                     Log.i(TAG, "API Translation Success. Result: " + translatedText);
                 } else {
-                    // Xử lý lỗi từ phía server (API trả về lỗi 4xx, 5xx)
                     String errorBodyString = "Unknown error body";
                     int responseCode = response.code();
                     try {
-                        if (response.errorBody() != null) {
-                            errorBodyString = response.errorBody().string();
-                        }
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error reading error body from response", e);
-                        errorBodyString = "Error reading response body";
-                    }
+                        if (response.errorBody() != null) errorBodyString = response.errorBody().string();
+                    } catch (IOException e) { Log.e(TAG, "Error reading error body", e); }
                     String errorMessage = "Lỗi API: " + responseCode + " - " + response.message() + "\nDetails: " + errorBodyString;
-                    textViewResult.setText(errorMessage); // Hiển thị lỗi chi tiết
+                    textViewResult.setText(errorMessage);
                     Log.e(TAG, "API Response Error: " + errorMessage);
                     Toast.makeText(TranslateTextActivity.this, "Lỗi khi dịch (Code: " + responseCode + ")", Toast.LENGTH_LONG).show();
                 }
@@ -324,119 +367,32 @@ public class TranslateTextActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<TranslateResponse> call, @NonNull Throwable t) {
-                // Lỗi kết nối mạng hoặc lỗi khi thực hiện request/nhận response
                 showLoading(false);
                 String networkErrorMessage = "Lỗi kết nối hoặc xử lý: " + t.getMessage();
-                textViewResult.setText(networkErrorMessage); // Hiển thị lỗi mạng
-                Log.e(TAG, "API Call Failure (Network/Processing Error)", t);
+                textViewResult.setText(networkErrorMessage);
+                Log.e(TAG, "API Call Failure", t);
                 Toast.makeText(TranslateTextActivity.this, "Lỗi kết nối mạng hoặc xử lý", Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    /**
-     * Hiển thị hoặc ẩn ProgressBar và bật/tắt các nút điều khiển.
-     * @param isLoading True để hiển thị loading, False để ẩn.
-     */
+    // showLoading() (Giữ nguyên)
     private void showLoading(boolean isLoading) {
         Log.d(TAG, "Setting loading state: " + isLoading);
-        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE); // Sử dụng biến progressBar
-        buttonTranslate.setEnabled(!isLoading); // Sử dụng biến buttonTranslate
-        buttonCaptureImage.setEnabled(!isLoading); // Sử dụng biến buttonCaptureImage
-        editTextSource.setEnabled(!isLoading); // Sử dụng biến editTextSource
-
-        // Disable/Enable các RadioButton trong RadioGroup
+        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        buttonTranslate.setEnabled(!isLoading);
+        buttonCaptureImage.setEnabled(!isLoading);
+        editTextSource.setEnabled(!isLoading);
         for (int i = 0; i < radioGroupDirection.getChildCount(); i++) {
             View child = radioGroupDirection.getChildAt(i);
-            if (child instanceof RadioButton) { // Kiểm tra chắc chắn là RadioButton
-                child.setEnabled(!isLoading);
-            }
+            if (child instanceof RadioButton) child.setEnabled(!isLoading);
         }
-        // Có thể disable cả RadioGroup để tránh tương tác khi đang load
-        // radioGroupDirection.setEnabled(!isLoading);
     }
 
+    // onDestroy() (Giữ nguyên)
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "MainActivity onDestroy called.");
-        // (Optional) Giải phóng tài nguyên nếu cần, ví dụ recognizer nếu API yêu cầu
-        // if (textRecognizer != null) {
-        //     textRecognizer.close();
-        //     Log.d(TAG, "ML Kit TextRecognizer closed.");
-        // }
+        Log.d(TAG, "TranslateTextActivity onDestroy called."); // Sửa lại tên Activity trong log
     }
-
-
-    // --- (Optional) Hàm tạo file và lấy URI nếu bạn muốn ảnh full resolution ---
-    /*
-     private Uri createImageFileUri() {
-         Uri contentUri = null;
-         try {
-             // Tạo tên file duy nhất
-             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-             String imageFileName = "JPEG_" + timeStamp;
-             // Lấy thư mục lưu trữ ảnh (nên dùng thư mục private của ứng dụng)
-             File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-             if (storageDir == null) {
-                  Log.e(TAG, "External storage directory is null (or not mounted?). Cannot create image file.");
-                  Toast.makeText(this, "Không thể truy cập bộ nhớ ngoài", Toast.LENGTH_SHORT).show();
-                  return null;
-             }
-              // Đảm bảo thư mục tồn tại
-             if (!storageDir.exists() && !storageDir.mkdirs()) {
-                  Log.e(TAG, "Failed to create storage directory: " + storageDir.getPath());
-                  Toast.makeText(this, "Không thể tạo thư mục lưu ảnh", Toast.LENGTH_SHORT).show();
-                  return null;
-             }
-
-             File imageFile = File.createTempFile(
-                     imageFileName,  // prefix
-                     ".jpg",         // suffix
-                     storageDir      // directory
-             );
-
-             // Lấy URI qua FileProvider (Cần khai báo FileProvider trong Manifest và tạo file paths.xml)
-             // THAY THẾ "com.your_app_package.provider" BẰNG AUTHORITY ĐÚNG CỦA BẠN
-             String authority = BuildConfig.APPLICATION_ID + ".provider";
-             contentUri = FileProvider.getUriForFile(this,
-                     authority,
-                     imageFile);
-             Log.i(TAG, "Created image file: " + imageFile.getAbsolutePath() + ", URI: " + contentUri);
-
-         } catch (IOException ex) {
-             Log.e(TAG, "Error creating image file for camera", ex);
-             Toast.makeText(this, "Lỗi tạo file ảnh", Toast.LENGTH_SHORT).show();
-             contentUri = null; // Đảm bảo trả về null nếu lỗi
-         } catch (IllegalArgumentException ex) {
-             Log.e(TAG, "Error getting FileProvider URI. Check authority?", ex);
-             Toast.makeText(this, "Lỗi cấu hình FileProvider", Toast.LENGTH_SHORT).show();
-             contentUri = null;
-         }
-         return contentUri;
-     }
-     */
-    // Đừng quên thêm FileProvider vào AndroidManifest.xml và tạo file res/xml/file_paths.xml
-    // nếu bạn sử dụng phương thức createImageFileUri() ở trên.
-    // Manifest (<application>...):
-     /*
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider" // Thay thế bằng authority của bạn
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" /> // Trỏ đến file paths
-        </provider>
-     */
-    // res/xml/file_paths.xml:
-     /*
-     <?xml version="1.0" encoding="utf-8"?>
-     <paths>
-         <external-files-path name="my_images" path="Pictures" />
-         <!-- Hoặc <cache-path name="my_cached_images" path="images/" /> -->
-     </paths>
-     */
-
 }
