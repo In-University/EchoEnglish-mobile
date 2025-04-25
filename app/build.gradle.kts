@@ -106,4 +106,7 @@ dependencies {
 
     implementation("androidx.viewpager2:viewpager2:1.1.0")
 
+    // Google ML Kit Text Recognition (On-device)
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
+
 }

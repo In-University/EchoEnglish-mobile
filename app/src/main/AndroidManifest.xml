@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" />
 <!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>-->
 <!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
 
@@ -47,6 +49,7 @@
         <activity android:name=".view.activity.flashcard.PublicCategoriesActivity"/>
         <activity android:name=".view.activity.flashcard.PublicFlashcardsActivity"/>
 
+
         <!--
         .view.activity.auth.MainActivity
         -->        <activity android:name=".view.activity.browser.BrowserActivity" />
@@ -54,7 +57,7 @@
 
 
         <activity
-            android:name=".view.activity.dictionary.DictionaryActivity"
+            android:name=".view.activity.translate_text.TranslateTextActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

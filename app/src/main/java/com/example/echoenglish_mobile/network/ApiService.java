@@ -23,6 +23,8 @@ import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.Learn
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningProgressResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.model.PexelsResponse;
+import com.example.echoenglish_mobile.view.activity.translate_text.TranslateRequest;
+import com.example.echoenglish_mobile.view.activity.translate_text.TranslateResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -165,4 +167,7 @@ public interface ApiService {
             @Path("id") Long vocabularyId,
             @Body VocabularyUpdateRequest request
     );
+
+    @POST("chatbot/sendMessage")
+    Call<TranslateResponse> translateText(@Body TranslateRequest request);
 }
