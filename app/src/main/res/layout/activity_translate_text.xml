@@ -75,21 +75,22 @@
     </RadioGroup>
 
     <!-- Sử dụng MaterialButton -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonTranslate"
-        style="@style/Widget.MaterialComponents.Button"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="8dp"
-        android:text="Dịch văn bản"
-        app:icon="@android:drawable/ic_menu_send"
-        app:layout_constraintEnd_toStartOf="@+id/buttonCaptureImage"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/radioGroupDirection" />
 
-    <!-- Button chụp ảnh có thể dùng style khác -->
-    <com.google.android.material.button.MaterialButton
+        <!-- Button chụp ảnh có thể dùng style khác -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonTranslate"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="8dp"
+            android:text="Dịch văn bản"
+            app:icon="@android:drawable/ic_menu_send"
+            app:layout_constraintEnd_toStartOf="@+id/buttonCaptureImage"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/radioGroupDirection" />
+
+        <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonCaptureImage"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="0dp"

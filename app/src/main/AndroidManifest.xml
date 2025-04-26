@@ -43,8 +43,6 @@
         <activity android:name=".view.activity.auth.OtpVerificationActivity"/>
         <activity android:name=".view.activity.auth.ResetPasswordActivity"/>
         <activity android:name=".view.activity.pronun_summary_result.SummaryResultsActivity"/>
-        <activity android:name=".view.activity.quiz.MainQuizzAppActivity"/>
-        <activity android:name=".view.activity.quiz.QuizActivity"/>
         <activity android:name=".view.activity.webview.WebGameActivity"/>
 <!--        <activity android:name=".view.activity.chatbot.ChatActivity"/>-->
         <activity android:name=".view.activity.dictionary.DictionaryWordDetailActivity" />
@@ -61,16 +59,21 @@
         <activity
             android:name="com.canhub.cropper.CropImageActivity"
             android:theme="@style/Theme.AppCompat.DayNight" />
+        <activity android:name=".view.activity.quiz.TestActivity"/>
+        <activity android:name=".view.activity.quiz.TestListActivity"/>
+        <activity android:name=".view.activity.quiz.ResultActivity"/>
+        <activity android:name=".view.activity.quiz.HistoryActivity"/>
+
 
 
         <!--
         .view.activity.auth.MainActivity
-        -->        <activity android:name=".view.activity.browser.BrowserActivity" />
+        -->        <activity android:name=".view.activity.flashcard.MainFlashcardActivity" />
         <activity android:name=".view.activity.video_youtube.VideoYoutubeActivity" />
 
 
         <activity
-            android:name=".view.activity.translate_text.TranslateTextActivity"
+            android:name=".view.activity.quiz.MainQuizActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

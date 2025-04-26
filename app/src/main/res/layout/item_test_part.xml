@@ -5,8 +5,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_margin="4dp"
-    android:elevation="10dp"
-    app:cardCornerRadius="24dp">
+    app:cardElevation="4dp"
+    app:cardCornerRadius="8dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -17,22 +17,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/layout_test_details"
+            android:layout_marginEnd="10dp"
             android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/quiz_title_text"
-                tools:text="Android"
-                android:textSize="18sp"
+                android:id="@+id/test_name_text"
+                tools:text="ETS 2023 Test 1 - Part 1"
+                android:textSize="17sp"
                 android:textStyle="bold"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/quiz_subtitle_text"
+                android:id="@+id/test_question_count_text"
                 android:layout_marginTop="4dp"
-                tools:text="All about Android OS"/>
+                tools:text="6 Questions"/>
         </LinearLayout>
+
         <LinearLayout
+            android:id="@+id/layout_test_details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -40,21 +44,18 @@
             android:gravity="center"
             android:orientation="vertical">
 
+            <!-- You can add time estimate or difficulty later if needed -->
             <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_xml_timer"
-                app:tint="@color/orange" />
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_play"
+                app:tint="@color/blue"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/quiz_time_text"
-                tools:text="20 min"/>
+                android:text="Start"/>
 
         </LinearLayout>
 
     </RelativeLayout>
-
-
-
 </androidx.cardview.widget.CardView>

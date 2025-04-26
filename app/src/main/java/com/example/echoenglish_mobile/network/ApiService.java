@@ -23,6 +23,12 @@ import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.Learn
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningProgressResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.model.PexelsResponse;
+import com.example.echoenglish_mobile.view.activity.quiz.StartTestRequest;
+import com.example.echoenglish_mobile.view.activity.quiz.StartTestResponse;
+import com.example.echoenglish_mobile.view.activity.quiz.SubmitAnswerRequest;
+import com.example.echoenglish_mobile.view.activity.quiz.model.Test;
+import com.example.echoenglish_mobile.view.activity.quiz.model.TestHistory;
+import com.example.echoenglish_mobile.view.activity.quiz.model.TestPart;
 import com.example.echoenglish_mobile.view.activity.translate_text.TranslateRequest;
 import com.example.echoenglish_mobile.view.activity.translate_text.TranslateResponse;
 
@@ -170,4 +176,43 @@ public interface ApiService {
 
     @POST("chatbot/sendMessage")
     Call<TranslateResponse> translateText(@Body TranslateRequest request);
+
+
+    // ---------------------------------------------------
+
+
+    // Start a new test attempt
+    // Example: Fetch all Tests (adjust if you fetch TestParts directly)
+    @GET("/tests")
+    Call<List<Test>> getAllTests(); // Or filter by part type if API supports it
+
+
+    // Fetch a specific TestPart with all its details (Groups, Questions, Choices, Content)
+    // IMPORTANT: Ensure your backend returns the FULL nested structure here
+    @GET("/tests/{testId}/parts/{partId}")
+    Call<TestPart> getTestPartDetails(@Path("testId") int testId, @Path("partId") int partId);
+
+    @POST("/test-history/start")
+    Call<StartTestResponse> startTest(@Body StartTestRequest request); // Request contains userId, testId, partId
+
+
+    // Submit an answer for a specific question within a test history
+    // Adjust endpoint/method (POST or PUT) based on your backend logic (create vs update)
+    @POST("/test-history/detail/submit") // Or maybe PUT /test-history/{historyId}/details/{questionId}
+    Call<Void> submitAnswer(@Body SubmitAnswerRequest request); // Request contains historyId, questionId, choiceId
+
+
+    // Mark a test attempt as completed (optionally calculate score server-side)
+    @PUT("/test-history/{historyId}/complete")
+    Call<TestHistory> completeTest(@Path("historyId") long historyId); // May return updated TestHistory with score
+
+
+    // Get history for a user
+    @GET("/test-history/user/{userId}")
+    Call<List<TestHistory>> getUserTestHistory(@Path("userId") Long  userId); // Adjust userId type if needed
+
+
+    // Get details of a specific test history (including answers)
+    @GET("/test-history/{historyId}")
+    Call<TestHistory> getTestHistoryDetails(@Path("historyId") long historyId);
 }

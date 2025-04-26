@@ -5,19 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    tools:context=".QuizActivity">
+    android:padding="16dp" >
 
+    <!-- Top Indicator Bar -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Question 7/20"
+            tools:text="Question 1/6"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
             android:id="@+id/question_indicator_textview"/>
 
         <ImageView
@@ -32,123 +33,141 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="5:46"
+            tools:text="10:00"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/blue"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:id="@+id/timer_indicator_textview"/>
-
-
     </RelativeLayout>
+
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="8dp"
-        tools:progress="40"
+        tools:progress="10"
         android:id="@+id/question_progress_indicator"/>
 
-    <androidx.cardview.widget.CardView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginVertical="8dp"
-        android:elevation="4dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
-            <TextView
+            <!-- Part 1 Specific Views (Initially Gone) -->
+            <ImageView
+                android:id="@+id/img_question_part1"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
-                tools:text="What is android OS?"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:padding="8dp"
-                android:background="@drawable/background_rounded_corner"
-                android:backgroundTint="@color/blue"
-                android:textColor="@color/white"
-                android:gravity="center"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
                 android:layout_marginVertical="8dp"
-                android:id="@+id/question_textview"/>
+                android:visibility="gone"
+                tools:src="@tools:sample/backgrounds/scenic" />
+
+            <include
+                android:id="@+id/audio_player_part1"
+                layout="@layout/component_audio_player"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="8dp"
+                android:visibility="gone" />
+
+            <!-- Part 5 Specific View (Question Text) -->
+            <TextView
+                android:id="@+id/question_textview_part5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="100dp"
+                tools:text="This is the question text for Part 5 which can be quite long sometimes and needs space."
+                android:textSize="18sp"
+                android:padding="12dp"
+                android:background="@drawable/background_rounded_corner"
+                android:backgroundTint="#E0E0E0"
+                android:textColor="@color/black"
+                android:gravity="center_vertical"
+                android:layout_marginVertical="8dp"
+                android:visibility="gone"/>
+
+
+            <!-- Common Answer Buttons -->
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
                 android:backgroundTint="@color/gray"
-                tools:text="Ans A"
+                tools:text="(A) Choice A explanation or text"
                 android:textColor="@color/black"
                 android:paddingVertical="12dp"
                 android:gravity="center_vertical"
-                android:textSize="18sp"
-                android:id="@+id/btn0" />
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:id="@+id/btn_choice_a" />
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
                 android:backgroundTint="@color/gray"
-                tools:text="Ans B"
+                tools:text="(B) Choice B explanation or text"
                 android:textColor="@color/black"
                 android:paddingVertical="12dp"
                 android:gravity="center_vertical"
-                android:textSize="18sp"
-                android:id="@+id/btn1" />
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:id="@+id/btn_choice_b" />
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
                 android:backgroundTint="@color/gray"
-                tools:text="Ans C"
+                tools:text="(C) Choice C explanation or text"
                 android:textColor="@color/black"
                 android:paddingVertical="12dp"
                 android:gravity="center_vertical"
-                android:textSize="18sp"
-                android:id="@+id/btn2" />
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:id="@+id/btn_choice_c" />
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
                 android:backgroundTint="@color/gray"
-                tools:text="Ans D"
+                tools:text="(D) Choice D explanation or text"
                 android:textColor="@color/black"
                 android:paddingVertical="12dp"
                 android:gravity="center_vertical"
-                android:textSize="18sp"
-                android:id="@+id/btn3" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="4dp"
-                android:text="Next"
-                android:paddingVertical="12dp"
-                android:gravity="center_vertical"
-                android:layout_gravity="end"
-                android:textSize="20sp"
-                android:paddingHorizontal="40dp"
-                android:id="@+id/next_btn" />
-
-
-
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:id="@+id/btn_choice_d" />
 
         </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-    </androidx.cardview.widget.CardView>
+    <!-- Navigation -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
 
+        <Button
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Back"
+            android:layout_alignParentStart="true"
+            android:visibility="invisible"/> <!-- Initially hidden -->
 
-
+        <Button
+            android:id="@+id/btn_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
 
 </LinearLayout>
-
-
-
-
-
-
-
-
-
-
-
