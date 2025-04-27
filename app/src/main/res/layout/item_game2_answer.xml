@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,7 +9,7 @@
     android:layout_rowWeight="1"
     android:layout_margin="4dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="3dp"
+    app:cardElevation="4dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground">
@@ -18,25 +19,25 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="8dp">
+        android:padding="12dp"> <!-- Increased padding -->
 
         <ImageView
             android:id="@+id/imageGame2Answer"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:scaleType="centerCrop"
-            android:layout_marginBottom="8dp"
-            tools:srcCompat="@drawable/ic_placeholder_image" />
+            android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="8dp"
+        tools:srcCompat="@drawable/ic_placeholder_image" />
 
         <TextView
             android:id="@+id/textGame2AnswerDefinition"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
             android:gravity="center"
             android:maxLines="2"
             android:ellipsize="end"
-            tools:text="Vietnamese Meaning" />
+            tools:text="Vietnamese Meaning Example Longer Text" /> <!-- Longer text for better preview -->
 
     </LinearLayout>
 

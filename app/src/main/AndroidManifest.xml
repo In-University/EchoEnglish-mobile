@@ -65,14 +65,11 @@
 
 
 
-        <!--
-        .view.activity.auth.MainActivity
-        -->        <activity android:name=".view.activity.flashcard.MainFlashcardActivity" />
         <activity android:name=".view.activity.video_youtube.VideoYoutubeActivity" />
 
 
         <activity
-            android:name=".view.activity.grammar.GrammarActivity"
+            android:name=".view.activity.flashcard.MainFlashcardActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

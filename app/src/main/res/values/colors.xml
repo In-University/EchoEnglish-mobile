@@ -34,4 +34,5 @@
     <color name="colorAccent">#03DAC5</color>
     <color name="red_incorrect">#F44336</color>
     <color name="green_correct">#4CAF50</color>
+    <color name="highlight_blue"> #2196F3 </color>
 </resources>

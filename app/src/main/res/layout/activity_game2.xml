@@ -1,95 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/textGame2Progress"
+    <!-- Loading Indicator - Initially visible -->
+    <LinearLayout
+        android:id="@+id/loadingContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:orientation="vertical"
+        android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Câu 1 / 10" />
-
-    <ImageButton
-        android:id="@+id/buttonGame2PlaySound"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="32dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Phát âm thanh"
-        android:scaleType="fitCenter"
-        app:srcCompat="@drawable/ic_image_volume"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textGame2Progress"
-        app:tint="?attr/colorPrimary" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <TextView
-        android:id="@+id/textViewListenInstruction"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Nhấn loa để nghe từ"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonGame2PlaySound" />
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Đang khởi tạo âm thanh..."
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"/>
+
+    </LinearLayout>
 
 
-    <!-- Sử dụng GridLayout để chia đều 4 đáp án -->
-    <GridLayout
-        android:id="@+id/gridGame2Answers"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="16dp"
-        android:columnCount="2"
-        android:rowCount="2"
-        android:alignmentMode="alignMargins"
-        android:columnOrderPreserved="false"
-        android:useDefaultMargins="true"
-        app:layout_constraintBottom_toTopOf="@+id/buttonGame2Skip"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewListenInstruction">
+    <!-- Game Content - Initially Invisible -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/gameContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"> <!-- Set to invisible initially -->
 
-        <!-- Các CardView đáp án sẽ được thêm vào đây bằng code -->
-        <!-- Ví dụ một CardView (chỉ để xem trước) -->
-        <!--
-        <com.google.android.material.card.MaterialCardView
+        <!-- Existing Game Elements Here -->
+
+        <TextView
+            android:id="@+id/textGame2Progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Câu 1 / 10" />
+
+        <ImageButton
+            android:id="@+id/buttonGame2PlaySound"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_marginTop="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Phát âm thanh"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_image_volume"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textGame2Progress"
+            app:tint="?attr/colorPrimary" />
+
+        <TextView
+            android:id="@+id/textViewListenInstruction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Nhấn loa để nghe từ"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            android:textColor="?android:attr/textColorSecondary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonGame2PlaySound" />
+
+        <GridLayout
+            android:id="@+id/gridGame2Answers"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_columnWeight="1"
-            android:layout_rowWeight="1"
-            app:cardCornerRadius="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:layout_margin="4dp">
-            <LinearLayout android:layout_width="match_parent" ...>
-                <ImageView .../>
-                <TextView .../>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-        -->
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="16dp"
+            android:columnCount="2"
+            android:rowCount="2"
+            android:alignmentMode="alignMargins"
+            android:columnOrderPreserved="false"
+            android:useDefaultMargins="true"
+            app:layout_constraintBottom_toTopOf="@+id/buttonGame2Skip"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewListenInstruction">
+            <!-- Items will be inflated here -->
+        </GridLayout>
 
-    </GridLayout>
+        <Button
+            android:id="@+id/buttonGame2Skip"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="Bỏ qua"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/buttonGame2Skip"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Bỏ qua"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <!-- End of Existing Game Elements -->
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
