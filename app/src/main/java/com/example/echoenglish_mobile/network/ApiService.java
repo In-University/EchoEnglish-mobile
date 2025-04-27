@@ -23,6 +23,7 @@ import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.Learn
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningProgressResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.model.PexelsResponse;
+import com.example.echoenglish_mobile.view.activity.grammar.model.Grammar;
 import com.example.echoenglish_mobile.view.activity.quiz.StartTestRequest;
 import com.example.echoenglish_mobile.view.activity.quiz.StartTestResponse;
 import com.example.echoenglish_mobile.view.activity.quiz.SubmitAnswerRequest;
@@ -187,5 +188,6 @@ public interface ApiService {
             @Path("testId") int testId,
             @Path("partNumber") int partNumber);
 
-
+    @GET("grammars")
+    Call<List<Grammar>> getGrammars();
 }
