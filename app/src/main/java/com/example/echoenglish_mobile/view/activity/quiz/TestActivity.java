@@ -1,9 +1,7 @@
 package com.example.echoenglish_mobile.view.activity.quiz; // Thay package phù hợp
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer; // Import CountDownTimer
@@ -24,7 +22,6 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView; // Import CardView (Vẫn cần cho Explanation cũ nếu dùng)
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
@@ -34,7 +31,7 @@ import com.example.echoenglish_mobile.R;
 // Bỏ các import không cần thiết (request/response/history)
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
-import com.example.echoenglish_mobile.view.activity.quiz.ResultActivity;
+import com.example.echoenglish_mobile.view.activity.flashcard.ResultActivity;
 import com.example.echoenglish_mobile.view.activity.quiz.model.TestChoice;
 import com.example.echoenglish_mobile.view.activity.quiz.model.TestPart;
 import com.example.echoenglish_mobile.view.activity.quiz.model.TestQuestion;
@@ -46,7 +43,6 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;

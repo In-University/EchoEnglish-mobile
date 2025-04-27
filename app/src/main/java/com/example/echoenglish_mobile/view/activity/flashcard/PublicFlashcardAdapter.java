@@ -1,5 +1,7 @@
 package com.example.echoenglish_mobile.view.activity.flashcard;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,7 +30,7 @@ import retrofit2.Response;
 
 public class PublicFlashcardAdapter extends RecyclerView.Adapter<PublicFlashcardAdapter.PublicFlashcardViewHolder> {
 
-    private static final long CURRENT_USER_ID = 1L; // Hardcoded user ID
+    private static final long CURRENT_USER_ID = 27L; // Hardcoded user ID
     private Context context;
     private List<FlashcardBasicResponse> flashcardList;
     private OnPublicFlashcardClickListener listener;
@@ -38,6 +40,8 @@ public class PublicFlashcardAdapter extends RecyclerView.Adapter<PublicFlashcard
     public interface OnPublicFlashcardClickListener {
         void onPublicFlashcardClick(FlashcardBasicResponse flashcard, boolean isPurchased);
     }
+
+
 
     public PublicFlashcardAdapter(Context context, List<FlashcardBasicResponse> flashcardList, OnPublicFlashcardClickListener listener) {
         this.context = context;

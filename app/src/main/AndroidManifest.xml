@@ -52,7 +52,7 @@
         <activity android:name=".view.activity.flashcard.LearnActivity"/>
         <activity android:name=".view.activity.flashcard.Game1Activity"/>
         <activity android:name=".view.activity.flashcard.Game2Activity"/>
-        <activity android:name=".view.activity.flashcard.GameResultActivity"/>
+        <activity android:name=".view.activity.flashcard.ResultActivity"/>
         <activity android:name=".view.activity.flashcard.MyFlashcardsActivity"/>
         <activity android:name=".view.activity.flashcard.PublicCategoriesActivity"/>
         <activity android:name=".view.activity.flashcard.PublicFlashcardsActivity"/>
@@ -61,7 +61,6 @@
             android:theme="@style/Theme.AppCompat.DayNight" />
         <activity android:name=".view.activity.quiz.TestActivity"/>
         <activity android:name=".view.activity.quiz.TestListActivity"/>
-        <activity android:name=".view.activity.quiz.ResultActivity"/>
 
 
 

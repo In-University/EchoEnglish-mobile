@@ -19,9 +19,9 @@ import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.Vocabu
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.CategoryResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardDetailResponse;
-import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningHistoryResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningProgressResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyReviewResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.model.PexelsResponse;
 import com.example.echoenglish_mobile.view.activity.grammar.model.Grammar;
 import com.example.echoenglish_mobile.view.activity.quiz.StartTestRequest;
@@ -133,13 +133,6 @@ public interface ApiService {
     @DELETE("api/flashcards/vocabularies/{vocabularyId}")
     Call<Void> deleteVocabulary(@Path("vocabularyId") Long vocabularyId);
 
-    // --- Learning History ---
-    @POST("api/learnings")
-    Call<Void> recordLearning(@Body LearningRecordRequest request);
-
-    @GET("api/learnings/history/user/{userId}")
-    Call<List<LearningHistoryResponse>> getLearningHistory(@Path("userId") Long userId);
-
     @GET("categories/public") // Lưu ý: Bỏ "api/" theo yêu cầu của bạn
     Call<List<CategoryResponse>> getPublicCategories();
 
@@ -152,7 +145,7 @@ public interface ApiService {
             @Body FlashcardUpdateRequest request // Dùng DTO Update
     );
 
-    @GET("api/learnings/user/{userId}/flashcard/{flashcardId}/progress")
+    @GET("api/learnings/progress/user/{userId}/flashcard/{flashcardId}")
     Call<LearningProgressResponse> getLearningProgress(
             @Path("userId") Long userId,
             @Path("flashcardId") Long flashcardId
@@ -190,4 +183,11 @@ public interface ApiService {
 
     @GET("grammars")
     Call<List<Grammar>> getGrammars();
+
+    @POST("api/learnings")
+    Call<Void> recordLearning(@Body LearningRecordRequest recordRequest);  
+
+    @GET("api/learnings/review/user/{userId}")
+        // Change return type to List of the new VocabularyReviewResponse
+    Call<VocabularyReviewResponse> getDueVocabulariesForReview(@Path("userId") Long userId);
 }

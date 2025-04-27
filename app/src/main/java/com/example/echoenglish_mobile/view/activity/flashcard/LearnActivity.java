@@ -1,6 +1,7 @@
 package com.example.echoenglish_mobile.view.activity.flashcard;
 
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
@@ -25,12 +26,13 @@ public class LearnActivity extends AppCompatActivity {
 
     private static final String TAG = "LearnActivity";
     public static final String FLASHCARD_ID_EXTRA = "FLASHCARD_ID";
-    private static final long CURRENT_USER_ID = 1L;
+    private static final long CURRENT_USER_ID = 27L;
 
     private ViewPager2 viewPagerLearn;
     private Button buttonKnow;
 
     private ApiService apiService;
+    private Button buttonForget;
     private LearnPagerAdapter pagerAdapter;
     private List<VocabularyResponse> vocabularies;
 
@@ -42,6 +44,7 @@ public class LearnActivity extends AppCompatActivity {
         // Ánh xạ view
         viewPagerLearn = findViewById(R.id.viewPagerLearn);
         buttonKnow = findViewById(R.id.buttonKnow);
+        buttonForget = findViewById(R.id.buttonForget); // ** ÁNH XẠ NÚT MỚI **
 
         apiService = ApiClient.getApiService();
 
@@ -54,13 +57,14 @@ public class LearnActivity extends AppCompatActivity {
             return;
         }
 
-        // Khởi tạo adapter rỗng ban đầu
         pagerAdapter = new LearnPagerAdapter(this, null);
         viewPagerLearn.setAdapter(pagerAdapter);
 
         loadVocabularies(flashcardId);
 
-        buttonKnow.setOnClickListener(v -> handleKnowClick());
+        // ** CẬP NHẬT LISTENER **
+        buttonKnow.setOnClickListener(v -> handleLearningClick(true)); // Xử lý khi bấm Biết (true)
+        buttonForget.setOnClickListener(v -> handleLearningClick(false)); // Xử lý khi bấm Quên (false)
     }
 
     private void loadVocabularies(long flashcardId) {
@@ -71,7 +75,6 @@ public class LearnActivity extends AppCompatActivity {
                     vocabularies = response.body();
                     Collections.shuffle(vocabularies); // Trộn thứ tự
 
-                    // Cập nhật lại adapter với dữ liệu mới
                     pagerAdapter = new LearnPagerAdapter(LearnActivity.this, vocabularies);
                     viewPagerLearn.setAdapter(pagerAdapter);
                 } else {
@@ -90,15 +93,25 @@ public class LearnActivity extends AppCompatActivity {
         });
     }
 
-    private void handleKnowClick() {
+
+
+
+    // ** PHƯƠNG THỨC XỬ LÝ CHUNG CHO NÚT BIẾT VÀ QUÊN **
+    private void handleLearningClick(boolean isRemembered) {
         int currentItem = viewPagerLearn.getCurrentItem();
         if (pagerAdapter != null) {
             VocabularyResponse currentVocab = pagerAdapter.getItem(currentItem);
             if (currentVocab != null) {
-                recordLearningProgress(currentVocab.getId());
+                // Ghi nhận học tập với trạng thái isRemembered tương ứng
+                recordLearningProgress(currentVocab.getId(), isRemembered);
 
+                // Chuyển sang thẻ tiếp theo SAU KHI gọi API
+                // Có thể thêm handler/delay nếu muốn hiệu ứng hoặc chờ phản hồi API
                 if (currentItem < pagerAdapter.getItemCount() - 1) {
-                    viewPagerLearn.setCurrentItem(currentItem + 1, true);
+                    // Chuyển trang sau một khoảng delay ngắn để API kịp gọi (tùy chọn)
+                    new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        viewPagerLearn.setCurrentItem(currentItem + 1, true);
+                    }, 200); // delay 200ms
                 } else {
                     Toast.makeText(this, "Hoàn thành bộ thẻ!", Toast.LENGTH_SHORT).show();
                     // Optional: finish();
@@ -107,26 +120,35 @@ public class LearnActivity extends AppCompatActivity {
         }
     }
 
-    private void recordLearningProgress(long vocabularyId) {
+    private void recordLearningProgress(long vocabularyId, boolean isRemembered) {
+        if (apiService == null) {
+            Log.e(TAG, "ApiService is not initialized.");
+            return;
+        }
         LearningRecordRequest request = new LearningRecordRequest();
         request.setUserId(CURRENT_USER_ID);
         request.setVocabularyId(vocabularyId);
+        request.setIsRemembered(isRemembered); // ** GỬI TRẠNG THÁI NHỚ/QUÊN **
+
 
         apiService.recordLearning(request).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    Log.i(TAG, "Ghi nhớ thành công vocab ID: " + vocabularyId);
+                    Log.i(TAG, "Ghi nhận học tập thành công cho vocab ID: " + vocabularyId + ", isRemembered: " + isRemembered);
+                    // Toast.makeText(LearnActivity.this, isRemembered ? "Đã ghi nhớ!" : "Đã đánh dấu cần ôn lại.", Toast.LENGTH_SHORT).show(); // Optional feedback
                 } else {
-                    Log.w(TAG, "Ghi nhớ thất bại: " + response.code());
-                    Toast.makeText(LearnActivity.this, "Lỗi ghi nhớ.", Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "Ghi nhận học tập thất bại cho vocab ID: " + vocabularyId + ": " + response.code() + " - " + response.message());
+                    // Optional: Show error message
+                    // Toast.makeText(LearnActivity.this, "Lỗi ghi nhận học tập.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Log.e(TAG, "Lỗi khi ghi nhớ", t);
-                Toast.makeText(LearnActivity.this, "Lỗi mạng khi ghi nhớ.", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Lỗi mạng khi ghi nhận học tập cho vocab ID: " + vocabularyId, t);
+                // Optional: Show error message
+                // Toast.makeText(LearnActivity.this, "Lỗi mạng.", Toast.LENGTH_SHORT).show();
             }
         });
     }

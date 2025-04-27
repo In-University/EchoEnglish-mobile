@@ -1,7 +1,6 @@
 package com.example.echoenglish_mobile.view.activity.flashcard;
 
 import android.content.Intent;
-import android.graphics.Color; // Already imported
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -39,7 +38,7 @@ public class Game1Activity extends AppCompatActivity {
     private static final String TAG = "Game1Activity";
 
     // TODO: Replace with actual user ID from login/session management
-    private static final long CURRENT_USER_ID = 1; // Example user ID
+    private static final long CURRENT_USER_ID = 27L; // Example user ID
 
     private TextView textGameProgress;
     private ImageView imageGameWord;
@@ -99,7 +98,16 @@ public class Game1Activity extends AppCompatActivity {
         // Bắt đầu game
         loadQuestion();
 
-        buttonSkip.setOnClickListener(v -> goToNextQuestion());
+        buttonSkip.setOnClickListener(v -> {
+            // Khi skip, ghi lại là quên
+            if (currentQuestionIndex < vocabularyList.size()) {
+                // Lấy vocab ID của câu hỏi hiện tại TRƯỚC khi chuyển câu
+                long vocabId = vocabularyList.get(currentQuestionIndex).getId();
+                // Ghi lại là quên (isRemembered = false)
+                recordLearningProgress(vocabId, false);
+            }
+            goToNextQuestion(); // Chuyển sang câu hỏi tiếp theo
+        });
         buttonCheck.setOnClickListener(v -> checkAnswer());
     }
 
@@ -308,32 +316,32 @@ public class Game1Activity extends AppCompatActivity {
 
         boolean isCorrect = userAnswer.equals(currentCorrectWord);
 
-        // Disable interaction after checking
         disableInteraction();
 
-        // Show feedback (correct/incorrect color)
+        // Lấy vocab ID của câu hỏi hiện tại
+        long currentVocabId = vocabularyList.get(currentQuestionIndex).getId();
+
+
+        if (isCorrect) {
+            score++;
+            Toast.makeText(this, "Chính xác!", Toast.LENGTH_SHORT).show();
+            // Ghi lại là nhớ (isRemembered = true)
+            recordLearningProgress(currentVocabId, true);
+
+        } else {
+            Toast.makeText(this, "Sai rồi! Đáp án: " + currentCorrectWord, Toast.LENGTH_LONG).show();
+            // Ghi lại là quên (isRemembered = false)
+            recordLearningProgress(currentVocabId, false);
+            // Optionally highlight the correct answer string or display it more prominently
+        }
+
+        // Show feedback (correct/incorrect color) after determining isCorrect
         for (TextView tv : answerTextViews) {
             tv.setBackgroundColor(ContextCompat.getColor(this,
                     isCorrect ? R.color.correct_green : R.color.incorrect_red));
             tv.setClickable(false); // Disable returning letters
         }
 
-
-        if (isCorrect) {
-            score++;
-            Toast.makeText(this, "Chính xác!", Toast.LENGTH_SHORT).show();
-
-            // --- CALL THE RECORD LEARNING PROGRESS HERE ---
-            // Record the progress for the current vocabulary item
-            if (currentQuestionIndex < vocabularyList.size()) {
-                recordLearningProgress(vocabularyList.get(currentQuestionIndex).getId());
-            }
-            // ----------------------------------------------
-
-        } else {
-            Toast.makeText(this, "Sai rồi! Đáp án: " + currentCorrectWord, Toast.LENGTH_LONG).show();
-            // Optionally highlight the correct answer string or display it more prominently
-        }
 
         // Wait a bit then go to the next question
         new Handler(Looper.getMainLooper()).postDelayed(this::goToNextQuestion, 2000); // Wait 2 seconds
@@ -361,35 +369,32 @@ public class Game1Activity extends AppCompatActivity {
     // End the game
     private void endGame() {
         Log.d(TAG, "Game Ended. Score: " + score + "/" + vocabularyList.size());
-        Intent intent = new Intent(this, GameResultActivity.class);
-        intent.putExtra(GameResultActivity.EXTRA_SCORE, score);
-        intent.putExtra(GameResultActivity.EXTRA_TOTAL_QUESTIONS, vocabularyList.size());
-        intent.putExtra(GameResultActivity.EXTRA_GAME_TYPE, "Game 1: Sắp xếp chữ"); // Send game type
+        Intent intent = new Intent(this, ResultActivity.class);
+        intent.putExtra(ResultActivity.EXTRA_SCORE, score);
+        intent.putExtra(ResultActivity.EXTRA_TOTAL_QUESTIONS, vocabularyList.size());
+        intent.putExtra(ResultActivity.EXTRA_GAME_TYPE, "Game 1: Sắp xếp chữ"); // Send game type
         startActivity(intent);
         finish(); // Close the game activity
     }
 
     // --- New method to record learning progress ---
-    private void recordLearningProgress(long vocabularyId) {
+    private void recordLearningProgress(long vocabularyId, boolean isRemembered) {
         if (apiService == null) {
             Log.e(TAG, "ApiService is not initialized.");
-            // Handle this error appropriately
             return;
         }
 
         LearningRecordRequest request = new LearningRecordRequest();
-        // TODO: Get actual user ID, not a hardcoded value
         request.setUserId(CURRENT_USER_ID);
         request.setVocabularyId(vocabularyId);
+        request.setIsRemembered(isRemembered); // ** GỬI TRẠNG THÁI NHỚ/QUÊN **
 
         apiService.recordLearning(request).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    Log.i(TAG, "Ghi nhớ thành công vocab ID: " + vocabularyId);
-                    // Optional: Show a small success message if desired
+                    Log.i(TAG, "Ghi nhận học tập thành công cho vocab ID: " + vocabularyId + ", isRemembered: " + isRemembered);
                 } else {
-                    // Log the error body if available for debugging
                     String errorBody = "";
                     try {
                         if (response.errorBody() != null) {
@@ -398,15 +403,13 @@ public class Game1Activity extends AppCompatActivity {
                     } catch (Exception e) {
                         Log.e(TAG, "Error reading error body", e);
                     }
-                    Log.w(TAG, "Ghi nhớ thất bại: " + response.code() + " - " + response.message() + " Body: " + errorBody);
-                    // Optional: Show a message to the user (e.g., "Lỗi ghi nhớ.")
+                    Log.w(TAG, "Ghi nhận học tập thất bại cho vocab ID: " + vocabularyId + ": " + response.code() + " - " + response.message() + " Body: " + errorBody);
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Log.e(TAG, "Lỗi khi ghi nhớ", t);
-                // Optional: Show a message to the user (e.g., "Lỗi mạng khi ghi nhớ.")
+                Log.e(TAG, "Lỗi mạng khi ghi nhận học tập cho vocab ID: " + vocabularyId, t);
             }
         });
     }

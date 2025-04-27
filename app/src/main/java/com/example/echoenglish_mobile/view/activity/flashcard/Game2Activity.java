@@ -1,7 +1,6 @@
 package com.example.echoenglish_mobile.view.activity.flashcard;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -9,7 +8,6 @@ import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -33,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random; // Not used but was in imports
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,7 +41,7 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
     public static final String EXTRA_VOCAB_LIST = "VOCABULARY_LIST";
     private static final String TAG = "Game2Activity";
 
-    private static final long CURRENT_USER_ID = 1; // Example user ID
+    private static final long CURRENT_USER_ID = 27L; // Example user ID
 
     // New View references
     private LinearLayout loadingContainer; // Or ConstraintLayout if you used CL
@@ -53,7 +50,6 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
     private TextView textGameProgress;
     private ImageButton buttonPlaySound;
     private GridLayout gridAnswers;
-    private Button buttonSkip;
 
     private List<VocabularyResponse> vocabularyList;
     private int currentQuestionIndex = 0;
@@ -85,7 +81,6 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
         textGameProgress = gameContent.findViewById(R.id.textGame2Progress); // Use gameContent to find
         buttonPlaySound = gameContent.findViewById(R.id.buttonGame2PlaySound); // Use gameContent to find
         gridAnswers = gameContent.findViewById(R.id.gridGame2Answers); // Use gameContent to find
-        buttonSkip = gameContent.findViewById(R.id.buttonGame2Skip); // Use gameContent to find
 
 
         // Khởi tạo TextToSpeech (Listener will handle visibility)
@@ -117,7 +112,6 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
 
         // Set up listeners (can do this even when game content is invisible)
         buttonPlaySound.setOnClickListener(v -> speakWord());
-        buttonSkip.setOnClickListener(v -> goToNextQuestion());
 
         // DO NOT call loadQuestion() here. It will be called in onInit().
     }
@@ -283,7 +277,6 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
             gridAnswers.addView(cardView);
         }
 
-        buttonSkip.setEnabled(true);
         // Tự động phát âm thanh khi câu hỏi được tải
         speakWord();
         buttonPlaySound.setEnabled(ttsInitialized);
@@ -322,33 +315,61 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
 
     // Kiểm tra đáp án người dùng chọn
     private void checkAnswer(VocabularyResponse selectedOption, CardView selectedCardView) {
-        // Vô hiệu hóa các lựa chọn khác và nút skip
         disableAnswerButtons();
-        buttonSkip.setEnabled(false);
-        buttonPlaySound.setEnabled(false); // Tạm thời vô hiệu hóa nút loa
+        buttonPlaySound.setEnabled(false);
 
         boolean isCorrect = selectedOption.getId().equals(currentCorrectVocab.getId());
 
-        // Đổi màu nền CardView được chọn
+        // Lấy vocab ID của câu hỏi hiện tại (đáp án đúng)
+        long currentVocabId = currentCorrectVocab.getId();
+
+
         if (isCorrect) {
             selectedCardView.setCardBackgroundColor(ContextCompat.getColor(this, R.color.correct_green));
             score++;
             Toast.makeText(this, "Chính xác!", Toast.LENGTH_SHORT).show();
-
-            // --- CALL THE RECORD LEARNING PROGRESS HERE ---
-            recordLearningProgress(selectedOption.getId());
-            // ----------------------------------------------
+            // Ghi lại là nhớ (isRemembered = true)
+            recordLearningProgress(currentVocabId, true);
 
         } else {
             selectedCardView.setCardBackgroundColor(ContextCompat.getColor(this, R.color.incorrect_red));
             Toast.makeText(this, "Sai rồi!", Toast.LENGTH_SHORT).show();
-            // Tìm và highlight đáp án đúng
             highlightCorrectAnswer();
-            // Don't record progress if incorrect
+            // Ghi lại là quên (isRemembered = false)
+            recordLearningProgress(currentVocabId, false);
         }
 
         // Chờ một chút rồi chuyển câu
-        new Handler(Looper.getMainLooper()).postDelayed(this::goToNextQuestion, 1500); // Chờ 1.5 giây
+        new Handler(Looper.getMainLooper()).postDelayed(this::goToNextQuestion, 1500);
+    }
+
+    // --- Modify recordLearningProgress to accept isRemembered ---
+    private void recordLearningProgress(long vocabularyId, boolean isRemembered) {
+        if (apiService == null) {
+            Log.e(TAG, "ApiService is not initialized.");
+            return;
+        }
+
+        LearningRecordRequest request = new LearningRecordRequest();
+        request.setUserId(CURRENT_USER_ID);
+        request.setVocabularyId(vocabularyId);
+        request.setIsRemembered(isRemembered); // ** GỬI TRẠNG THÁI NHỚ/QUÊN **
+
+        apiService.recordLearning(request).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.i(TAG, "Ghi nhận học tập thành công cho vocab ID: " + vocabularyId + ", isRemembered: " + isRemembered);
+                } else {
+                    Log.w(TAG, "Ghi nhận học tập thất bại cho vocab ID: " + vocabularyId + ": " + response.code() + " - " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e(TAG, "Lỗi mạng khi ghi nhận học tập cho vocab ID: " + vocabularyId, t);
+            }
+        });
     }
 
     // Helper to disable all card buttons
@@ -375,10 +396,10 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
     // Kết thúc game
     private void endGame() {
         Log.d(TAG, "Game Ended. Score: " + score + "/" + vocabularyList.size());
-        Intent intent = new Intent(this, GameResultActivity.class);
-        intent.putExtra(GameResultActivity.EXTRA_SCORE, score);
-        intent.putExtra(GameResultActivity.EXTRA_TOTAL_QUESTIONS, vocabularyList.size());
-        intent.putExtra(GameResultActivity.EXTRA_GAME_TYPE, "Game 2: Nghe & Chọn");
+        Intent intent = new Intent(this, ResultActivity.class);
+        intent.putExtra(ResultActivity.EXTRA_SCORE, score);
+        intent.putExtra(ResultActivity.EXTRA_TOTAL_QUESTIONS, vocabularyList.size());
+        intent.putExtra(ResultActivity.EXTRA_GAME_TYPE, "Game 2: Nghe & Chọn");
         // You might want to pass the vocabulary list back or just finish
         startActivity(intent);
         finish(); // Close this activity
