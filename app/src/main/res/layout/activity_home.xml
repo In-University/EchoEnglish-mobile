@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingTop="24dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="24dp">
+
+        <LinearLayout
+            android:id="@+id/headerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp"
+            android:paddingHorizontal="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hello Learner!"
+                android:textSize="28sp"
+                android:textColor="#212529"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ready to boost your English?"
+                android:textSize="16sp"
+                android:textColor="#6C757D"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/searchCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="25dp"
+            app:cardElevation="4dp"
+            app:cardUseCompatPadding="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    app:tint="#6C757D"
+                    android:layout_marginEnd="12dp" />
+
+                <EditText
+                    android:id="@+id/searchEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Search word..."
+                    android:textColorHint="#ADB5BD"
+                    android:textColor="#212529"
+                    android:background="@android:color/transparent"
+                    android:textSize="16sp"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:maxLines="1" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/statsCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginBottom="32dp"
+            app:cardBackgroundColor="#3E4685"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/streakTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your Learning Streak"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/streakTitle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="14"
+                            android:textColor="#FFD966"
+                            android:textSize="28sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Days"
+                            android:textColor="#E9ECEF"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="278"
+                            android:textColor="#75F0C3"
+                            android:textSize="28sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Words"
+                            android:textColor="#E9ECEF"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="42"
+                            android:textColor="#F48FB1"
+                            android:textSize="28sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Hours"
+                            android:textColor="#E9ECEF"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Explore Features"
+            android:textSize="20sp"
+            android:textColor="#343A40"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="16dp" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:rowCount="4"
+            android:useDefaultMargins="false"
+            android:alignmentMode="alignMargins"
+            android:columnOrderPreserved="false">
+
+            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+                <LinearLayout style="@style/CardInnerLayoutStyle">
+                    <ImageView style="@style/FunctionIconStyle"
+                        android:src="@drawable/ic_image_mic" />
+                    <TextView style="@style/FunctionTextStyle" android:text="Dictionary" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+                <LinearLayout style="@style/CardInnerLayoutStyle">
+                    <ImageView style="@style/FunctionIconStyle"
+                        android:src="@drawable/ic_subtitles" />
+                    <TextView style="@style/FunctionTextStyle" android:text="Flashcards" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+                <LinearLayout style="@style/CardInnerLayoutStyle">
+                    <ImageView style="@style/FunctionIconStyle"
+                        android:src="@drawable/ic_attachment" />
+                    <TextView style="@style/FunctionTextStyle" android:text="Grammar" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+                <LinearLayout style="@style/CardInnerLayoutStyle">
+                    <ImageView style="@style/FunctionIconStyle"
+                        android:src="@drawable/ic_play" />
+                    <TextView style="@style/FunctionTextStyle" android:text="Listening" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+                <LinearLayout style="@style/CardInnerLayoutStyle">
+                    <ImageView style="@style/FunctionIconStyle"
+                        android:src="@drawable/ic_image_mic" />
+                    <TextView style="@style/FunctionTextStyle" android:text="Speech Analyze" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+                <LinearLayout style="@style/CardInnerLayoutStyle">
+                    <ImageView style="@style/FunctionIconStyle"
+                        android:src="@drawable/ic_image_chat" />
+                    <TextView style="@style/FunctionTextStyle" android:text="AI Conversation" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+                <LinearLayout style="@style/CardInnerLayoutStyle">
+                    <ImageView style="@style/FunctionIconStyle"
+                        android:src="@drawable/ic_document" />
+                    <TextView style="@style/FunctionTextStyle" android:text="Document Hub" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </GridLayout>
+    </LinearLayout>
+</ScrollView>

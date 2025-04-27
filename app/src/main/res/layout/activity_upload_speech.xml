@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F1F5F9">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Analyze Speech Sentence"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#0F172A"
+        android:padding="16dp"
+        android:background="#FFFFFF"
+        android:elevation="2dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Target Word Input -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Target Word"
+                android:textColor="#334155"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/etTargetWord"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:hint="Enter the word to analyze"
+                android:inputType="text"
+                android:padding="12dp"
+                android:textColor="#0F172A"
+                android:textColorHint="#94A3B8"
+                android:textSize="16sp" />
+
+            <!-- Attachment Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Audio File"
+                android:textColor="#334155"
+                android:textSize="16sp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#FFFFFF"
+                android:elevation="1dp">
+
+                <!-- Attachment display area (Simplified for one file) -->
+                <RelativeLayout
+                    android:id="@+id/attachmentDisplayArea"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:minHeight="100dp"
+                    android:gravity="center_vertical">
+
+                    <!-- Empty state (shows when no file is selected) -->
+                    <LinearLayout
+                        android:id="@+id/emptyAttachmentState"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_centerInParent="true"
+                        android:visibility="visible">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_attachment"
+                            app:tint="#94A3B8"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="No audio file selected"
+                            android:textColor="#64748B"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
+
+                    <!-- Selected file state -->
+                    <LinearLayout
+                        android:id="@+id/selectedAttachmentState"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_attachment"
+                            app:tint="#2563EB" />
+
+                        <TextView
+                            android:id="@+id/txtSelectedFileName"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp"
+                            android:textColor="#0F172A"
+                            android:textSize="15sp"
+                            tools:text="my_recording_final_v2.mp3"/>
+
+                        <ImageButton
+                            android:id="@+id/btnRemoveAttachment"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:src="@drawable/ic_close"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="Remove file"
+                            android:padding="6dp"/>
+                    </LinearLayout>
+                </RelativeLayout>
+
+                <!-- Attachment actions bar -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#0E305B"
+                    android:padding="12dp">
+
+                    <!-- Select file button -->
+                    <LinearLayout
+                        android:id="@+id/btnSelectAttachment"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@drawable/background_border_rounded"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_add"
+                            app:tint="#FFFFFF" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="Select Audio File"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                    <!-- Camera and Gallery buttons are removed -->
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Upload Progress -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:indeterminate="true"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Upload Button -->
+    <Button
+        android:id="@+id/btnUpload"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_margin="16dp"
+        android:text="Upload and Analyze"
+        android:background="#0E305B"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:elevation="2dp"/>
+
+</LinearLayout>

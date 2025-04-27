@@ -54,7 +54,7 @@
 
 
         <activity
-            android:name=".view.activity.dictionary.DictionaryActivity"
+            android:name=".view.activity.pronunciation_assessment.UploadSpeechActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

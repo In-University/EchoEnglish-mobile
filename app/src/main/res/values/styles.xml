@@ -26,4 +26,43 @@
         <item name="android:background">@drawable/bg_game_letter_choice</item>
     </style>
 
+    <style name="ModernFunctionCardStyle" parent="Widget.MaterialComponents.CardView">
+        <item name="android:layout_width">0dp</item> <!-- Quan trọng cho GridLayout Weight -->
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_columnWeight">1</item> <!-- Phân bổ không gian đều -->
+        <item name="android:layout_gravity">fill</item>
+        <item name="cardBackgroundColor">#FFFFFF</item> <!-- Nền trắng -->
+        <item name="cardCornerRadius">12dp</item> <!-- Bo góc vừa phải -->
+        <item name="cardElevation">3dp</item> <!-- Đổ bóng nhẹ -->
+        <item name="cardUseCompatPadding">true</item> <!-- Thêm padding tương thích để bóng hiển thị tốt -->
+        <item name="android:layout_margin">6dp</item> <!-- Khoảng cách giữa các card -->
+    </style>
+
+    <style name="CardInnerLayoutStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:gravity">center_horizontal</item>
+    </style>
+
+    <style name="FunctionIconStyle">
+        <item name="android:layout_width">36dp</item> <!-- Kích thước icon -->
+        <item name="android:layout_height">36dp</item>
+        <item name="android:layout_marginBottom">12dp</item> <!-- Khoảng cách dưới icon -->
+        <item name="android:scaleType">fitCenter</item>
+        <item name="tint">#495057</item> <!-- Màu tint mặc định nếu dùng icon vector có thể tint -->
+    </style>
+
+    <style name="FunctionTextStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#343A40</item> <!-- Màu chữ đậm hơn -->
+        <item name="android:textSize">14sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">normal</item> <!-- Hoặc bold nếu muốn -->
+        <item name="android:maxLines">2</item> <!-- Cho phép xuống dòng nếu tên dài -->
+        <item name="android:ellipsize">end</item>
+    </style>
+
 </resources>
