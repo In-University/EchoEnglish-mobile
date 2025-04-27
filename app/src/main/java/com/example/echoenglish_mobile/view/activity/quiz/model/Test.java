@@ -15,9 +15,6 @@ public class Test {
     @SerializedName("name")
     private String name;
 
-    @SerializedName("parts")
-    private List<TestPart> parts;
-
     // Getters and Setters
     public Integer getTestId() {
         return testId;
@@ -41,13 +38,5 @@ public class Test {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<TestPart> getParts() {
-        return parts;
-    }
-
-    public void setParts(List<TestPart> parts) {
-        this.parts = parts;
     }
 }

@@ -179,40 +179,13 @@ public interface ApiService {
 
 
     // ---------------------------------------------------
+    @GET("tests") // Đường dẫn API lấy danh sách Test
+    Call<List<Test>> getAllTests();
+
+    @GET("tests/{testId}/part-number/{partNumber}") // Đảm bảo URL khớp với Controller backend
+    Call<TestPart> getDetailedTestPartByNumber(
+            @Path("testId") int testId,
+            @Path("partNumber") int partNumber);
 
 
-    // Start a new test attempt
-    // Example: Fetch all Tests (adjust if you fetch TestParts directly)
-    @GET("/tests")
-    Call<List<Test>> getAllTests(); // Or filter by part type if API supports it
-
-
-    // Fetch a specific TestPart with all its details (Groups, Questions, Choices, Content)
-    // IMPORTANT: Ensure your backend returns the FULL nested structure here
-    @GET("/tests/{testId}/parts/{partId}")
-    Call<TestPart> getTestPartDetails(@Path("testId") int testId, @Path("partId") int partId);
-
-    @POST("/test-history/start")
-    Call<StartTestResponse> startTest(@Body StartTestRequest request); // Request contains userId, testId, partId
-
-
-    // Submit an answer for a specific question within a test history
-    // Adjust endpoint/method (POST or PUT) based on your backend logic (create vs update)
-    @POST("/test-history/detail/submit") // Or maybe PUT /test-history/{historyId}/details/{questionId}
-    Call<Void> submitAnswer(@Body SubmitAnswerRequest request); // Request contains historyId, questionId, choiceId
-
-
-    // Mark a test attempt as completed (optionally calculate score server-side)
-    @PUT("/test-history/{historyId}/complete")
-    Call<TestHistory> completeTest(@Path("historyId") long historyId); // May return updated TestHistory with score
-
-
-    // Get history for a user
-    @GET("/test-history/user/{userId}")
-    Call<List<TestHistory>> getUserTestHistory(@Path("userId") Long  userId); // Adjust userId type if needed
-
-
-    // Get details of a specific test history (including answers)
-    @GET("/test-history/{historyId}")
-    Call<TestHistory> getTestHistoryDetails(@Path("historyId") long historyId);
 }

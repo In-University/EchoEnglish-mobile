@@ -1,37 +1,46 @@
-package com.example.echoenglish_mobile.view.activity.quiz;
+package com.example.echoenglish_mobile.view.activity.quiz; // Thay package phù hợp
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.CountDownTimer;
+import android.os.CountDownTimer; // Import CountDownTimer
 import android.os.Handler;
+import android.os.Looper;
+import android.text.Html;
 import android.util.Log;
+import android.view.Gravity; // Import Gravity
+import android.view.LayoutInflater; // Import LayoutInflater
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ProgressBar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView; // Import CardView (Vẫn cần cho Explanation cũ nếu dùng)
 import androidx.core.content.ContextCompat;
 
-import com.bumptech.glide.Glide; // Using Glide for image loading
+import com.bumptech.glide.Glide;
 import com.example.echoenglish_mobile.R;
+
+// SỬA LẠI IMPORT MODEL VỀ ĐÚNG PACKAGE CỦA BẠN
+// Bỏ các import không cần thiết (request/response/history)
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
+import com.example.echoenglish_mobile.view.activity.quiz.ResultActivity;
 import com.example.echoenglish_mobile.view.activity.quiz.model.TestChoice;
-import com.example.echoenglish_mobile.view.activity.quiz.model.TestHistory;
 import com.example.echoenglish_mobile.view.activity.quiz.model.TestPart;
 import com.example.echoenglish_mobile.view.activity.quiz.model.TestQuestion;
 import com.example.echoenglish_mobile.view.activity.quiz.model.TestQuestionContent;
 import com.example.echoenglish_mobile.view.activity.quiz.model.TestQuestionGroup;
-import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.android.material.bottomsheet.BottomSheetDialog; // Import BottomSheetDialog
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 
@@ -51,40 +60,46 @@ import retrofit2.Response;
 
 public class TestActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
 
-    private TextView tvQuestionIndicator, tvTimer, tvQuestionTextPart5;
+    // Views
+    private TextView tvQuestionIndicator, tvQuestionTextPart5; // Bỏ tvExplanationDetail ở đây
     private LinearProgressIndicator progressIndicator;
     private ImageView imgQuestionPart1;
-    private View audioPlayerView; // The include layout
+    private View audioPlayerView;
     private ImageView btnAudioPlayPause;
     private SeekBar audioSeekBar;
     private TextView tvAudioCurrentTime, tvAudioTotalTime;
     private Button btnChoiceA, btnChoiceB, btnChoiceC, btnChoiceD;
-    private Button btnNext, btnBack;
+    private Button btnNext, btnBack, btnShowExplanation;
+    // private CardView cardExplanation; // Bỏ CardView explanation
+    private ProgressBar loadingProgressBar; // Cần thêm vào layout nếu muốn dùng
+    private TextView tvTimer; // TextView hiển thị timer tổng
 
+    // Data & State
     private ApiService apiService;
     private TestPart currentTestPart;
     private List<TestQuestionGroup> questionGroups;
-    private List<TestQuestion> allQuestions = new ArrayList<>(); // Flattened list for easier access by index
+    private List<TestQuestion> allQuestions = new ArrayList<>();
     private int currentQuestionIndex = 0;
-    private int partNumber; // 1 or 5
-    private int testId;
-    private int partId;
-    private long historyId = -1; // Store the ID from startTest API
+    private int partNumber;
+    private Integer currentTestId; // Lấy từ Intent
+    private Integer currentPartId = null; // Lấy từ currentTestPart
+    private int totalQuestionsInPart = 0; // Tổng số câu hỏi trong part này
 
+    // Answer Tracking
     private Map<Integer, Integer> userAnswers = new HashMap<>(); // <QuestionID, ChoiceID>
-    private Integer selectedChoiceId = null; // Currently selected choice for the visible question
+    private Map<Integer, Boolean> answerCorrectness = new HashMap<>(); // <QuestionID, IsCorrect>
 
+    // Media Player
     private MediaPlayer mediaPlayer;
-    private Handler audioHandler = new Handler();
+    private final Handler audioHandler = new Handler(Looper.getMainLooper());
     private boolean isAudioPrepared = false;
     private boolean autoPlayedOnce = false;
 
-    private CountDownTimer countDownTimer;
-    private static final long TEST_DURATION_MS = 10 * 60 * 1000; // Example: 10 minutes
-    private static final Long USER_ID = 27L;
+    // Timer cho cả bài thi
+    private CountDownTimer totalTestTimer; // Timer tổng
+    private long totalTimeMillis = 0; // Tổng thời gian (ms)
 
-    private static final String TAG = "TestActivity"; // For logging
-
+    private static final String TAG = "TestActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,43 +109,55 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         apiService = ApiClient.getApiService();
 
         if (!getIntentData()) {
-            finishWithError("Invalid test data received.");
+            finishWithError("Invalid Test ID or Part Number received.");
             return;
         }
 
         bindViews();
         setupListeners();
-        startNewTest(); // Call API to start history record, then fetch part details
+        fetchTestData();
     }
+
+    // --- Timer Logic cho Toàn Bài Thi ---
+    private void calculateAndStartTotalTimer() {
+        if (totalQuestionsInPart <= 0) { Log.w(TAG, "Cannot start timer, no questions."); return; }
+        totalTimeMillis = (long) totalQuestionsInPart * 60 * 1000;
+        startTotalTestTimer(totalTimeMillis);
+    }
+
 
     private boolean getIntentData() {
         Intent intent = getIntent();
-        testId = intent.getIntExtra(Constants.EXTRA_TEST_ID, -1);
-        partId = intent.getIntExtra(Constants.EXTRA_PART_ID, -1);
         partNumber = intent.getIntExtra(Constants.EXTRA_PART_NUMBER, -1);
-        return testId != -1 && partId != -1 && partNumber != -1;
+        currentTestId = intent.getIntExtra(Constants.EXTRA_TEST_ID, -1);
+        Log.d(TAG, "Received partNumber: " + partNumber + ", testId: " + currentTestId);
+        return partNumber != -1 && currentTestId != -1;
     }
 
     private void bindViews() {
         tvQuestionIndicator = findViewById(R.id.question_indicator_textview);
-        tvTimer = findViewById(R.id.timer_indicator_textview);
         progressIndicator = findViewById(R.id.question_progress_indicator);
         imgQuestionPart1 = findViewById(R.id.img_question_part1);
         tvQuestionTextPart5 = findViewById(R.id.question_textview_part5);
-        audioPlayerView = findViewById(R.id.audio_player_part1); // The included layout view
+        audioPlayerView = findViewById(R.id.audio_player_part1);
         btnChoiceA = findViewById(R.id.btn_choice_a);
         btnChoiceB = findViewById(R.id.btn_choice_b);
         btnChoiceC = findViewById(R.id.btn_choice_c);
         btnChoiceD = findViewById(R.id.btn_choice_d);
         btnNext = findViewById(R.id.btn_next);
         btnBack = findViewById(R.id.btn_back);
+        btnShowExplanation = findViewById(R.id.btn_show_explanation);
+        // cardExplanation = findViewById(R.id.card_explanation); // Bỏ dòng này
+        // tvExplanationDetail = findViewById(R.id.tv_explanation_detail); // Bỏ dòng này
+        tvTimer = findViewById(R.id.timer_textview);
 
-        // Views within the audio player include
+        // Audio Player Views
         btnAudioPlayPause = audioPlayerView.findViewById(R.id.audio_btn_play_pause);
         audioSeekBar = audioPlayerView.findViewById(R.id.audio_seekbar_progress);
         tvAudioCurrentTime = audioPlayerView.findViewById(R.id.audio_txt_current_time);
         tvAudioTotalTime = audioPlayerView.findViewById(R.id.audio_txt_total_time);
 
+        // loadingProgressBar = findViewById(R.id.loading_progress_bar); // Uncomment nếu có
     }
 
     private void setupListeners() {
@@ -140,269 +167,181 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         btnChoiceD.setOnClickListener(this);
         btnNext.setOnClickListener(this);
         btnBack.setOnClickListener(this);
-
+        btnShowExplanation.setOnClickListener(this);
         btnAudioPlayPause.setOnClickListener(this);
         audioSeekBar.setOnSeekBarChangeListener(this);
     }
 
-    private void startNewTest() {
-        // Replace "DUMMY_USER_ID" with actual user ID retrieval
-        Long userId = USER_ID;
-        if (userId == null) {
-            finishWithError("User not logged in.");
-            return;
-        }
+    private void fetchTestData() {
+        showLoading(true);
+        Log.d(TAG, "Fetching test part details for testId: " + currentTestId + ", partNumber: " + partNumber);
 
-        StartTestRequest request = new StartTestRequest(userId, testId, partId);
-        apiService.startTest(request).enqueue(new Callback<StartTestResponse>() {
+        apiService.getDetailedTestPartByNumber(currentTestId, partNumber).enqueue(new Callback<TestPart>() {
             @Override
-            public void onResponse(Call<StartTestResponse> call, Response<StartTestResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    historyId = response.body().getHistoryId();
-                    Log.d(TAG, "Test started successfully. History ID: " + historyId);
-                    // Now fetch the actual test part data
-                    fetchTestPartDetails();
-                } else {
-                    finishWithError("Failed to start test session: " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<StartTestResponse> call, Throwable t) {
-                finishWithError("Network error starting test: " + t.getMessage());
-            }
-        });
-    }
-
-
-    private void fetchTestPartDetails() {
-        // Add a loading indicator here
-        apiService.getTestPartDetails(testId, partId).enqueue(new Callback<TestPart>() {
-            @Override
-            public void onResponse(Call<TestPart> call, Response<TestPart> response) {
-                // Hide loading indicator
+            public void onResponse(@NonNull Call<TestPart> call, @NonNull Response<TestPart> response) {
+                showLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
                     currentTestPart = response.body();
+                    if (currentTestPart.getPartId() == null) { finishWithError("Fetched TestPart missing ID."); return; }
+                    currentPartId = currentTestPart.getPartId();
+                    Log.d(TAG, "Successfully fetched TestPart, partId: " + currentPartId);
+
+                    // Kiểm tra/cập nhật testId nếu cần
+                    if (currentTestPart.getTest() != null && currentTestPart.getTest().getTestId() != null) {
+                        Integer fetchedTestId = currentTestPart.getTest().getTestId();
+                        if (!currentTestId.equals(fetchedTestId)) {
+                            Log.w(TAG, "Using fetched testId " + fetchedTestId);
+                            currentTestId = fetchedTestId;
+                        }
+                    } else { Log.w(TAG, "Fetched TestPart missing parent Test info."); }
+
                     prepareTestData();
                     if (!allQuestions.isEmpty()) {
-                        loadQuestion(currentQuestionIndex);
-                        startTimer(TEST_DURATION_MS); // Start the overall test timer
+                        totalQuestionsInPart = allQuestions.size();
+                        calculateAndStartTotalTimer();
+                        loadQuestion(0);
                     } else {
-                        finishWithError("No questions found in this part.");
+                        finishWithError("No questions found.");
                     }
                 } else {
-                    finishWithError("Failed to load test details: " + response.message());
+                    String errorMsg = "Failed load data: " + response.code();
+                    try { if (response.errorBody() != null) errorMsg += " | " + response.errorBody().string();} catch (IOException e) {}
+                    finishWithError(errorMsg);
                 }
             }
-
             @Override
-            public void onFailure(Call<TestPart> call, Throwable t) {
-                // Hide loading indicator
-                finishWithError("Network error loading test details: " + t.getMessage());
+            public void onFailure(@NonNull Call<TestPart> call, @NonNull Throwable t) {
+                showLoading(false);
+                finishWithError("Network error: " + t.getMessage());
             }
         });
     }
 
     private void prepareTestData() {
-        if (currentTestPart == null || currentTestPart.getGroups() == null) {
-            return;
-        }
-        questionGroups = currentTestPart.getGroups();
-        // Sort groups by groupIndex just in case
-        Collections.sort(questionGroups, Comparator.comparing(TestQuestionGroup::getGroupIndex, Comparator.nullsLast(Comparator.naturalOrder())));
+        if (currentTestPart == null || currentTestPart.getGroups() == null) { return; }
+        if (currentTestPart.getGroups() instanceof List) { questionGroups = (List<TestQuestionGroup>) currentTestPart.getGroups(); }
+        else { questionGroups = new ArrayList<>(currentTestPart.getGroups()); }
+        try { questionGroups.sort(Comparator.comparing(TestQuestionGroup::getGroupIndex, Comparator.nullsLast(Comparator.naturalOrder()))); }
+        catch (Exception e) { Log.e(TAG, "Sort groups error", e); }
 
         allQuestions.clear();
+        userAnswers.clear();
+        answerCorrectness.clear();
+
         for (TestQuestionGroup group : questionGroups) {
-            if (group.getQuestions() != null) {
-                // Sort questions within the group by questionNumber
-                Collections.sort(group.getQuestions(), Comparator.comparing(TestQuestion::getQuestionNumber, Comparator.nullsLast(Comparator.naturalOrder())));
+            if (group != null && group.getQuestions() != null) {
+                try {
+                    if (group.getQuestions() instanceof List) { ((List<TestQuestion>)group.getQuestions()).sort(Comparator.comparing(TestQuestion::getQuestionNumber, Comparator.nullsLast(Comparator.naturalOrder()))); }
+                } catch (Exception e) { Log.e(TAG, "Sort questions error", e); }
                 allQuestions.addAll(group.getQuestions());
             }
         }
-        progressIndicator.setMax(allQuestions.size());
+        totalQuestionsInPart = allQuestions.size(); // Cập nhật tổng số câu ở đây
+        Log.d(TAG, "Prepared data. Questions: " + totalQuestionsInPart);
+        if (progressIndicator != null) {
+            progressIndicator.setMax(totalQuestionsInPart);
+            progressIndicator.setProgressCompat(0, false);
+        }
     }
 
     private void loadQuestion(int index) {
-        if (index < 0 || index >= allQuestions.size()) {
-            Log.e(TAG, "Invalid question index: " + index);
-            return;
-        }
+        if (allQuestions.isEmpty() || index < 0 || index >= allQuestions.size()) { if (!allQuestions.isEmpty() && index >= allQuestions.size()) finishTest(); return; }
         currentQuestionIndex = index;
         TestQuestion question = allQuestions.get(index);
+        if (question == null || question.getQuestionId() == null) { handleNext(); return; }
+
         resetUIForNewQuestion();
 
-        // Update progress
-        tvQuestionIndicator.setText(String.format(Locale.getDefault(), "Question %d/%d", index + 1, allQuestions.size()));
+        tvQuestionIndicator.setText(String.format(Locale.getDefault(), "Question %d/%d", index + 1, totalQuestionsInPart)); // Dùng totalQuestionsInPart
         progressIndicator.setProgressCompat(index + 1, true);
 
-        // Restore previously selected answer for this question
-        selectedChoiceId = userAnswers.get(question.getQuestionId());
+        if (partNumber == 1) loadPart1UI(question);
+        else loadPart5UI(question);
 
-
-        // --- Part Specific Loading ---
-        if (partNumber == 1) {
-            loadPart1Question(question);
-        } else if (partNumber == 5) {
-            loadPart5Question(question);
-        }
-
-        // Update button states based on selectedChoiceId
-        updateChoiceButtonStates();
+        loadChoices(question);
+        restoreAnswerState(question.getQuestionId());
         updateNavigationButtons();
     }
 
     private void resetUIForNewQuestion(){
-        // Reset common elements
-        selectedChoiceId = null;
-        resetChoiceButtonBackgrounds();
-        stopAudio(); // Stop audio from previous question if any
+        resetChoiceButtonStates();
+        // cardExplanation.setVisibility(View.GONE); // Bỏ dòng này
+        // tvExplanationDetail.setText(""); // Bỏ dòng này
+        stopAudio();
         isAudioPrepared = false;
         autoPlayedOnce = false;
         imgQuestionPart1.setVisibility(View.GONE);
         audioPlayerView.setVisibility(View.GONE);
         tvQuestionTextPart5.setVisibility(View.GONE);
-
-        // Reset audio player UI
         btnAudioPlayPause.setImageResource(R.drawable.ic_xml_play_arrow_24px);
         audioSeekBar.setProgress(0);
         tvAudioCurrentTime.setText("0:00");
         tvAudioTotalTime.setText("0:00");
-        audioSeekBar.setEnabled(false); // Disable until prepared
+        audioSeekBar.setEnabled(false);
     }
 
-    private void loadPart1Question(TestQuestion question) {
-        TestQuestionGroup group = findGroupForQuestion(question);
-        if (group == null || group.getContents() == null) {
-            Log.e(TAG, "Could not find group or content for question ID: " + question.getQuestionId());
-            return; // Or show error placeholder
+    private void resetChoiceButtonStates() {
+        Button[] buttons = {btnChoiceA, btnChoiceB, btnChoiceC, btnChoiceD};
+        int colorTextDefault = ContextCompat.getColor(this, R.color.black);
+        for (Button btn : buttons) {
+            btn.setBackgroundResource(R.drawable.button_background_default);
+            btn.setTextColor(colorTextDefault);
+            btn.setEnabled(true);
+            if (partNumber == 1) { btn.setGravity(Gravity.CENTER); }
+            else { btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL); }
         }
-
-        String imageUrl = null;
-        String audioUrl = null;
-
-        // Find image and audio URLs from group content
-        for (TestQuestionContent content : group.getContents()) {
-            if ("IMAGE".equalsIgnoreCase(content.getContentType())) {
-                imageUrl = content.getContentData();
-            } else if ("AUDIO".equalsIgnoreCase(content.getContentType())) {
-                audioUrl = content.getContentData();
-            }
-        }
-
-        // Load Image
-        if (imageUrl != null) {
-            imgQuestionPart1.setVisibility(View.VISIBLE);
-            Glide.with(this)
-                    .load(imageUrl)
-                    .placeholder(R.color.gray) // Placeholder color/drawable
-                    .error(R.drawable.ic_xml_broken_image_24px) // Error image
-                    .into(imgQuestionPart1);
-        } else {
-            imgQuestionPart1.setVisibility(View.GONE); // Or show placeholder
-        }
-
-        // Load Audio
-        if (audioUrl != null) {
-            audioPlayerView.setVisibility(View.VISIBLE);
-            prepareAudio(audioUrl);
-        } else {
-            audioPlayerView.setVisibility(View.GONE);
-        }
-
-        // Load Choices (Using choiceExplanation for Part 1)
-        loadChoices(question, true);
     }
 
-    private void loadPart5Question(TestQuestion question) {
-        imgQuestionPart1.setVisibility(View.GONE);
-        audioPlayerView.setVisibility(View.GONE);
-        tvQuestionTextPart5.setVisibility(View.VISIBLE);
-        tvQuestionTextPart5.setText(question.getQuestionText() != null ? question.getQuestionText() : "Question text not available.");
-
-        // Load Choices (Using choiceText for Part 5)
-        loadChoices(question, false);
+    private void loadPart1UI(TestQuestion question) {
+        TestQuestionGroup group = findGroupForQuestion(question); if (group == null) return;
+        String imageUrl = null; String audioUrl = null;
+        if (group.getContents() != null) { for (TestQuestionContent content : group.getContents()) { if (content == null) continue; if ("IMAGE".equalsIgnoreCase(content.getContentType())) imageUrl = content.getContentData(); else if ("AUDIO".equalsIgnoreCase(content.getContentType())) audioUrl = content.getContentData(); } }
+        imgQuestionPart1.setVisibility(imageUrl != null ? View.VISIBLE : View.GONE); if (imageUrl != null) { Glide.with(this).load(imageUrl).placeholder(R.color.gray).error(R.drawable.ic_xml_broken_image_24px).into(imgQuestionPart1); }
+        audioPlayerView.setVisibility(audioUrl != null ? View.VISIBLE : View.GONE); if (audioUrl != null) { prepareAudio(audioUrl); }
     }
 
-    // Helper to find the group a question belongs to
+    private void loadPart5UI(TestQuestion question) {
+        imgQuestionPart1.setVisibility(View.GONE); audioPlayerView.setVisibility(View.GONE);
+        tvQuestionTextPart5.setVisibility(View.VISIBLE); tvQuestionTextPart5.setText(question.getQuestionText() != null ? question.getQuestionText() : "...");
+    }
+
     private TestQuestionGroup findGroupForQuestion(TestQuestion question) {
-        // REMOVE this line: if (question.getGroup() != null) return question.getGroup(); // If relationship is loaded
+        if (questionGroups == null || question == null || question.getQuestionId() == null) return null;
+        for (TestQuestionGroup group : questionGroups) { if (group == null || group.getQuestions() == null) continue; for (TestQuestion q : group.getQuestions()) { if (q != null && question.getQuestionId().equals(q.getQuestionId())) return group; } }
+        return null;
+    }
 
-        // Keep the fallback loop:
-        if (questionGroups == null) { // Add a null check for safety
-            Log.e(TAG, "questionGroups list is null in findGroupForQuestion");
-            return null;
-        }
+    private void loadChoices(TestQuestion question) {
+        if (question == null || question.getChoices() == null || question.getChoices().isEmpty()) { btnChoiceA.setVisibility(View.GONE); btnChoiceB.setVisibility(View.GONE); btnChoiceC.setVisibility(View.GONE); btnChoiceD.setVisibility(View.GONE); return; }
+        List<TestChoice> choices; if (question.getChoices() instanceof List) { choices = (List<TestChoice>) question.getChoices(); } else { choices = new ArrayList<>(question.getChoices()); }
+        try { choices.sort(Comparator.comparing(TestChoice::getChoiceLabel, Comparator.nullsLast(Comparator.naturalOrder()))); } catch (Exception e) { Log.e(TAG, "Sort choices error", e); }
+        Button[] buttons = {btnChoiceA, btnChoiceB, btnChoiceC, btnChoiceD};
+        for (int i = 0; i < buttons.length; i++) { if (i < choices.size() && choices.get(i) != null) { setupChoiceButtonText(buttons[i], choices.get(i)); buttons[i].setTag(choices.get(i).getChoiceId()); buttons[i].setVisibility(View.VISIBLE); } else { buttons[i].setVisibility(View.GONE); } }
+    }
 
-        for (TestQuestionGroup group : questionGroups) {
-            if (group.getQuestions() != null) {
-                for (TestQuestion q : group.getQuestions()) {
-                    // Make sure to compare IDs safely
-                    if (q.getQuestionId() != null && q.getQuestionId().equals(question.getQuestionId())) {
-                        return group; // Found the group containing this question
-                    }
+    private void setupChoiceButtonText(Button button, TestChoice choice) {
+        if (choice == null) { button.setVisibility(View.GONE); return; }
+        String label = choice.getChoiceLabel() != null ? choice.getChoiceLabel() : "?";
+        String textToShow;
+        if (partNumber == 1) { textToShow = String.format("(%s)", label); button.setGravity(Gravity.CENTER); }
+        else { String content = choice.getChoiceText(); if (content == null || content.trim().isEmpty()) { content = choice.getChoiceExplanation(); } textToShow = String.format("(%s) %s", label, content != null ? content : ""); button.setGravity(Gravity.START | Gravity.CENTER_VERTICAL); }
+        button.setText(textToShow);
+    }
+
+    private void restoreAnswerState(int questionId) {
+        Integer answeredChoiceId = userAnswers.get(questionId);
+        Boolean isCorrect = answerCorrectness.get(questionId);
+        if (answeredChoiceId != null && isCorrect != null) {
+            if (currentQuestionIndex < allQuestions.size()) {
+                TestQuestion currentQuestion = allQuestions.get(currentQuestionIndex);
+                if (currentQuestion != null && currentQuestion.getQuestionId() == questionId) {
+                    showFeedback(answeredChoiceId, currentQuestion.getCorrectAnswerLabel());
+                    lockChoices();
                 }
             }
+        } else {
+            enableChoices();
         }
-        Log.w(TAG, "Could not find parent group for Question ID: " + (question.getQuestionId() != null ? question.getQuestionId() : "null"));
-        return null; // Group not found
-    }
-
-    private void loadChoices(TestQuestion question, boolean useExplanation) {
-        List<TestChoice> choices = question.getChoices();
-        if (choices == null || choices.size() < 4) {
-            Log.e(TAG, "Insufficient choices for question ID: " + question.getQuestionId());
-            // Hide buttons or show error
-            btnChoiceA.setVisibility(View.GONE);
-            btnChoiceB.setVisibility(View.GONE);
-            btnChoiceC.setVisibility(View.GONE);
-            btnChoiceD.setVisibility(View.GONE);
-            return;
-        }
-
-        // Sort choices by label (A, B, C, D)
-        Collections.sort(choices, Comparator.comparing(TestChoice::getChoiceLabel, Comparator.nullsLast(Comparator.naturalOrder())));
-
-        // Assume choices are ordered A, B, C, D after sorting
-        if (choices.size() > 0) setupChoiceButton(btnChoiceA, choices.get(0), useExplanation);
-        if (choices.size() > 1) setupChoiceButton(btnChoiceB, choices.get(1), useExplanation);
-        if (choices.size() > 2) setupChoiceButton(btnChoiceC, choices.get(2), useExplanation);
-        if (choices.size() > 3) setupChoiceButton(btnChoiceD, choices.get(3), useExplanation);
-
-        // Hide unused buttons if fewer than 4 choices (optional)
-        btnChoiceA.setVisibility(choices.size() > 0 ? View.VISIBLE : View.GONE);
-        btnChoiceB.setVisibility(choices.size() > 1 ? View.VISIBLE : View.GONE);
-        btnChoiceC.setVisibility(choices.size() > 2 ? View.VISIBLE : View.GONE);
-        btnChoiceD.setVisibility(choices.size() > 3 ? View.VISIBLE : View.GONE);
-    }
-
-    private void setupChoiceButton(Button button, TestChoice choice, boolean useExplanation) {
-        String textToShow = useExplanation ? choice.getChoiceExplanation() : choice.getChoiceText();
-        button.setText(String.format("(%s) %s", choice.getChoiceLabel(), textToShow != null ? textToShow : ""));
-        button.setTag(choice.getChoiceId()); // Store choice ID in the button's tag
-        button.setEnabled(true);
-    }
-
-    private void updateChoiceButtonStates() {
-        resetChoiceButtonBackgrounds();
-        int selectedColor = ContextCompat.getColor(this, R.color.blue); // Your selection color
-        ColorStateList selectedTint = ColorStateList.valueOf(selectedColor);
-
-        if (selectedChoiceId != null) {
-            if (btnChoiceA.getTag() != null && selectedChoiceId.equals(btnChoiceA.getTag())) btnChoiceA.setBackgroundTintList(selectedTint);
-            if (btnChoiceB.getTag() != null && selectedChoiceId.equals(btnChoiceB.getTag())) btnChoiceB.setBackgroundTintList(selectedTint);
-            if (btnChoiceC.getTag() != null && selectedChoiceId.equals(btnChoiceC.getTag())) btnChoiceC.setBackgroundTintList(selectedTint);
-            if (btnChoiceD.getTag() != null && selectedChoiceId.equals(btnChoiceD.getTag())) btnChoiceD.setBackgroundTintList(selectedTint);
-        }
-    }
-
-
-    private void resetChoiceButtonBackgrounds() {
-        int defaultColor = ContextCompat.getColor(this, R.color.gray);
-        ColorStateList defaultTint = ColorStateList.valueOf(defaultColor);
-        btnChoiceA.setBackgroundTintList(defaultTint);
-        btnChoiceB.setBackgroundTintList(defaultTint);
-        btnChoiceC.setBackgroundTintList(defaultTint);
-        btnChoiceD.setBackgroundTintList(defaultTint);
     }
 
     private void updateNavigationButtons() {
@@ -410,402 +349,205 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         btnNext.setText(currentQuestionIndex == allQuestions.size() - 1 ? "Finish" : "Next");
     }
 
-    private void submitAnswerToServer(int questionId, int choiceId) {
-        if (historyId == -1) {
-            Log.e(TAG, "Cannot submit answer, invalid historyId.");
-            // Maybe show a toast or retry starting the test
-            return;
-        }
-        SubmitAnswerRequest request = new SubmitAnswerRequest(historyId, questionId, choiceId);
-        apiService.submitAnswer(request).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Log.d(TAG, "Answer submitted successfully for QID: " + questionId);
-                } else {
-                    Log.e(TAG, "Failed to submit answer for QID: " + questionId + " - Code: " + response.code() + " Msg: "+response.message());
-                    // Handle error: Maybe show a message or implement retry logic
-                    Toast.makeText(TestActivity.this, "Failed to save answer", Toast.LENGTH_SHORT).show();
-                }
-            }
+    private void handleChoiceSelection(Button selectedButton) {
+        if (selectedButton.getTag() == null || !(selectedButton.getTag() instanceof Integer)) return;
+        if (currentQuestionIndex < 0 || currentQuestionIndex >= allQuestions.size()) return;
+        TestQuestion currentQuestion = allQuestions.get(currentQuestionIndex);
+        if (currentQuestion == null || currentQuestion.getQuestionId() == null) return;
+        int currentQuestionId = currentQuestion.getQuestionId();
+        if (userAnswers.containsKey(currentQuestionId)) return; // Đã trả lời
 
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Log.e(TAG, "Network error submitting answer for QID: " + questionId, t);
-                Toast.makeText(TestActivity.this, "Network error saving answer", Toast.LENGTH_SHORT).show();
+        int selectedChoiceId = (Integer) selectedButton.getTag();
+        TestChoice selectedChoice = findChoiceById(currentQuestion, selectedChoiceId);
+        if (selectedChoice == null) return;
+
+        boolean isCorrect = false;
+        if (selectedChoice.getChoiceLabel() != null && currentQuestion.getCorrectAnswerLabel() != null) { isCorrect = selectedChoice.getChoiceLabel().equalsIgnoreCase(currentQuestion.getCorrectAnswerLabel()); }
+        userAnswers.put(currentQuestionId, selectedChoiceId);
+        answerCorrectness.put(currentQuestionId, isCorrect);
+        Log.d(TAG, "QID: " + currentQuestionId + " Answered: " + selectedChoiceId + " Correct: " + isCorrect);
+
+        showFeedback(selectedChoiceId, currentQuestion.getCorrectAnswerLabel());
+        lockChoices();
+    }
+
+    private TestChoice findChoiceById(TestQuestion question, int choiceId) {
+        if (question == null || question.getChoices() == null) return null; for (TestChoice choice : question.getChoices()) { if (choice != null && choice.getChoiceId() != null && choice.getChoiceId() == choiceId) return choice; } return null;
+    }
+
+    private Button findButtonByChoiceId(int choiceId) {
+        Button[] buttons = {btnChoiceA, btnChoiceB, btnChoiceC, btnChoiceD}; for (Button btn : buttons) { if (btn.getTag() != null && btn.getTag() instanceof Integer && (Integer) btn.getTag() == choiceId) return btn; } return null;
+    }
+
+    private void showFeedback(int selectedChoiceId, String correctAnswerLabel) {
+        Button selectedButton = findButtonByChoiceId(selectedChoiceId);
+        Button correctButton = findButtonByCorrectLabel(correctAnswerLabel);
+        int colorCorrect = ContextCompat.getColor(this, R.color.green_correct);
+        int colorIncorrect = ContextCompat.getColor(this, R.color.red_incorrect);
+        int colorTextWhite = Color.WHITE;
+        int colorTextDefault = ContextCompat.getColor(this, R.color.black);
+
+        Button[] buttons = {btnChoiceA, btnChoiceB, btnChoiceC, btnChoiceD};
+        for (Button btn : buttons) {
+            if (btn.getVisibility() == View.GONE || btn.getTag() == null || !(btn.getTag() instanceof Integer)) continue;
+            int currentChoiceId = (Integer) btn.getTag();
+
+            if (btn == correctButton) {
+                btn.setBackgroundResource(R.drawable.button_background_correct);
+                btn.setTextColor(colorTextWhite);
+            } else if (currentChoiceId == selectedChoiceId) {
+                btn.setBackgroundResource(R.drawable.button_background_incorrect);
+                btn.setTextColor(colorTextWhite);
+            } else {
+                btn.setBackgroundResource(R.drawable.button_background_default);
+                btn.setTextColor(colorTextDefault);
             }
-        });
+        }
+    }
+
+    private Button findButtonByCorrectLabel(String correctLabel) {
+        if (correctLabel == null || currentQuestionIndex < 0 || currentQuestionIndex >= allQuestions.size()) return null; TestQuestion q = allQuestions.get(currentQuestionIndex); if(q == null || q.getChoices() == null) return null; for(TestChoice c : q.getChoices()) { if(c != null && c.getChoiceLabel() != null && correctLabel.equalsIgnoreCase(c.getChoiceLabel()) && c.getChoiceId() != null) return findButtonByChoiceId(c.getChoiceId()); } return null;
+    }
+
+    private void lockChoices() { btnChoiceA.setEnabled(false); btnChoiceB.setEnabled(false); btnChoiceC.setEnabled(false); btnChoiceD.setEnabled(false); }
+    private void enableChoices() { btnChoiceA.setEnabled(true); btnChoiceB.setEnabled(true); btnChoiceC.setEnabled(true); btnChoiceD.setEnabled(true); }
+
+    private void handleNext() { if (currentQuestionIndex < allQuestions.size() - 1) { loadQuestion(currentQuestionIndex + 1); } else { finishTest(); } }
+    private void handleBack() { if (currentQuestionIndex > 0) { loadQuestion(currentQuestionIndex - 1); } }
+
+    // Sửa lại handleShowExplanation để dùng BottomSheet
+    private void handleShowExplanation() {
+        if (currentQuestionIndex < 0 || currentQuestionIndex >= allQuestions.size()) return;
+        TestQuestion currentQuestion = allQuestions.get(currentQuestionIndex);
+        if (currentQuestion == null) return;
+
+        // 1. Chuẩn bị nội dung Explanation
+        StringBuilder explanationContent = new StringBuilder();
+        String title = "Explanation / Transcript"; // Title mặc định
+
+        if (partNumber == 1) { // Part 1: Hiển thị giải thích của từng choice
+            title = "Transcripts / Options";
+            if (currentQuestion.getChoices() != null && !currentQuestion.getChoices().isEmpty()) {
+                List<TestChoice> choices; if (currentQuestion.getChoices() instanceof List) { choices = (List<TestChoice>) currentQuestion.getChoices(); } else { choices = new ArrayList<>(currentQuestion.getChoices()); } try { choices.sort(Comparator.comparing(TestChoice::getChoiceLabel, Comparator.nullsLast(Comparator.naturalOrder()))); } catch (Exception e) {}
+                for (TestChoice choice : choices) { if (choice != null && choice.getChoiceLabel() != null && choice.getChoiceExplanation() != null) { boolean isThisCorrect = choice.getChoiceLabel().equalsIgnoreCase(currentQuestion.getCorrectAnswerLabel()); if (isThisCorrect) explanationContent.append("<b><font color='#4CAF50'>"); explanationContent.append(choice.getChoiceLabel()).append(". "); explanationContent.append(choice.getChoiceExplanation()); if (isThisCorrect) explanationContent.append("</font></b>"); explanationContent.append("<br/><br/>"); } }
+                if (currentQuestion.getExplanation() != null && !currentQuestion.getExplanation().trim().isEmpty()) { explanationContent.append("<hr><b>More Info:</b><br/>").append(currentQuestion.getExplanation()); }
+            } else { explanationContent.append("Choice details not available."); }
+        } else { // Part 5 (và các part khác): Hiển thị explanation của Question
+            String explanation = currentQuestion.getExplanation(); if (explanation != null && !explanation.trim().isEmpty()) { explanationContent.append(explanation); } else { explanationContent.append("No detailed explanation available."); }
+        }
+
+        // 2. Tạo và hiển thị BottomSheetDialog
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        // Inflate layout mới (root là null)
+        View bottomSheetView = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_explanation, null);
+
+        // Tìm các View bên trong bottomSheetView
+        TextView tvTitle = bottomSheetView.findViewById(R.id.tv_bottom_sheet_title);
+        TextView tvDetail = bottomSheetView.findViewById(R.id.tv_bottom_sheet_explanation_detail);
+        Button btnClose = bottomSheetView.findViewById(R.id.btn_close_bottom_sheet);
+
+        // Set Title
+        if (tvTitle != null) tvTitle.setText(title);
+
+        // Set nội dung Explanation
+        if (tvDetail != null) {
+            if (explanationContent.length() > 0) {
+                try { tvDetail.setText(Html.fromHtml(explanationContent.toString(), Html.FROM_HTML_MODE_COMPACT)); }
+                catch (Exception e) { tvDetail.setText(explanationContent.toString().replace("<br/>","\n").replace("<hr>","\n---\n").replaceAll("<[^>]*>", "")); }
+            } else { tvDetail.setText("Explanation not available."); }
+        }
+
+        // Set sự kiện cho nút Close
+        if (btnClose != null) btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+        bottomSheetDialog.setContentView(bottomSheetView);
+        bottomSheetDialog.show();
     }
 
 
     private void finishTest() {
-        stopTimer();
         stopAudio();
-        // Disable UI
-        disableTestInteraction();
-
-        if (historyId == -1) {
-            finishWithError("Cannot finish test, invalid session.");
-            return;
-        }
-
-        Log.d(TAG, "Finishing test. History ID: " + historyId);
-        // Call API to mark test as complete
-        apiService.completeTest(historyId).enqueue(new Callback<TestHistory>() {
-            @Override
-            public void onResponse(Call<TestHistory> call, Response<TestHistory> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "Test completed successfully on server.");
-                    TestHistory resultHistory = response.body();
-                    // Navigate to Result Activity
-                    Intent intent = new Intent(TestActivity.this, ResultActivity.class);
-                    intent.putExtra(Constants.EXTRA_HISTORY_ID, historyId);
-                    // Pass score details IF the server calculated and returned them
-                    if (resultHistory.getScore() != null) {
-                        intent.putExtra(Constants.EXTRA_SCORE, resultHistory.getScore());
-                    }
-                    if (resultHistory.getTotalQuestions() != null) {
-                        intent.putExtra(Constants.EXTRA_TOTAL_QUESTIONS, resultHistory.getTotalQuestions());
-                    }
-                    if (resultHistory.getCorrectAnswers() != null) {
-                        intent.putExtra(Constants.EXTRA_CORRECT_ANSWERS, resultHistory.getCorrectAnswers());
-                    }
-                    // Pass local calculation as fallback if server doesn't return score
-                    else {
-                        calculateAndPassLocalScore(intent);
-                    }
-
-                    startActivity(intent);
-                    finish(); // Finish TestActivity
-                } else {
-                    Log.e(TAG, "Failed to complete test on server: " + response.code() + " " + response.message());
-                    // Handle error - maybe allow retry or show manual result calculation
-                    Toast.makeText(TestActivity.this, "Failed to finalize test: " + response.message(), Toast.LENGTH_LONG).show();
-                    // As a fallback, calculate score locally and go to results
-                    Intent intent = new Intent(TestActivity.this, ResultActivity.class);
-                    intent.putExtra(Constants.EXTRA_HISTORY_ID, historyId);
-                    calculateAndPassLocalScore(intent);
-                    startActivity(intent);
-                    finish();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<TestHistory> call, Throwable t) {
-                Log.e(TAG, "Network error completing test", t);
-                Toast.makeText(TestActivity.this, "Network error finishing test: " + t.getMessage(), Toast.LENGTH_LONG).show();
-                // Fallback: Calculate score locally and go to results
-                Intent intent = new Intent(TestActivity.this, ResultActivity.class);
-                intent.putExtra(Constants.EXTRA_HISTORY_ID, historyId);
-                calculateAndPassLocalScore(intent);
-                startActivity(intent);
-                finish();
-            }
-        });
-    }
-
-    // Fallback method if server doesn't calculate score
-    private void calculateAndPassLocalScore(Intent intent) {
-        int correctCount = 0;
-        for(TestQuestion q : allQuestions) {
-            Integer userAnswerChoiceId = userAnswers.get(q.getQuestionId());
-            if (userAnswerChoiceId != null) {
-                TestChoice correctChoice = findChoiceByLabel(q, q.getCorrectAnswerLabel());
-                if (correctChoice != null && userAnswerChoiceId.equals(correctChoice.getChoiceId())) {
-                    correctCount++;
-                }
-            }
-        }
-        double score = (double) correctCount / allQuestions.size() * 100;
-        intent.putExtra(Constants.EXTRA_SCORE, score);
-        intent.putExtra(Constants.EXTRA_TOTAL_QUESTIONS, allQuestions.size());
+        stopTotalTestTimer();
+        Log.d(TAG, "Finishing test locally.");
+        int correctCount = 0; for(Boolean c : answerCorrectness.values()) { if(Boolean.TRUE.equals(c)) correctCount++; }
+        // int totalQuestionsInPart đã gán ở prepareTestData
+        Log.d(TAG, "Local score: " + correctCount + "/" + totalQuestionsInPart);
+        Intent intent = new Intent(TestActivity.this, ResultActivity.class);
         intent.putExtra(Constants.EXTRA_CORRECT_ANSWERS, correctCount);
+        intent.putExtra(Constants.EXTRA_TOTAL_QUESTIONS, totalQuestionsInPart);
+        startActivity(intent);
+        finish();
     }
 
-    private TestChoice findChoiceByLabel(TestQuestion question, String label) {
-        if (question.getChoices() == null || label == null) return null;
-        for (TestChoice choice : question.getChoices()) {
-            if (label.equalsIgnoreCase(choice.getChoiceLabel())) {
-                return choice;
-            }
-        }
-        return null;
-    }
+    private void disableTestInteraction() { lockChoices(); }
 
 
-    private void disableTestInteraction() {
-        btnChoiceA.setEnabled(false);
-        btnChoiceB.setEnabled(false);
-        btnChoiceC.setEnabled(false);
-        btnChoiceD.setEnabled(false);
-        btnNext.setEnabled(false);
-        btnBack.setEnabled(false);
-        // Consider disabling audio controls too
-        btnAudioPlayPause.setEnabled(false);
-        audioSeekBar.setEnabled(false);
-    }
-
-
-    // --- Timer Logic ---
-    private void startTimer(long duration) {
-        stopTimer(); // Ensure previous timer is stopped
-        countDownTimer = new CountDownTimer(duration, 1000) {
+    private void startTotalTestTimer(long duration) {
+        stopTotalTestTimer();
+        Log.d(TAG, "Starting total timer for " + duration + " ms");
+        totalTestTimer = new CountDownTimer(duration, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                String timeFormatted = String.format(Locale.getDefault(), "%02d:%02d",
-                        TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished),
-                        TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) -
-                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished)));
+                String timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished), TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished)));
+                if (millisUntilFinished <= 60 * 1000) { tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, R.color.red_incorrect)); }
+                else { tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, R.color.blue)); }
                 tvTimer.setText(timeFormatted);
             }
-
             @Override
             public void onFinish() {
-                tvTimer.setText("00:00");
-                Toast.makeText(TestActivity.this, "Time's up!", Toast.LENGTH_SHORT).show();
-                finishTest(); // Auto-finish when time runs out
+                tvTimer.setText("00:00"); tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, R.color.red_incorrect));
+                Log.d(TAG, "Total test time finished!");
+                handleTotalTimeUp();
             }
         }.start();
     }
 
-    private void stopTimer() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-            countDownTimer = null;
-        }
+    private void stopTotalTestTimer() { if (totalTestTimer != null) { totalTestTimer.cancel(); totalTestTimer = null; Log.d(TAG, "Total timer stopped."); } }
+
+    private void handleTotalTimeUp() {
+        Toast.makeText(this, "Time's up! Submitting...", Toast.LENGTH_LONG).show();
+        btnNext.setEnabled(false); btnBack.setEnabled(false); btnShowExplanation.setEnabled(false); lockChoices();
+        finishTest(); // Tự động nộp bài
     }
 
 
     // --- Audio Player Logic ---
     private void prepareAudio(String url) {
-        stopAudio(); // Release previous player if exists
-        mediaPlayer = new MediaPlayer();
-        try {
-            mediaPlayer.setDataSource(url);
-            mediaPlayer.setOnPreparedListener(this);
-            mediaPlayer.setOnCompletionListener(this);
-            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-                Log.e(TAG, "MediaPlayer Error: what=" + what + ", extra=" + extra);
-                Toast.makeText(this, "Error playing audio", Toast.LENGTH_SHORT).show();
-                // Reset UI
-                btnAudioPlayPause.setImageResource(R.drawable.ic_xml_play_arrow_24px);
-                audioSeekBar.setEnabled(false);
-                return true; // Indicate we handled the error
-            });
-            mediaPlayer.prepareAsync(); // Prepare asynchronously
-            btnAudioPlayPause.setImageResource(R.drawable.ic_xml_hourglass_top_24px); // Show loading
-            audioSeekBar.setEnabled(false);
-        } catch (IOException e) {
-            Log.e(TAG, "Error setting data source: " + url, e);
-            Toast.makeText(this, "Cannot load audio", Toast.LENGTH_SHORT).show();
-            audioPlayerView.setVisibility(View.GONE); // Hide player if error
-        }
+        stopAudio(); mediaPlayer = new MediaPlayer(); try { mediaPlayer.setDataSource(url); mediaPlayer.setOnPreparedListener(this); mediaPlayer.setOnCompletionListener(this); mediaPlayer.setOnErrorListener((mp, what, extra) -> { Log.e(TAG, "MP Error: " + what + "," + extra + " URL: " + url); Toast.makeText(this, "Audio Error", Toast.LENGTH_SHORT).show(); btnAudioPlayPause.setImageResource(R.drawable.ic_xml_play_arrow_24px); audioSeekBar.setEnabled(false); return true; }); mediaPlayer.prepareAsync(); btnAudioPlayPause.setImageResource(R.drawable.ic_xml_hourglass_top_24px); audioSeekBar.setEnabled(false); } catch (Exception e) { Log.e(TAG, "DataSource Error: " + url, e); Toast.makeText(this, "Cannot load audio", Toast.LENGTH_SHORT).show(); audioPlayerView.setVisibility(View.GONE); }
     }
-
-    private void playAudio() {
-        if (mediaPlayer != null && isAudioPrepared) {
-            mediaPlayer.start();
-            btnAudioPlayPause.setImageResource(R.drawable.ic_xml_pause_24px);
-            updateAudioProgress();
-        }
-    }
-
-    private void pauseAudio() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-            btnAudioPlayPause.setImageResource(R.drawable.ic_xml_play_arrow_24px);
-            audioHandler.removeCallbacks(audioProgressRunnable);
-        }
-    }
-
-    private void stopAudio() {
-        audioHandler.removeCallbacks(audioProgressRunnable);
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
-        isAudioPrepared = false;
-    }
-
-    private Runnable audioProgressRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (mediaPlayer != null && isAudioPrepared && mediaPlayer.isPlaying()) {
-                int currentPosition = mediaPlayer.getCurrentPosition();
-                audioSeekBar.setProgress(currentPosition);
-                tvAudioCurrentTime.setText(formatTime(currentPosition));
-                audioHandler.postDelayed(this, 500); // Update every 500ms
-            }
-        }
-    };
-
-    private void updateAudioProgress() {
-        audioHandler.post(audioProgressRunnable);
-    }
+    private void playAudio() { if (mediaPlayer != null && isAudioPrepared) { try { mediaPlayer.start(); btnAudioPlayPause.setImageResource(R.drawable.ic_xml_pause_24px); updateAudioProgress(); } catch (IllegalStateException e) { Log.e(TAG, "MP start error: ", e); } } }
+    private void pauseAudio() { if (mediaPlayer != null && isAudioPrepared && mediaPlayer.isPlaying()) { try { mediaPlayer.pause(); } catch (IllegalStateException e) { Log.e(TAG, "MP pause error: ", e); } btnAudioPlayPause.setImageResource(R.drawable.ic_xml_play_arrow_24px); audioHandler.removeCallbacks(audioProgressRunnable); } }
+    private void stopAudio() { audioHandler.removeCallbacksAndMessages(null); if (mediaPlayer != null) { try { if (mediaPlayer.isPlaying()) mediaPlayer.stop(); mediaPlayer.reset(); mediaPlayer.release(); } catch (Exception e) { Log.e(TAG, "MP stop/release error", e); } mediaPlayer = null; } isAudioPrepared = false; }
+    private final Runnable audioProgressRunnable = new Runnable() { @Override public void run() { if (mediaPlayer != null && isAudioPrepared) { try { if (mediaPlayer.isPlaying()) { int pos = mediaPlayer.getCurrentPosition(); audioSeekBar.setProgress(pos); tvAudioCurrentTime.setText(formatTime(pos)); audioHandler.postDelayed(this, 500); } } catch (IllegalStateException e) { Log.e(TAG, "MP get pos error: ", e); audioHandler.removeCallbacks(this); btnAudioPlayPause.setImageResource(R.drawable.ic_xml_play_arrow_24px); } } } };
+    private void updateAudioProgress() { audioHandler.removeCallbacks(audioProgressRunnable); audioHandler.post(audioProgressRunnable); }
+    @Override public void onPrepared(MediaPlayer mp) { Log.d(TAG, "Audio prepared."); isAudioPrepared = true; if (mediaPlayer == null) return; try { int duration = mediaPlayer.getDuration(); audioSeekBar.setMax(duration); tvAudioTotalTime.setText(formatTime(duration)); audioSeekBar.setEnabled(true); btnAudioPlayPause.setImageResource(R.drawable.ic_xml_play_arrow_24px); if (partNumber == 1 && !autoPlayedOnce) { playAudio(); autoPlayedOnce = true; } } catch (IllegalStateException e) { Log.e(TAG, "onPrepared error", e); } }
+    @Override public void onCompletion(MediaPlayer mp) { Log.d(TAG, "Audio completed."); btnAudioPlayPause.setImageResource(R.drawable.ic_xml_play_arrow_24px); if (mediaPlayer != null && isAudioPrepared) { try { audioSeekBar.setProgress(audioSeekBar.getMax()); tvAudioCurrentTime.setText(tvAudioTotalTime.getText()); } catch (IllegalStateException e) { Log.e(TAG, "onCompletion error", e); } } audioHandler.removeCallbacks(audioProgressRunnable); }
+    @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { if (mediaPlayer != null && isAudioPrepared && fromUser) { try { mediaPlayer.seekTo(progress); tvAudioCurrentTime.setText(formatTime(progress)); } catch (IllegalStateException e) { Log.e(TAG, "Seek error", e); } } }
+    @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+    @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+    private void toggleAudioPlayback() { if (!isAudioPrepared && mediaPlayer != null) return; if (mediaPlayer != null && isAudioPrepared) { if (mediaPlayer.isPlaying()) pauseAudio(); else { try { if (!mediaPlayer.isPlaying() && mediaPlayer.getCurrentPosition() >= mediaPlayer.getDuration() - 100) { mediaPlayer.seekTo(0); tvAudioCurrentTime.setText("0:00"); audioSeekBar.setProgress(0); } } catch (IllegalStateException e) { Log.e(TAG, "Seek 0 error", e); } playAudio(); } } else if (partNumber == 1){ if (!allQuestions.isEmpty() && currentQuestionIndex < allQuestions.size()) { TestQuestion q = allQuestions.get(currentQuestionIndex); TestQuestionGroup g = findGroupForQuestion(q); if (g != null && g.getContents() != null) { for (TestQuestionContent c : g.getContents()) { if ("AUDIO".equalsIgnoreCase(c.getContentType())) { prepareAudio(c.getContentData()); break; } } } } } }
+    private String formatTime(int ms) { if (ms < 0) ms = 0; long min = TimeUnit.MILLISECONDS.toMinutes(ms); long sec = TimeUnit.MILLISECONDS.toSeconds(ms) - TimeUnit.MINUTES.toSeconds(min); return String.format(Locale.getDefault(), "%01d:%02d", min, sec); }
+    private void finishWithError(String message) { Log.e(TAG, "Error: " + message); runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show()); finish(); }
+    private void showLoading(boolean show) { Log.d(TAG, "Loading: " + show); /* TODO: Implement ProgressBar visibility */ }
 
     @Override
-    public void onPrepared(MediaPlayer mp) {
-        Log.d(TAG, "Audio prepared.");
-        isAudioPrepared = true;
-        int duration = mp.getDuration();
-        audioSeekBar.setMax(duration);
-        tvAudioTotalTime.setText(formatTime(duration));
-        audioSeekBar.setEnabled(true);
-        btnAudioPlayPause.setImageResource(R.drawable.ic_xml_play_arrow_24px); // Ready to play
-        // Auto-play ONCE for Part 1
-        if (partNumber == 1 && !autoPlayedOnce) {
-            playAudio();
-            autoPlayedOnce = true;
-        }
-    }
-
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-        Log.d(TAG, "Audio completed.");
-        btnAudioPlayPause.setImageResource(R.drawable.ic_xml_play_arrow_24px);
-        audioSeekBar.setProgress(0); // Reset progress to start visually
-        tvAudioCurrentTime.setText("0:00");
-        audioHandler.removeCallbacks(audioProgressRunnable);
-        // Optional: Seek to beginning if user wants to replay from start easily
-        // if (mediaPlayer != null && isAudioPrepared) {
-        //     mediaPlayer.seekTo(0);
-        // }
-    }
-
-
-    // --- SeekBar Listener ---
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if (mediaPlayer != null && isAudioPrepared && fromUser) {
-            mediaPlayer.seekTo(progress);
-            tvAudioCurrentTime.setText(formatTime(progress));
-        }
+    protected void onDestroy() {
+        super.onDestroy(); Log.d(TAG, "onDestroy"); stopAudio(); stopTotalTestTimer(); audioHandler.removeCallbacksAndMessages(null);
     }
     @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-        // Pause playback while seeking? Optional.
-        // pauseAudio();
-    }
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-        // Resume playback after seeking? Optional.
-        // playAudio();
+    public void onBackPressed() {
+        stopTotalTestTimer();
+        new AlertDialog.Builder(this).setTitle("Exit Test?").setMessage("Exit now? Timer stopped, progress lost.").setPositiveButton("Exit", (d, w) -> { stopAudio(); super.onBackPressed(); }).setNegativeButton("Cancel", (d,w)->{ calculateAndStartTotalTimer(); /* TODO: Restart timer cần thời gian còn lại */ }).show();
     }
 
     // --- Click Listener ---
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        if (id == R.id.btn_choice_a || id == R.id.btn_choice_b || id == R.id.btn_choice_c || id == R.id.btn_choice_d) {
-            handleChoiceSelection((Button) v);
-        } else if (id == R.id.btn_next) {
-            handleNext();
-        } else if (id == R.id.btn_back) {
-            handleBack();
-        } else if (id == R.id.audio_btn_play_pause) {
-            toggleAudioPlayback();
-        }
+        if (id == R.id.btn_choice_a || id == R.id.btn_choice_b || id == R.id.btn_choice_c || id == R.id.btn_choice_d) { handleChoiceSelection((Button) v); }
+        else if (id == R.id.btn_next) { handleNext(); }
+        else if (id == R.id.btn_back) { handleBack(); }
+        else if (id == R.id.audio_btn_play_pause) { toggleAudioPlayback(); }
+        else if (id == R.id.btn_show_explanation) { handleShowExplanation(); }
     }
-
-    private void handleChoiceSelection(Button selectedButton) {
-        if (selectedButton.getTag() == null) return; // Should not happen if setup correctly
-
-        selectedChoiceId = (Integer) selectedButton.getTag();
-        TestQuestion currentQuestion = allQuestions.get(currentQuestionIndex);
-        userAnswers.put(currentQuestion.getQuestionId(), selectedChoiceId); // Store answer locally
-
-        Log.d(TAG, "User selected Choice ID: " + selectedChoiceId + " for Question ID: " + currentQuestion.getQuestionId());
-
-        updateChoiceButtonStates(); // Update UI highlighting
-        submitAnswerToServer(currentQuestion.getQuestionId(), selectedChoiceId); // Send to backend
-    }
-
-    private void handleNext() {
-        // Optional: Check if an answer was selected before proceeding
-        // TestQuestion currentQuestion = allQuestions.get(currentQuestionIndex);
-        // if(userAnswers.get(currentQuestion.getQuestionId()) == null) {
-        //      Toast.makeText(this, "Please select an answer", Toast.LENGTH_SHORT).show();
-        //      return;
-        // }
-
-        if (currentQuestionIndex < allQuestions.size() - 1) {
-            loadQuestion(currentQuestionIndex + 1);
-        } else {
-            // This is the finish button
-            finishTest();
-        }
-    }
-
-    private void handleBack() {
-        if (currentQuestionIndex > 0) {
-            loadQuestion(currentQuestionIndex - 1);
-        }
-    }
-
-    private void toggleAudioPlayback() {
-        if (mediaPlayer != null && isAudioPrepared) {
-            if (mediaPlayer.isPlaying()) {
-                pauseAudio();
-            } else {
-                playAudio();
-            }
-        } else if (partNumber == 1){
-            // If not prepared (e.g., error occurred), try preparing again
-            TestQuestion question = allQuestions.get(currentQuestionIndex);
-            TestQuestionGroup group = findGroupForQuestion(question);
-            if (group != null && group.getContents() != null) {
-                for (TestQuestionContent content : group.getContents()) {
-                    if ("AUDIO".equalsIgnoreCase(content.getContentType())) {
-                        prepareAudio(content.getContentData());
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-
-    // --- Utility Methods ---
-    private String formatTime(int milliseconds) {
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds);
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds) -
-                TimeUnit.MINUTES.toSeconds(minutes);
-        return String.format(Locale.getDefault(), "%01d:%02d", minutes, seconds);
-    }
-
-
-    private void finishWithError(String message) {
-        Log.e(TAG, message);
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-        finish();
-    }
-
-    // --- Lifecycle Methods ---
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        stopAudio(); // Release MediaPlayer resources
-        stopTimer(); // Stop countdown timer
-        audioHandler.removeCallbacksAndMessages(null); // Clean up handler
-    }
-
-    @Override
-    public void onBackPressed() {
-        // Show confirmation dialog before exiting test
-        new AlertDialog.Builder(this)
-                .setTitle("Exit Test?")
-                .setMessage("Are you sure you want to exit the test? Your progress on the current attempt might be saved, but the attempt will be marked incomplete.")
-                .setPositiveButton("Exit", (dialog, which) -> {
-                    stopTimer();
-                    stopAudio();
-                    // Optionally call an API to mark as incomplete/abandoned if needed
-                    super.onBackPressed(); // Exit activity
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
 }

@@ -1,25 +1,30 @@
-package com.example.echoenglish_mobile.activities;
+package com.example.echoenglish_mobile.view.activity.quiz; // Thay package phù hợp
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.echoenglish_mobile.R;
+import com.example.echoenglish_mobile.adapters.TestListAdapter;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
 import com.example.echoenglish_mobile.view.activity.quiz.Constants;
-import com.example.echoenglish_mobile.view.activity.quiz.TestListAdapter;
 import com.example.echoenglish_mobile.view.activity.quiz.model.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+// Bỏ import stream nếu không dùng filter ở đây nữa
+// import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,13 +33,15 @@ import retrofit2.Response;
 public class TestListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerViewTests;
-    private TestListAdapter adapter;
+    private TestListAdapter adapter; // Dùng TestListAdapter
     private ProgressBar progressBar;
     private TextView tvNoTests;
-    private TextView tvListTitle;
+    // private TextView tvListTitle; // Không cần title này nữa nếu dùng Toolbar
+    private Toolbar toolbar;
     private ApiService apiService;
-    private int partType;
-    private List<Test> allTests = new ArrayList<>(); // Store all tests fetched
+    private int partNumber; // Part number người dùng đã chọn từ màn hình trước
+
+    private static final String TAG = "TestListActivity";
 
 
     @Override
@@ -42,68 +49,101 @@ public class TestListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_list);
 
-        partType = getIntent().getIntExtra(Constants.EXTRA_PART_TYPE, 0); // 1 or 5
-        if (partType == 0) {
-            Toast.makeText(this, "Invalid Part Type", Toast.LENGTH_SHORT).show();
+        // Lấy partNumber từ Intent
+        partNumber = getIntent().getIntExtra(Constants.EXTRA_PART_NUMBER, 0);
+        if (partNumber == 0) {
+            Toast.makeText(this, "Invalid Part Number", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
+        Log.d(TAG, "Received partNumber to display tests for: " + partNumber);
 
         apiService = ApiClient.getApiService();
+        toolbar = findViewById(R.id.toolbar_test_list);
         recyclerViewTests = findViewById(R.id.recycler_view_tests);
         progressBar = findViewById(R.id.progress_bar_list);
         tvNoTests = findViewById(R.id.tv_no_tests);
-        tvListTitle = findViewById(R.id.tv_list_title);
+        // tvListTitle = findViewById(R.id.tv_list_title); // Không cần nữa
 
-        tvListTitle.setText(String.format("Available Part %d Tests", partType));
-
+        setupToolbar();
         setupRecyclerView();
-        fetchTests();
+        fetchTests(); // Gọi API lấy danh sách Test
+    }
+
+    private void setupToolbar() {
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            // Đặt tiêu đề dựa trên partNumber
+            getSupportActionBar().setTitle("Select Test - Part " + partNumber);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
     }
 
     private void setupRecyclerView() {
         recyclerViewTests.setLayoutManager(new LinearLayoutManager(this));
-        // Initialize adapter with empty list first
-        adapter = new TestListAdapter(this, new ArrayList<>(), partType);
+        // Khởi tạo adapter với partNumber nhận được
+        adapter = new TestListAdapter(this, new ArrayList<>(), partNumber);
         recyclerViewTests.setAdapter(adapter);
     }
 
+    // Hàm gọi API GET /tests
     private void fetchTests() {
-        progressBar.setVisibility(View.VISIBLE);
-        tvNoTests.setVisibility(View.GONE);
-        recyclerViewTests.setVisibility(View.GONE);
+        showLoading(true);
+        Log.d(TAG, "Fetching all tests...");
 
         apiService.getAllTests().enqueue(new Callback<List<Test>>() {
             @Override
-            public void onResponse(Call<List<Test>> call, Response<List<Test>> response) {
-                progressBar.setVisibility(View.GONE);
+            public void onResponse(@NonNull Call<List<Test>> call, @NonNull Response<List<Test>> response) {
+                showLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    allTests = response.body();
-                    // Filter tests that actually contain the target part number
-                    List<Test> filteredTests = allTests.stream()
-                            .filter(test -> test.getParts() != null && test.getParts().stream()
-                                    .anyMatch(part -> part.getPartNumber() != null && part.getPartNumber() == partType))
-                            .collect(Collectors.toList());
-
-                    if (!filteredTests.isEmpty()) {
-                        adapter.updateData(filteredTests);
-                        recyclerViewTests.setVisibility(View.VISIBLE);
-                    } else {
+                    List<Test> tests = response.body();
+                    if (tests.isEmpty()) {
+                        Log.d(TAG, "No tests found from API.");
+                        tvNoTests.setText("No tests available."); // Thông báo chung
                         tvNoTests.setVisibility(View.VISIBLE);
+                        recyclerViewTests.setVisibility(View.GONE);
+                    } else {
+                        Log.d(TAG, "Successfully fetched " + tests.size() + " tests.");
+                        // Không cần filter ở đây nữa, hiển thị tất cả Test nhận được
+                        adapter.updateData(tests);
+                        tvNoTests.setVisibility(View.GONE);
+                        recyclerViewTests.setVisibility(View.VISIBLE);
                     }
                 } else {
-                    tvNoTests.setVisibility(View.VISIBLE);
-                    Toast.makeText(TestListActivity.this, "Failed to load tests: " + response.message(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Failed to fetch tests. Code: " + response.code());
+                    handleFetchError("Failed to load tests: " + response.message());
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Test>> call, Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                tvNoTests.setVisibility(View.VISIBLE);
-                Toast.makeText(TestListActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                t.printStackTrace(); // Log the full error
+            public void onFailure(@NonNull Call<List<Test>> call, @NonNull Throwable t) {
+                showLoading(false);
+                Log.e(TAG, "Network error fetching tests: " + t.getMessage(), t);
+                handleFetchError("Network error: " + t.getMessage());
             }
         });
+    }
+
+    private void showLoading(boolean isLoading) {
+        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        recyclerViewTests.setVisibility(isLoading ? View.GONE : View.VISIBLE); // Hiển thị RecyclerView khi không load
+        tvNoTests.setVisibility(View.GONE); // Ẩn text lỗi khi đang load
+    }
+
+    private void handleFetchError(String message) {
+        tvNoTests.setText(message);
+        tvNoTests.setVisibility(View.VISIBLE);
+        recyclerViewTests.setVisibility(View.GONE); // Ẩn RecyclerView khi lỗi
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish(); // Quay lại màn hình trước
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -11,43 +11,48 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <TextView
+            android:id="@+id/question_indicator_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Question 1/6"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_centerVertical="true"
-            android:layout_alignParentStart="true"
-            android:id="@+id/question_indicator_textview"/>
+            android:layout_alignParentStart="true"/>
 
+        <!-- Icon và TextView cho Timer Tổng -->
         <ImageView
+            android:id="@+id/timer_icon"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_xml_timer"
             app:tint="@color/blue"
             android:layout_marginEnd="4dp"
-            android:layout_toStartOf="@id/timer_indicator_textview"
-            android:layout_centerVertical="true"/>
+            android:layout_toStartOf="@id/timer_textview"
+            android:layout_centerVertical="true"
+            android:contentDescription="Timer Icon"/>
 
         <TextView
+            android:id="@+id/timer_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="10:00"
+            tools:text="5:59"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/blue"
             android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:id="@+id/timer_indicator_textview"/>
+            android:layout_centerVertical="true"/>
+
     </RelativeLayout>
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/question_progress_indicator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="8dp"
-        tools:progress="10"
-        android:id="@+id/question_progress_indicator"/>
+        tools:progress="10" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -60,114 +65,152 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Part 1 Specific Views (Initially Gone) -->
+            <!-- Part 1: Image -->
             <ImageView
                 android:id="@+id/img_question_part1"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:scaleType="centerCrop"
+                android:layout_height="wrap_content"
+                android:maxHeight="250dp"
+                android:scaleType="centerInside"
+                android:adjustViewBounds="true"
                 android:layout_marginVertical="8dp"
                 android:visibility="gone"
-                tools:src="@tools:sample/backgrounds/scenic" />
+                tools:src="@tools:sample/backgrounds/scenic"
+                tools:visibility="visible"
+                android:contentDescription="Question Image" />
 
+            <!-- Part 1: Audio Player -->
             <include
                 android:id="@+id/audio_player_part1"
                 layout="@layout/component_audio_player"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="8dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible" />
 
-            <!-- Part 5 Specific View (Question Text) -->
+            <!-- Part 5: Question Text -->
             <TextView
                 android:id="@+id/question_textview_part5"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="100dp"
-                tools:text="This is the question text for Part 5 which can be quite long sometimes and needs space."
+                tools:text="This is the question text for Part 5..."
                 android:textSize="18sp"
                 android:padding="12dp"
                 android:background="@drawable/background_rounded_corner"
-                android:backgroundTint="#E0E0E0"
+                android:backgroundTint="#F0F0F0"
                 android:textColor="@color/black"
                 android:gravity="center_vertical"
                 android:layout_marginVertical="8dp"
                 android:visibility="gone"/>
 
 
-            <!-- Common Answer Buttons -->
+            <!-- Answer Choices (Gán cứng thuộc tính) -->
             <Button
+                android:id="@+id/btn_choice_a"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
-                android:backgroundTint="@color/gray"
-                tools:text="(A) Choice A explanation or text"
+                app:backgroundTint="@null"
+                android:background="@drawable/button_background_default"
                 android:textColor="@color/black"
                 android:paddingVertical="12dp"
-                android:gravity="center_vertical"
+                android:gravity="start|center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:textAllCaps="false"
                 android:textSize="16sp"
-                android:id="@+id/btn_choice_a" />
+                tools:text="(A)" />
+
+
             <Button
+                android:id="@+id/btn_choice_b"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
-                android:backgroundTint="@color/gray"
-                tools:text="(B) Choice B explanation or text"
+                android:background="@drawable/button_background_default"
                 android:textColor="@color/black"
                 android:paddingVertical="12dp"
-                android:gravity="center_vertical"
+                android:gravity="start|center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:backgroundTint="@null"
                 android:textAllCaps="false"
                 android:textSize="16sp"
-                android:id="@+id/btn_choice_b" />
+                tools:text="(B)" />
+
             <Button
+                android:id="@+id/btn_choice_c"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
-                android:backgroundTint="@color/gray"
-                tools:text="(C) Choice C explanation or text"
+                app:backgroundTint="@null"
+                android:background="@drawable/button_background_default"
                 android:textColor="@color/black"
                 android:paddingVertical="12dp"
-                android:gravity="center_vertical"
+                android:gravity="start|center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:textAllCaps="false"
                 android:textSize="16sp"
-                android:id="@+id/btn_choice_c" />
+                tools:text="(C)" />
+
             <Button
+                android:id="@+id/btn_choice_d"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
-                android:backgroundTint="@color/gray"
-                tools:text="(D) Choice D explanation or text"
+                app:backgroundTint="@null"
+                android:background="@drawable/button_background_default"
                 android:textColor="@color/black"
                 android:paddingVertical="12dp"
-                android:gravity="center_vertical"
+                android:gravity="start|center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:textAllCaps="false"
                 android:textSize="16sp"
-                android:id="@+id/btn_choice_d" />
+                tools:text="(D)" />
+
+
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Navigation -->
-    <RelativeLayout
+    <!-- Bottom Buttons -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp">
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical">
 
         <Button
             android:id="@+id/btn_back"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Back"
-            android:layout_alignParentStart="true"
-            android:visibility="invisible"/> <!-- Initially hidden -->
+            android:layout_marginEnd="8dp"
+            android:visibility="invisible"
+            tools:visibility="visible"/>
+
+        <Button
+            android:id="@+id/btn_show_explanation"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Explanation"
+            app:icon="@drawable/ic_info"
+            app:iconGravity="textStart"/>
 
         <Button
             android:id="@+id/btn_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Next"
-            android:layout_alignParentEnd="true"/>
-    </RelativeLayout>
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
 
 </LinearLayout>

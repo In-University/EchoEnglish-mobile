@@ -62,7 +62,6 @@
         <activity android:name=".view.activity.quiz.TestActivity"/>
         <activity android:name=".view.activity.quiz.TestListActivity"/>
         <activity android:name=".view.activity.quiz.ResultActivity"/>
-        <activity android:name=".view.activity.quiz.HistoryActivity"/>
 
 
 

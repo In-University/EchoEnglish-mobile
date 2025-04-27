@@ -28,12 +28,4 @@
         android:layout_height="wrap_content"
         android:text="Practice Part 5 (Incomplete Sentences)"/>
 
-    <!-- Add Button for History later -->
-    <Button
-        android:id="@+id/btn_view_history"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="View Test History"/>
-
 </LinearLayout>

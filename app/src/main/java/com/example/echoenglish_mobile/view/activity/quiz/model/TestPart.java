@@ -19,7 +19,7 @@ public class TestPart {
 
     // Giữ lại Set nếu bạn đã đổi ở backend để tránh MultipleBagFetch
     @SerializedName("groups")
-    private List<TestQuestionGroup> groups; // Hoặc List nếu backend trả về List
+    private Set<TestQuestionGroup> groups; // Hoặc List nếu backend trả về List
 
     // Getters and Setters
     public Integer getPartId() {
@@ -47,11 +47,11 @@ public class TestPart {
         this.test = test;
     }
 
-    public List<TestQuestionGroup> getGroups() { // Hoặc List
+    public Set<TestQuestionGroup> getGroups() { // Hoặc List
         return groups;
     }
 
-    public void setGroups(List<TestQuestionGroup> groups) { // Hoặc List
+    public void setGroups(Set<TestQuestionGroup> groups) { // Hoặc List
         this.groups = groups;
     }
 }

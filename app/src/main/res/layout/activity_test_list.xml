@@ -4,47 +4,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp" >
+    android:orientation="vertical" > <!-- Sửa context nếu cần -->
 
-    <!-- Optional: Keep the top image/banner if desired -->
-    <ImageView
+    <!-- Optional: Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_test_list"
         android:layout_width="match_parent"
-        android:layout_height="160dp"
-        android:src="@drawable/image_study"
-        android:scaleType="centerCrop"/>
-
-    <TextView
-        android:id="@+id/tv_list_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="Available Part 1 Tests"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="4dp"
-        android:textSize="20sp"
-        android:textStyle="bold"/>
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:titleTextColor="@android:color/white"
+        app:title="Select Test" /> <!-- Title mặc định -->
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="16dp">
+        android:padding="8dp">
+
         <ProgressBar
+            android:id="@+id/progress_bar_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:visibility="gone"
-            android:id="@+id/progress_bar_list"/>
+            android:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_tests"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/recycler_view_tests"/>
+            android:clipToPadding="false"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_test" />
 
         <TextView
             android:id="@+id/tv_no_tests"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No tests available."
+            android:text="No tests available for this part."
             android:layout_centerInParent="true"
             android:visibility="gone"/>
 
