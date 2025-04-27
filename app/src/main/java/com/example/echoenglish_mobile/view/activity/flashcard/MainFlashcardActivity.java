@@ -15,6 +15,7 @@ public class MainFlashcardActivity extends AppCompatActivity {
 
         Button buttonMyDecks = findViewById(R.id.buttonGoToMyDecks);
         Button buttonPublicDecks = findViewById(R.id.buttonGoToPublicDecks);
+        Button buttonSpacedRepetition = findViewById(R.id.buttonSpacedRepetition);
 
         buttonMyDecks.setOnClickListener(v -> {
             Intent intent = new Intent(MainFlashcardActivity.this, MyFlashcardsActivity.class);
@@ -23,6 +24,11 @@ public class MainFlashcardActivity extends AppCompatActivity {
 
         buttonPublicDecks.setOnClickListener(v -> {
             Intent intent = new Intent(MainFlashcardActivity.this, PublicCategoriesActivity.class);
+            startActivity(intent);
+        });
+
+        buttonSpacedRepetition.setOnClickListener(v -> {
+            Intent intent = new Intent(MainFlashcardActivity.this, SpacedRepetitionActivity.class);
             startActivity(intent);
         });
     }

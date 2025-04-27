@@ -61,7 +61,8 @@
             android:theme="@style/Theme.AppCompat.DayNight" />
         <activity android:name=".view.activity.quiz.TestActivity"/>
         <activity android:name=".view.activity.quiz.TestListActivity"/>
-
+        <activity android:name=".view.activity.flashcard.ReviewActivity"/>
+        <activity android:name=".view.activity.flashcard.SpacedRepetitionActivity"/>
 
 
         <activity android:name=".view.activity.video_youtube.VideoYoutubeActivity" />

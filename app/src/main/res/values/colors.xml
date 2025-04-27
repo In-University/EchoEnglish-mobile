@@ -35,4 +35,13 @@
     <color name="red_incorrect">#F44336</color>
     <color name="green_correct">#4CAF50</color>
     <color name="highlight_blue"> #2196F3 </color>
+
+    <color name="background_gray">#F5F5F5</color>
+    <!-- Định nghĩa màu cho các cấp độ ghi nhớ -->
+    <color name="level0_color">#F44336</color> <!-- Đỏ (Quên) -->
+    <color name="level1_color">#FF9800</color> <!-- Cam -->
+    <color name="level2_color">#FFEB3B</color> <!-- Vàng -->
+    <color name="level3_color">#8BC34A</color> <!-- Xanh lá cây nhạt -->
+    <color name="level4_color">#4CAF50</color> <!-- Xanh lá cây -->
+    <color name="mastered_color">#2196F3</color> <!-- Xanh dương (Thành thạo) -->
 </resources>

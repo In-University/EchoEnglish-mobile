@@ -17,9 +17,11 @@ import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.Learni
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.VocabularyCreateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.VocabularyUpdateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.CategoryResponse;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.DueReviewCountResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardDetailResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningProgressResponse;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.MemoryLevelsResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyReviewResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.model.PexelsResponse;
@@ -185,9 +187,21 @@ public interface ApiService {
     Call<List<Grammar>> getGrammars();
 
     @POST("api/learnings")
-    Call<Void> recordLearning(@Body LearningRecordRequest recordRequest);  
+    Call<Void> recordLearning(@Body LearningRecordRequest recordRequest);
 
     @GET("api/learnings/review/user/{userId}")
-        // Change return type to List of the new VocabularyReviewResponse
-    Call<VocabularyReviewResponse> getDueVocabulariesForReview(@Path("userId") Long userId);
+    Call<List<VocabularyReviewResponse>> getDueVocabulariesForReview(@Path("userId") Long userId);
+
+
+    @GET("api/learnings/memory-levels/user/{userId}")
+    Call<MemoryLevelsResponse> getMemoryLevels(
+            @Path("userId") Long userId
+            // ** BỎ @Query("flashcardId") **
+    );
+
+    // getDueReviewCount (đã đúng)
+    @GET("api/learnings/review/user/{userId}/count")
+    Call<DueReviewCountResponse> getDueReviewCount(
+            @Path("userId") Long userId
+    );
 }
