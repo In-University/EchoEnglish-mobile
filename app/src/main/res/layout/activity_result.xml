@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="20dp" >
+
+    <ImageView
+        android:id="@+id/activity_result_image"
+        android:layout_width="177dp"
+        android:layout_height="177dp"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="Result Image"
+        android:src="@drawable/activity_result_image_happy" />
+
+    <TextView
+        android:id="@+id/activity_result_text_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:textSize="25sp"
+        android:textColor="@color/green_correct"
+        android:textStyle="bold"
+        android:text="Well done!" />
+
+    <TextView
+        android:id="@+id/activity_result_text_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:text="Awesome work! I'm proud of you!" />
+
+    <!-- Score Box -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:padding="22dp"
+        android:background="@drawable/background_rounded_corner"
+        android:backgroundTint="#F5F5F5"
+        android:elevation="5dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textViewGameResultScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            tools:text="Result: 8/10 Correct"
+            android:textSize="25sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <!-- Nút này giờ không cần thiết -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/activity_result_button_show_answers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/buttonFinishGame"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="40dp"
+                android:background="@drawable/activity_result_button_continue"
+                android:text="Finish"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

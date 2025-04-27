@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <!-- Định nghĩa màu sắc cho hình tròn.
+         Tham chiếu đến một màu được định nghĩa trong res/values/colors.xml -->
+    <solid android:color="@color/level0_color"/>
+
+</shape>

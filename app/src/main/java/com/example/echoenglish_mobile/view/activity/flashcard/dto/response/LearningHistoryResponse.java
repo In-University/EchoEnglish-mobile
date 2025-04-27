@@ -1,23 +1,25 @@
 package com.example.echoenglish_mobile.view.activity.flashcard.dto.response;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@AllArgsConstructor // Thường cần nếu dùng AllArgsConstructor ở backend DTO
+@Builder // Thường cần nếu dùng Builder ở backend DTO
+// implements Serializable // Thêm nếu cần truyền qua Intent
 public class LearningHistoryResponse {
     private Long id; // ID của bản ghi lịch sử
     private Long userId;
     private String userName;
 
-    // --- ĐÃ LOẠI BỎ ---
-    // private Long flashcardId;
-    // private String flashcardName;
+    // --- Thông tin Flashcard (Từ Vocabulary) ---
+    private Long flashcardId; // Có thể cần để biết từ thuộc flashcard nào
+    private String flashcardName;
 
     // --- DỮ LIỆU TỪ VỰNG ---
     private Long vocabularyId; // ID của từ vựng đã học

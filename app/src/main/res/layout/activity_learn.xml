@@ -26,17 +26,31 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp"
+        android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Nút Quên -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonForget"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Forget"
+            android:layout_marginEnd="8dp"
+            app:icon="@drawable/ic_xml_close_24px" /> <!-- Thay icon phù hợp nếu cần -->
+
+        <!-- Nút Biết -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonKnow"
             style="@style/Widget.Material3.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Biết"
+            android:layout_marginStart="8dp"
+            android:text="Remember"
             app:icon="@drawable/ic_xml_check_24px" />
 
         <!-- Nếu cần thêm nút Next, bỏ comment bên dưới -->

@@ -17,11 +17,10 @@ import com.example.echoenglish_mobile.adapter.DashboardAdapter;
 import com.example.echoenglish_mobile.model.ListDomain;
 // Đảm bảo import đúng LoginActivity của bạn
 import com.example.echoenglish_mobile.util.SharedPrefManager;
-import com.example.echoenglish_mobile.view.activity.auth.LoginActivity;
 import com.example.echoenglish_mobile.view.activity.auth.MainActivity;
 import com.example.echoenglish_mobile.view.activity.webview.WebGameActivity;
 import com.example.echoenglish_mobile.view.activity.chatbot.ChatActivity;
-import com.example.echoenglish_mobile.view.activity.quiz.MainQuizzAppActivity;
+import com.example.echoenglish_mobile.view.activity.quiz.MainQuizActivity;
 
 import java.util.ArrayList;
 
@@ -53,7 +52,7 @@ public class DashboardActivity extends AppCompatActivity {
 
 
         LinearLayout btnQuizz = findViewById(R.id.btnQuizz);
-        btnQuizz.setOnClickListener(v -> startActivity(new Intent(DashboardActivity.this, MainQuizzAppActivity.class)));
+        btnQuizz.setOnClickListener(v -> startActivity(new Intent(DashboardActivity.this, MainQuizActivity.class)));
 
         LinearLayout btnWebGame = findViewById(R.id.btnWebGame);
         btnWebGame.setOnClickListener(v -> startActivity(new Intent(DashboardActivity.this, WebGameActivity.class)));

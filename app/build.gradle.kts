@@ -27,7 +27,7 @@ android {
         }
     }
     buildFeatures {
-        dataBinding = true
+        dataBinding = true 
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -105,5 +105,11 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.30")
 
     implementation("androidx.viewpager2:viewpager2:1.1.0")
+
+    // Google ML Kit Text Recognition (On-device)
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
+
+    implementation("io.github.canhub:android-image-cropper:4.5.0")
+
 
 }

@@ -1,5 +1,7 @@
 package com.example.echoenglish_mobile.view.activity.flashcard;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -79,6 +81,14 @@ public class PublicFlashcardsActivity extends AppCompatActivity implements Publi
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // ** GỌI TẢI DỮ LIỆU KHI ACTIVITY QUAY TRỞ LẠI FOREGROUND **
+        Log.d(TAG, "onResume: Loading public flashcards...");
+        loadPublicFlashcards();
     }
 
 

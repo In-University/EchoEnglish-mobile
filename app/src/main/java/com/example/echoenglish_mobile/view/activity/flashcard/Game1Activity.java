@@ -1,4 +1,5 @@
 package com.example.echoenglish_mobile.view.activity.flashcard;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,24 +13,32 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat; // Import ContextCompat
+import androidx.core.content.ContextCompat;
 import com.bumptech.glide.Glide;
 import com.example.echoenglish_mobile.R;
+import com.example.echoenglish_mobile.network.ApiClient;
+import com.example.echoenglish_mobile.network.ApiService;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.LearningRecordRequest; // Assuming this DTO exists
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
-import com.google.android.flexbox.FlexboxLayout; // Import FlexboxLayout
+import com.google.android.flexbox.FlexboxLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
+// import java.util.Random; // Not used in this class, can remove
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Game1Activity extends AppCompatActivity {
 
     public static final String EXTRA_VOCAB_LIST = "VOCABULARY_LIST";
-    // public static final String EXTRA_FLASHCARD_ID = "FLASHCARD_ID";
-
     private static final String TAG = "Game1Activity";
+
+    // TODO: Replace with actual user ID from login/session management
+    private static final long CURRENT_USER_ID = 27L; // Example user ID
 
     private TextView textGameProgress;
     private ImageView imageGameWord;
@@ -48,6 +57,8 @@ public class Game1Activity extends AppCompatActivity {
     private List<Character> currentAnswerChars = new ArrayList<>(); // Chữ cái người dùng đã chọn
     private List<TextView> answerTextViews = new ArrayList<>(); // TextViews trong khu vực trả lời
 
+    private ApiService apiService; // Add ApiService instance
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +73,9 @@ public class Game1Activity extends AppCompatActivity {
         layoutChoices = findViewById(R.id.layoutGame1Choices);
         buttonSkip = findViewById(R.id.buttonGame1Skip);
         buttonCheck = findViewById(R.id.buttonGame1Check);
+
+        // Khởi tạo ApiService (assuming ApiClient is how you get it)
+        apiService = ApiClient.getApiService();
 
         // Nhận dữ liệu
         try {
@@ -84,7 +98,16 @@ public class Game1Activity extends AppCompatActivity {
         // Bắt đầu game
         loadQuestion();
 
-        buttonSkip.setOnClickListener(v -> goToNextQuestion());
+        buttonSkip.setOnClickListener(v -> {
+            // Khi skip, ghi lại là quên
+            if (currentQuestionIndex < vocabularyList.size()) {
+                // Lấy vocab ID của câu hỏi hiện tại TRƯỚC khi chuyển câu
+                long vocabId = vocabularyList.get(currentQuestionIndex).getId();
+                // Ghi lại là quên (isRemembered = false)
+                recordLearningProgress(vocabId, false);
+            }
+            goToNextQuestion(); // Chuyển sang câu hỏi tiếp theo
+        });
         buttonCheck.setOnClickListener(v -> checkAnswer());
     }
 
@@ -124,6 +147,8 @@ public class Game1Activity extends AppCompatActivity {
         currentAnswerChars.clear();
         answerTextViews.clear();
         buttonCheck.setVisibility(View.GONE); // Ẩn nút Check ban đầu
+        buttonCheck.setEnabled(true); // Re-enable check button for the new question
+        buttonSkip.setEnabled(true); // Re-enable skip button
 
         // Tạo các ô chữ cái cho khu vực trả lời (rỗng)
         for (int i = 0; i < currentCorrectWord.length(); i++) {
@@ -149,21 +174,26 @@ public class Game1Activity extends AppCompatActivity {
 
     // Tạo một TextView cho ô chữ cái
     private TextView createLetterTextView(int styleResId, char letter) {
-        TextView textView = new TextView(this, null, 0, styleResId);
-        // Nếu dùng style trong theme:
-        // TextView textView = new TextView(new ContextThemeWrapper(this, styleResId));
+        LayoutInflater inflater = LayoutInflater.from(this);
+        TextView textView = (TextView) inflater.inflate(R.layout.item_game1_letter, null, false);
 
-        // Cài đặt lại layout params nếu cần (FlexboxLayout thường tự xử lý)
+        if (letter != ' ') {
+            textView.setText(String.valueOf(letter));
+        } else {
+            textView.setText(""); // Ensure empty for placeholder
+        }
+
+        // Set margin programmatically
+        int marginInDp = 4; // hoặc 6 tùy bạn muốn cách xa nhiều hay ít
+        int marginInPx = (int) (marginInDp * getResources().getDisplayMetrics().density);
+
         FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(
                 FlexboxLayout.LayoutParams.WRAP_CONTENT,
                 FlexboxLayout.LayoutParams.WRAP_CONTENT
         );
-        textView.setLayoutParams(params); // Áp dụng cho Flexbox
-        // Hoặc LinearLayout.LayoutParams cho layoutAnswer
+        params.setMargins(marginInPx, marginInPx, marginInPx, marginInPx); // Set đều 4 phía
+        textView.setLayoutParams(params);
 
-        if (letter != ' ') { // Không hiển thị ký tự cách nếu dùng placeholder
-            textView.setText(String.valueOf(letter));
-        }
         return textView;
     }
 
@@ -178,11 +208,12 @@ public class Game1Activity extends AppCompatActivity {
         return characters;
     }
 
-    // Khi người dùng chọn một chữ cái từ khu lựa chọn
+    // When the user selects a letter from the choices area
     private void selectLetter(TextView choiceTextView) {
-        // Tìm ô trả lời trống đầu tiên
+        // Find the first empty answer box
         int targetAnswerIndex = -1;
         for (int i = 0; i < answerTextViews.size(); i++) {
+            // Check if the text is effectively empty after trimming whitespace
             if (answerTextViews.get(i).getText().toString().trim().isEmpty()) {
                 targetAnswerIndex = i;
                 break;
@@ -192,80 +223,90 @@ public class Game1Activity extends AppCompatActivity {
         if (targetAnswerIndex != -1) {
             char selectedChar = choiceTextView.getText().charAt(0);
 
-            // Cập nhật ô trả lời
+            // Update the target answer box
             TextView targetAnswerBox = answerTextViews.get(targetAnswerIndex);
             targetAnswerBox.setText(String.valueOf(selectedChar));
-            targetAnswerBox.setBackgroundResource(R.drawable.bg_game_letter_choice); // Đổi background khi có chữ
+            // Set background indicating it now has a letter (optional)
+            targetAnswerBox.setBackgroundResource(R.drawable.bg_game_letter_selected_answer);
 
-            // Lưu trữ ký tự và TextView lựa chọn tương ứng vào vị trí trả lời
-            // Đảm bảo currentAnswerChars có đủ size
+
+            // Store the selected char in the internal list (ensure list size matches boxes)
+            // Fill with nulls up to the required size if needed
             while (currentAnswerChars.size() <= targetAnswerIndex) {
-                currentAnswerChars.add(null); // Thêm placeholder
+                currentAnswerChars.add(null);
             }
-            currentAnswerChars.set(targetAnswerIndex, selectedChar); // Lưu ký tự
-            // Lưu tham chiếu đến choiceTextView đã chọn vào tag của answerBox
+            currentAnswerChars.set(targetAnswerIndex, selectedChar);
+
+            // Store a reference to the original choice TextView in the answer box's tag
             targetAnswerBox.setTag(choiceTextView);
 
 
-            // Ẩn ô lựa chọn đã chọn
+            // Hide the selected choice TextView
             choiceTextView.setVisibility(View.INVISIBLE);
+            choiceTextView.setClickable(false); // Make it not clickable when hidden
 
-            // Kiểm tra xem đã điền hết các ô trả lời chưa
+            // Check if all answer boxes are filled
             checkIfAnswerComplete();
         }
     }
 
-    // Khi người dùng click vào ô trả lời để trả chữ về
+    // When the user clicks an answer box to return the letter to choices
     private void returnLetterToChoices(int answerIndex) {
         if (answerIndex >= 0 && answerIndex < answerTextViews.size()) {
             TextView answerBox = answerTextViews.get(answerIndex);
-            // Lấy TextView lựa chọn gốc từ tag
+            // Get the original choice TextView from the tag
             Object tag = answerBox.getTag();
-            if (tag instanceof TextView) {
+
+            // Only proceed if the answer box has a letter/tag associated
+            if (tag instanceof TextView && !answerBox.getText().toString().trim().isEmpty()) {
                 TextView originalChoiceBox = (TextView) tag;
-                // Hiển thị lại ô lựa chọn
+
+                // Show the original choice TextView again
                 originalChoiceBox.setVisibility(View.VISIBLE);
+                originalChoiceBox.setClickable(true); // Make it clickable again
 
-                // Xóa chữ và đặt lại background ô trả lời
+                // Clear the answer box text and reset background/tag
                 answerBox.setText("");
-                answerBox.setBackgroundResource(R.drawable.bg_game_letter_answer);
-                answerBox.setTag(null); // Xóa tag
+                answerBox.setBackgroundResource(R.drawable.bg_game_letter_answer); // Reset to empty state background
+                answerBox.setTag(null); // Clear the tag
 
-                // Xóa ký tự khỏi list trả lời hiện tại
+                // Remove the character from the internal answer list at the correct position
                 if (answerIndex < currentAnswerChars.size()) {
-                    currentAnswerChars.set(answerIndex, null); // Đặt lại thành null hoặc ký tự đặc biệt
+                    currentAnswerChars.set(answerIndex, null); // Or remove it if structure is different
                 }
 
-
-                // Ẩn nút Check nếu câu trả lời chưa hoàn chỉnh
+                // Hide the Check button if the answer is no longer complete
                 buttonCheck.setVisibility(View.GONE);
             }
         }
     }
 
-    // Kiểm tra xem tất cả các ô trả lời đã được điền chưa
+    // Check if all answer boxes have been filled
     private void checkIfAnswerComplete() {
         boolean complete = true;
-        StringBuilder currentAnswer = new StringBuilder();
-        for (int i = 0; i < answerTextViews.size(); i++) {
-            String text = answerTextViews.get(i).getText().toString();
-            if (text.trim().isEmpty()) {
+        // A simple check is to see if any answer TextView is still empty
+        for (TextView tv : answerTextViews) {
+            if (tv.getText().toString().trim().isEmpty()) {
                 complete = false;
                 break;
             }
-            currentAnswer.append(text);
         }
 
         if (complete) {
-            Log.d(TAG, "Answer complete: " + currentAnswer.toString());
-            buttonCheck.setVisibility(View.VISIBLE); // Hiển thị nút Check
+            // Optionally build the full string here for logging
+            // StringBuilder currentAnswer = new StringBuilder();
+            // for (TextView tv : answerTextViews) {
+            //     currentAnswer.append(tv.getText().toString());
+            // }
+            // Log.d(TAG, "Answer complete: " + currentAnswer.toString());
+            buttonCheck.setVisibility(View.VISIBLE); // Show the Check button
         } else {
-            buttonCheck.setVisibility(View.GONE);
+            buttonCheck.setVisibility(View.GONE); // Hide the Check button
         }
     }
 
 
-    // Kiểm tra câu trả lời
+    // Check the user's answer
     private void checkAnswer() {
         StringBuilder userAnswerBuilder = new StringBuilder();
         for (TextView tv : answerTextViews) {
@@ -275,48 +316,102 @@ public class Game1Activity extends AppCompatActivity {
 
         boolean isCorrect = userAnswer.equals(currentCorrectWord);
 
-        // Hiển thị phản hồi (đúng/sai)
-        for (TextView tv : answerTextViews) {
-            tv.setBackgroundColor(ContextCompat.getColor(this,
-                    isCorrect ? R.color.correct_green : R.color.incorrect_red)); // Định nghĩa màu trong colors.xml
-            tv.setClickable(false); // Không cho trả chữ về nữa
-        }
-        for (TextView tv : choiceTextViews) {
-            tv.setClickable(false); // Không cho chọn nữa
-        }
-        buttonCheck.setEnabled(false);
-        buttonSkip.setEnabled(false);
+        disableInteraction();
+
+        // Lấy vocab ID của câu hỏi hiện tại
+        long currentVocabId = vocabularyList.get(currentQuestionIndex).getId();
 
 
         if (isCorrect) {
             score++;
             Toast.makeText(this, "Chính xác!", Toast.LENGTH_SHORT).show();
+            // Ghi lại là nhớ (isRemembered = true)
+            recordLearningProgress(currentVocabId, true);
+
         } else {
-            Toast.makeText(this, "Sai rồi! Đáp án: " + currentCorrectWord, Toast.LENGTH_SHORT).show();
-            // Có thể hiển thị đáp án đúng ở đâu đó
+            Toast.makeText(this, "Sai rồi! Đáp án: " + currentCorrectWord, Toast.LENGTH_LONG).show();
+            // Ghi lại là quên (isRemembered = false)
+            recordLearningProgress(currentVocabId, false);
+            // Optionally highlight the correct answer string or display it more prominently
         }
 
-        // Chờ một chút rồi chuyển câu hỏi
-        new Handler(Looper.getMainLooper()).postDelayed(this::goToNextQuestion, 1500); // Chờ 1.5 giây
+        // Show feedback (correct/incorrect color) after determining isCorrect
+        for (TextView tv : answerTextViews) {
+            tv.setBackgroundColor(ContextCompat.getColor(this,
+                    isCorrect ? R.color.correct_green : R.color.incorrect_red));
+            tv.setClickable(false); // Disable returning letters
+        }
+
+
+        // Wait a bit then go to the next question
+        new Handler(Looper.getMainLooper()).postDelayed(this::goToNextQuestion, 2000); // Wait 2 seconds
     }
 
-    // Chuyển sang câu hỏi tiếp theo
+    // Helper to disable all interactive elements after checking
+    private void disableInteraction() {
+        for (TextView tv : answerTextViews) {
+            tv.setClickable(false);
+        }
+        for (TextView tv : choiceTextViews) {
+            tv.setClickable(false); // Disable selecting letters
+        }
+        buttonCheck.setEnabled(false);
+        buttonSkip.setEnabled(false);
+    }
+
+
+    // Go to the next question
     private void goToNextQuestion() {
         currentQuestionIndex++;
-        // Kích hoạt lại các nút
-        buttonCheck.setEnabled(true);
-        buttonSkip.setEnabled(true);
-        loadQuestion();
+        loadQuestion(); // Load the new question (will re-enable buttons)
     }
 
-    // Kết thúc game
+    // End the game
     private void endGame() {
         Log.d(TAG, "Game Ended. Score: " + score + "/" + vocabularyList.size());
-        Intent intent = new Intent(this, GameResultActivity.class);
-        intent.putExtra(GameResultActivity.EXTRA_SCORE, score);
-        intent.putExtra(GameResultActivity.EXTRA_TOTAL_QUESTIONS, vocabularyList.size());
-        intent.putExtra(GameResultActivity.EXTRA_GAME_TYPE, "Game 1: Sắp xếp chữ"); // Gửi loại game
+        Intent intent = new Intent(this, ResultActivity.class);
+        intent.putExtra(ResultActivity.EXTRA_SCORE, score);
+        intent.putExtra(ResultActivity.EXTRA_TOTAL_QUESTIONS, vocabularyList.size());
+        intent.putExtra(ResultActivity.EXTRA_GAME_TYPE, "Game 1: Sắp xếp chữ"); // Send game type
         startActivity(intent);
-        finish(); // Đóng màn hình game
+        finish(); // Close the game activity
     }
+
+    // --- New method to record learning progress ---
+    private void recordLearningProgress(long vocabularyId, boolean isRemembered) {
+        if (apiService == null) {
+            Log.e(TAG, "ApiService is not initialized.");
+            return;
+        }
+
+        LearningRecordRequest request = new LearningRecordRequest();
+        request.setUserId(CURRENT_USER_ID);
+        request.setVocabularyId(vocabularyId);
+        request.setIsRemembered(isRemembered); // ** GỬI TRẠNG THÁI NHỚ/QUÊN **
+
+        apiService.recordLearning(request).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.i(TAG, "Ghi nhận học tập thành công cho vocab ID: " + vocabularyId + ", isRemembered: " + isRemembered);
+                } else {
+                    String errorBody = "";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorBody = response.errorBody().string();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error reading error body", e);
+                    }
+                    Log.w(TAG, "Ghi nhận học tập thất bại cho vocab ID: " + vocabularyId + ": " + response.code() + " - " + response.message() + " Body: " + errorBody);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e(TAG, "Lỗi mạng khi ghi nhận học tập cho vocab ID: " + vocabularyId, t);
+            }
+        });
+    }
+    // ----------------------------------------------
 }

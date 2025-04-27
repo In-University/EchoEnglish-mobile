@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" />
 <!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>-->
 <!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
 
@@ -20,6 +22,16 @@
         android:theme="@style/Theme.EchoEnglishMobile"
         tools:targetApi="31">
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.echoenglish_mobile.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
 <!--         <activity android:name=".view.activity.auth.MainActivity"/> -->
         <activity android:name=".view.activity.dashboard.DashboardActivity"/>
 
@@ -31,8 +43,6 @@
         <activity android:name=".view.activity.auth.OtpVerificationActivity"/>
         <activity android:name=".view.activity.auth.ResetPasswordActivity"/>
         <activity android:name=".view.activity.pronun_summary_result.SummaryResultsActivity"/>
-        <activity android:name=".view.activity.quiz.MainQuizzAppActivity"/>
-        <activity android:name=".view.activity.quiz.QuizActivity"/>
         <activity android:name=".view.activity.webview.WebGameActivity"/>
 <!--        <activity android:name=".view.activity.chatbot.ChatActivity"/>-->
         <activity android:name=".view.activity.dictionary.DictionaryWordDetailActivity" />
@@ -42,19 +52,24 @@
         <activity android:name=".view.activity.flashcard.LearnActivity"/>
         <activity android:name=".view.activity.flashcard.Game1Activity"/>
         <activity android:name=".view.activity.flashcard.Game2Activity"/>
-        <activity android:name=".view.activity.flashcard.GameResultActivity"/>
+        <activity android:name=".view.activity.flashcard.ResultActivity"/>
         <activity android:name=".view.activity.flashcard.MyFlashcardsActivity"/>
         <activity android:name=".view.activity.flashcard.PublicCategoriesActivity"/>
         <activity android:name=".view.activity.flashcard.PublicFlashcardsActivity"/>
+        <activity
+            android:name="com.canhub.cropper.CropImageActivity"
+            android:theme="@style/Theme.AppCompat.DayNight" />
+        <activity android:name=".view.activity.quiz.TestActivity"/>
+        <activity android:name=".view.activity.quiz.TestListActivity"/>
+        <activity android:name=".view.activity.flashcard.ReviewActivity"/>
+        <activity android:name=".view.activity.flashcard.SpacedRepetitionActivity"/>
 
-        <!--
-        .view.activity.auth.MainActivity
-        -->        <activity android:name=".view.activity.browser.BrowserActivity" />
+
         <activity android:name=".view.activity.video_youtube.VideoYoutubeActivity" />
 
 
         <activity
-            android:name=".view.activity.pronunciation_assessment.UploadSpeechActivity"
+            android:name=".view.activity.flashcard.MainFlashcardActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

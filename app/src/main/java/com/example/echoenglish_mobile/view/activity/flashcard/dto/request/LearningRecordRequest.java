@@ -8,4 +8,6 @@ public class LearningRecordRequest {
     private Long userId; // Sẽ được kiểm tra khớp với user đang login
 
     private Long vocabularyId; // ID của từ vựng đã học
+
+    private Boolean isRemembered;
 }

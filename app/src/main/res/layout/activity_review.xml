@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.activity.flashcard.ReviewActivity">
+
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarReview"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:title="Ôn tập từ vựng" />
+
+    <!-- Main Content Area (ScrollView để có thể cuộn nếu nội dung dài) -->
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/toolbarReview"
+        app:layout_constraintBottom_toTopOf="@+id/layoutReviewButtons"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Progress / Counter (e.g., 1/10 words) -->
+            <TextView
+                android:id="@+id/textReviewProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                tools:text="1 / 20"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Vocabulary Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardReviewVocabulary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Word -->
+                    <TextView
+                        android:id="@+id/textReviewWord"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        android:textStyle="bold"
+                        tools:text="Vocabulary Word"
+                        android:layout_marginBottom="4dp"/>
+
+                    <!-- Phonetic (Optional) -->
+                    <TextView
+                        android:id="@+id/textReviewPhonetic"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                        tools:text="/ˈvəʊkəbləri wɜːd/"
+                        android:layout_marginBottom="8dp"/>
+
+                    <!-- Image (Optional) -->
+                    <ImageView
+                        android:id="@+id/imageReviewVocabulary"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:scaleType="centerCrop"
+                        tools:srcCompat="@tools:sample/backgrounds/scenic"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone"/> <!-- Ẩn mặc định nếu không có ảnh -->
+
+                    <!-- Definition -->
+                    <TextView
+                        android:id="@+id/textReviewDefinition"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                        tools:text="Definition of the vocabulary word."
+                        android:layout_marginBottom="8dp"/>
+
+                    <!-- Example (Optional) -->
+                    <TextView
+                        android:id="@+id/textReviewExample"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                        tools:text="Example sentence using the word."
+                        android:layout_marginBottom="8dp"/>
+
+                    <!-- Memory Level (Optional - Show current level) -->
+                    <TextView
+                        android:id="@+id/textReviewMemoryLevel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                        tools:text="Cấp độ ghi nhớ: Level 1 (1 lần nhớ)"
+                        android:layout_gravity="end"/>
+
+                    <!-- Flashcard Info (Optional - Show which flashcard it belongs to) -->
+                    <TextView
+                        android:id="@+id/textReviewFlashcardInfo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                        tools:text="Thuộc bộ thẻ: TOEIC 600"
+                        android:layout_gravity="end"/>
+
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Placeholder for loading the list -->
+            <ProgressBar
+                android:id="@+id/progressBarReview"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:visibility="gone" />
+
+            <!-- Message when list is empty -->
+            <TextView
+                android:id="@+id/textReviewEmptyMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Không có từ nào cần ôn tập lúc này."
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:textColor="?android:attr/textColorSecondary"
+                android:layout_gravity="center"
+                android:layout_marginTop="50dp"
+                android:visibility="gone"/>
+
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Buttons "Remember" / "Forget" -->
+    <LinearLayout
+        android:id="@+id/layoutReviewButtons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="?android:attr/windowBackground"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonForgetReview"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Quên"
+            app:icon="@drawable/ic_xml_close_24px"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonRememberReview"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="Biết"
+            app:icon="@drawable/ic_xml_check_24px"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
