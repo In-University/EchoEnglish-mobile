@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="filter_options">
+        <item>Tất cả</item>
+        <item>Phát âm tốt</item>
+        <item>Cần cải thiện</item>
+        <item>Gần đây</item>
+        <item>Theo chủ đề</item>
+    </string-array>
+
+    <string-array name="writing_filter_options">
+        <item>Tất cả</item>
+        <item>Essay</item>
+        <item>Report</item>
+        <item>Letter</item>
+        <item>Email</item>
+        <item>Story</item>
+    </string-array>
+</resources>

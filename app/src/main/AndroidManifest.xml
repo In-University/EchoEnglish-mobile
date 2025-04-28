@@ -69,7 +69,7 @@
 
 
         <activity
-            android:name=".view.activity.flashcard.MainFlashcardActivity"
+            android:name=".view.activity.analyze_result.AnalyzeResultActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

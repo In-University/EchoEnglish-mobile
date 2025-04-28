@@ -60,7 +60,7 @@ public class ApiClient {
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
-//                    .addInterceptor(loggingInterceptor) // Giữ lại logging
+                    .addInterceptor(loggingInterceptor) // Giữ lại logging
                     .connectTimeout(30, TimeUnit.SECONDS) // Tăng thời gian kết nối (ví dụ 30s)
                     .readTimeout(60, TimeUnit.SECONDS)    // **QUAN TRỌNG:** Tăng thời gian chờ đọc (ví dụ 60s)
                     .writeTimeout(60, TimeUnit.SECONDS)   // Tăng thời gian chờ ghi (ví dụ 60s)

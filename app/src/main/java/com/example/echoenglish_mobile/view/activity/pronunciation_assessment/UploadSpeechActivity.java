@@ -172,7 +172,7 @@ public class UploadSpeechActivity extends AppCompatActivity {
             }
 
             MultipartBody.Part audioFilePart = MultipartBody.Part.createFormData(
-                    "audioFile",
+                    "audio_file",
                     fileName,
                     audioFileRequestBody
             );
