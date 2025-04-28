@@ -106,6 +106,9 @@ public interface ApiService {
     @POST("/chatbot/converse")
     Call<ConversationResponse> continueChat(@Body ConverseRequest request);
 
+    @POST("/chatbot/review")
+    Call<ConversationResponse> reviewConversation(@Body ConverseRequest request);
+
  // --- Flashcards ---
     @POST("api/flashcards/user-defined")
     Call<FlashcardDetailResponse> createFlashcard(@Body FlashcardCreateRequest request);

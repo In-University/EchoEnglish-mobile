@@ -10,15 +10,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView; // Thêm import này
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.adapter.Chat2Adapter;
 import com.example.echoenglish_mobile.model.ChatMessage;
@@ -46,29 +49,32 @@ import retrofit2.Response;
 public class ConversationActivity extends AppCompatActivity implements ConversationInfoDialog.AudioSettingsListener {
 
     private static final String TAG = "ConversationActivity";
-    public static final String EXTRA_CONTEXT = "EXTRA_CONTEXT"; // Key for intent extra
+    public static final String EXTRA_CONTEXT = "EXTRA_CONTEXT";
 
     private RecyclerView recyclerViewStream;
     private Chat2Adapter chatAdapter;
     private List<ChatMessage> chatMessages;
-    private EditText editTextMessage; // Add EditText for typing
-    private Button buttonSend; // Rename mic button or add a separate send button
+    private EditText editTextMessage;
+    private Button buttonSend;
     private ImageButton buttonShowInfo;
     private ImageButton buttonMic;
     private String currentVoiceId = "1";
     private float currentSpeed = 1.0f;
     private MediaPlayer dialogMediaPlayer;
     private ConversationInfoDialog activeDialog = null;
+    private FrameLayout inputContainer; // Thêm biến này
+    private FrameLayout congratulationsContainer; // Thêm biến này
+    private LottieAnimationView lottieAnimationView; // Thêm biến này
 
-    // --- State for API Interaction ---
+
     private ApiService apiService;
-    private String conversationContext = ""; // Store the context
+    private String conversationContext = "";
     private List<ChecklistItemResponse> currentChecklist = new ArrayList<>();
     private List<MessageHistoryItem> conversationHistory = new ArrayList<>();
     private boolean isConversationStarted = false;
-    private boolean isWaitingForResponse = false; // Prevent multiple simultaneous requests
+    private boolean isWaitingForResponse = false;
+    private boolean isConversationCompleted = false; // Thêm biến cờ này
     private static final int REQ_CODE_SPEECH_INPUT = 100;
-    // --- Threading ---
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 
@@ -78,27 +84,26 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
 
-        // --- Get Context from Intent ---
         conversationContext = getIntent().getStringExtra(EXTRA_CONTEXT);
         if (conversationContext == null || conversationContext.trim().isEmpty()) {
             Log.e(TAG, "Conversation context is missing!");
             Toast.makeText(this, "Error: Conversation context not provided.", Toast.LENGTH_LONG).show();
-            finish(); // Close activity if context is missing
+            finish();
             return;
         }
         Log.d(TAG, "Conversation Context: " + conversationContext);
 
-        // --- Initialize Views ---
         recyclerViewStream = findViewById(R.id.recyclerViewStream);
         editTextMessage = findViewById(R.id.editTextMessage);
         buttonSend = findViewById(R.id.buttonSend);
         buttonShowInfo = findViewById(R.id.buttonShowInfo);
         buttonMic = findViewById(R.id.buttonMic);
+        inputContainer = findViewById(R.id.inputContainer); // Tìm view
+        congratulationsContainer = findViewById(R.id.congratulationsContainer); // Tìm view
+        lottieAnimationView = findViewById(R.id.lottieAnimationView); // Tìm view
 
-        // --- Initialize API Service ---
         apiService = ApiClient.getApiService();
 
-        // --- Setup RecyclerView ---
         chatMessages = new ArrayList<>();
         chatAdapter = new Chat2Adapter(this, chatMessages, this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -107,15 +112,21 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
         recyclerViewStream.setAdapter(chatAdapter);
         recyclerViewStream.setItemAnimator(null);
 
-         String initialUserGreeting = "Hi, let's talk about " + conversationContext;
-         sendMessage(initialUserGreeting);
+        String initialUserGreeting = "Hi, let's talk about " + conversationContext;
+        sendMessage(initialUserGreeting);
 
-        // --- Setup Listeners ---
         buttonShowInfo.setOnClickListener(v -> showConversationInfo());
         buttonSend.setOnClickListener(v -> sendMessage(""));
         buttonMic.setOnClickListener(v -> startSpeechToText());
+
+        // Đảm bảo màn hình congrats ẩn khi bắt đầu
+        if (congratulationsContainer != null) {
+            congratulationsContainer.setVisibility(View.GONE);
+        }
     }
     private void startSpeechToText() {
+        if (isConversationCompleted) return; // Không cho nhập nếu đã hoàn thành
+
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -172,11 +183,10 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
 
     private void callStartConversationApi(String initialInput) {
         StartConversationRequest request = new StartConversationRequest(conversationContext, initialInput);
-
         executorService.execute(() -> {
             try {
                 Response<ConversationResponse> response = apiService.startChat(request).execute();
-                mainThreadHandler.post(() -> handleApiResponse(response));
+                mainThreadHandler.post(() -> handleApiResponse(response)); // Thêm isAutomatic=false
             } catch (Exception e) {
                 Log.e(TAG, "API Call Failed (startChat): ", e);
                 mainThreadHandler.post(() -> handleApiError("Network error. Could not start conversation."));
@@ -192,54 +202,91 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
 
         executorService.execute(() -> {
             try {
-                Response<ConversationResponse> response = apiService.continueChat(request).execute(); // Synchronous call
-                mainThreadHandler.post(() -> handleApiResponse(response)); // Process response on main thread
+                Response<ConversationResponse> response = apiService.continueChat(request).execute();
+                mainThreadHandler.post(() -> handleApiResponse(response));
             } catch (Exception e) {
                 Log.e(TAG, "API Call Failed (continueChat): ", e);
-                mainThreadHandler.post(() -> handleApiError("Network error during conversation."));
+                mainThreadHandler.post(() -> handleApiError("Network error during conversation.")); // Thêm isAutomatic
             }
         });
     }
 
 
     private void handleApiResponse(Response<ConversationResponse> response) {
-        setLoadingState(false); // Hide progress bar
+        setLoadingState(false);
 
         if (response.isSuccessful() && response.body() != null) {
             ConversationResponse conversationResponse = response.body();
-            Log.d(TAG, "API Success: AI Response: " + conversationResponse.getAiResponse());
-            Log.d(TAG, "API Success: Checklist: " + conversationResponse.getUpdatedChecklist());
-            Log.d(TAG, "API Success: All Completed: " + conversationResponse.isAllCompleted());
-
-
-            // --- Update State ---
-            isConversationStarted = true; // Mark as started after first successful call
+            isConversationStarted = true;
             currentChecklist = conversationResponse.getUpdatedChecklist() != null ? conversationResponse.getUpdatedChecklist() : new ArrayList<>();
 
-            // --- Add AI Response to UI and History ---
             String aiText = conversationResponse.getAiResponse();
+
             if (aiText != null && !aiText.trim().isEmpty()) {
                 ChatMessage aiChatMessage = new ChatMessage(aiText, ChatMessage.SenderType.OTHER, System.currentTimeMillis());
                 addNewMessageToUi(aiChatMessage);
                 conversationHistory.add(new MessageHistoryItem("assistant", aiText));
+                Log.d(TAG, "AI Response added: " + aiText.substring(0, Math.min(aiText.length(), 50)) + "...");
             } else {
                 Log.w(TAG, "Received null or empty AI response text.");
             }
 
-            if (conversationResponse.isAllCompleted()) {
-                Toast.makeText(this, "Conversation goals achieved!", Toast.LENGTH_LONG).show();
-                editTextMessage.setEnabled(false);
-                buttonSend.setEnabled(false);
+
+            if (conversationResponse.isAllCompleted() && !isConversationCompleted) {
+                isConversationCompleted = true;
+                showCongratulationsScreen();
+                hideInputControls();
+                mainThreadHandler.postDelayed(this::hideCongratulationsScreen, 5000);
+                mainThreadHandler.postDelayed(this::requestConversationReview, 150);
             }
 
         } else {
-            handleApiError("Error: " + response.code() + " - " + response.message());
-            Log.e(TAG, "API Error Body: " + response.errorBody());
+            String errorMessage = "Error: " + response.code() + " - " + response.message();
+            Log.e(TAG, "API call failed: " + errorMessage);
+            if (response.errorBody() != null) {
+                try {
+                    Log.e(TAG, "API Error Body: " + response.errorBody().string());
+                } catch (Exception e) { Log.e(TAG, "Error reading error body", e); }
+            }
         }
     }
 
+    private void requestConversationReview() {
+        List<MessageHistoryItem> historyCopy = new ArrayList<>(conversationHistory);
+        List<ChecklistItemResponse> checklistCopy = new ArrayList<>(currentChecklist);
+
+        ConverseRequest reviewRequest = new ConverseRequest(conversationContext, checklistCopy, "", historyCopy);
+
+        Call<ConversationResponse> call = apiService.reviewConversation(reviewRequest);
+
+        call.enqueue(new Callback<ConversationResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ConversationResponse> call, @NonNull Response<ConversationResponse> response) {
+                setLoadingState(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    String reviewText = response.body().getAiResponse();
+                    if (reviewText != null && !reviewText.trim().isEmpty()) {
+                        Log.d(TAG, "Review received via API: " + reviewText.substring(0, Math.min(reviewText.length(), 100)) + "...");
+                        ChatMessage reviewMessage = new ChatMessage(reviewText, ChatMessage.SenderType.OTHER, System.currentTimeMillis());
+                        addNewMessageToUi(reviewMessage);
+                    } else {
+                        Log.w(TAG, "Review API response successful but review text was empty.");
+                    }
+                } else {
+                    String errorMsg = "Failed to get review via API: " + response.code() + " " + response.message();
+                    Log.e(TAG, errorMsg);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ConversationResponse> call, @NonNull Throwable t) {
+                setLoadingState(false);
+                Log.e(TAG, "Network error requesting review: " + t.getMessage(), t);
+            }
+        });
+    }
+
     private void handleApiError(String errorMessage) {
-        setLoadingState(false);
         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
         ChatMessage errorMsg = new ChatMessage("Error: " + errorMessage, ChatMessage.SenderType.OTHER, System.currentTimeMillis());
         addNewMessageToUi(errorMsg);
@@ -248,20 +295,66 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
 
     private void setLoadingState(boolean isLoading) {
         isWaitingForResponse = isLoading;
-        if (isLoading) {
+        if (isLoading) { // Chỉ hiển thị loading cho user
             LoadingDialogFragment.showLoading(getSupportFragmentManager(), "ConversationLoading", "...");
             buttonSend.setEnabled(false);
             editTextMessage.setEnabled(false);
-        } else {
+            buttonMic.setEnabled(false); // Disable mic button khi loading
+        } else if (!isLoading && !isConversationCompleted) { // Chỉ enable lại nếu chưa hoàn thành
             LoadingDialogFragment.hideLoading(getSupportFragmentManager(), "ConversationLoading");
             buttonSend.setEnabled(true);
             editTextMessage.setEnabled(true);
+            buttonMic.setEnabled(true); // Enable mic button lại
+        } else if (!isLoading && isConversationCompleted) {
+            LoadingDialogFragment.hideLoading(getSupportFragmentManager(), "ConversationLoading");
+            hideInputControls();
+        }
+    }
+
+    private void showCongratulationsScreen() {
+        if (congratulationsContainer != null) {
+            congratulationsContainer.setVisibility(View.VISIBLE);
+            if (lottieAnimationView != null) {
+                lottieAnimationView.playAnimation();
+            }
+        }
+        if (buttonShowInfo != null) { // Ẩn cả nút info
+            buttonShowInfo.setVisibility(View.GONE);
+        }
+    }
+    private void hideCongratulationsScreen() {
+        if (congratulationsContainer != null && congratulationsContainer.getVisibility() == View.VISIBLE) {
+            congratulationsContainer.setVisibility(View.GONE);
+            if (lottieAnimationView != null) { // Dừng animation khi ẩn
+                lottieAnimationView.cancelAnimation();
+            }
+            Log.d(TAG,"Congratulations screen hidden after delay.");
+            scrollToBottom();
+        }
+    }
+
+    private void hideInputControls() {
+        if (inputContainer != null) {
+            inputContainer.setVisibility(View.GONE);
+        }
+        if (editTextMessage != null) {
+            editTextMessage.setVisibility(View.GONE);
+            editTextMessage.setEnabled(false);
+        }
+        if (buttonSend != null) {
+            buttonSend.setVisibility(View.GONE);
+            buttonSend.setEnabled(false);
+        }
+        if (buttonMic != null) {
+            buttonMic.setVisibility(View.GONE);
+            buttonMic.setEnabled(false);
         }
     }
 
 
     private void showConversationInfo() {
-        activeDialog = ConversationInfoDialog.newInstance(conversationContext, new ArrayList<>(currentChecklist)); // Pass copies
+        if (isConversationCompleted) return; // Không hiển thị nếu đã hoàn thành
+        activeDialog = ConversationInfoDialog.newInstance(conversationContext, new ArrayList<>(currentChecklist));
         activeDialog.show(getSupportFragmentManager(), ConversationInfoDialog.TAG);
     }
 
@@ -287,9 +380,11 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
             chatAdapter.releasePlayer();
         }
         executorService.shutdown();
+        if (lottieAnimationView != null) {
+            lottieAnimationView.cancelAnimation();
+        }
     }
 
-    // --- AudioSettingsListener Implementation ---
     @Override
     public void onAudioSettingsChanged(String voiceId, float speed) {
         this.currentVoiceId = voiceId;

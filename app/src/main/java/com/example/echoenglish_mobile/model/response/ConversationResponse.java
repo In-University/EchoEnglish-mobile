@@ -10,7 +10,7 @@ public class ConversationResponse {
     @SerializedName("updatedChecklist")
     private List<ChecklistItemResponse> updatedChecklist;
 
-    @SerializedName("allCompleted")
+    @SerializedName("allTasksCompleted")
     private boolean allCompleted;
 
     public String getAiResponse() { return aiResponse; }
