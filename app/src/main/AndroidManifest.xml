@@ -46,8 +46,10 @@
         <activity android:name=".view.activity.webview.WebGameActivity"/>
 <!--        <activity android:name=".view.activity.chatbot.ChatActivity"/>-->
         <activity android:name=".view.activity.dictionary.DictionaryWordDetailActivity" />
+        <activity android:name=".view.activity.dictionary.DictionaryActivity" />
 		<activity android:name=".view.activity.flashcard.AddVocabularyActivity"/>
         <activity android:name=".view.activity.flashcard.CreateFlashcardActivity"/>
+        <activity android:name=".view.activity.flashcard.MainFlashcardActivity"/>
         <activity android:name=".view.activity.flashcard.FlashcardDetailActivity"/>
         <activity android:name=".view.activity.flashcard.LearnActivity"/>
         <activity android:name=".view.activity.flashcard.Game1Activity"/>
@@ -56,10 +58,11 @@
         <activity android:name=".view.activity.flashcard.MyFlashcardsActivity"/>
         <activity android:name=".view.activity.flashcard.PublicCategoriesActivity"/>
         <activity android:name=".view.activity.flashcard.PublicFlashcardsActivity"/>
+        <activity android:name=".view.activity.grammar.GrammarActivity"/>
+        <activity android:name=".view.activity.quiz.TestActivity"/>
         <activity
             android:name="com.canhub.cropper.CropImageActivity"
             android:theme="@style/Theme.AppCompat.DayNight" />
-        <activity android:name=".view.activity.quiz.TestActivity"/>
         <activity android:name=".view.activity.quiz.TestListActivity"/>
         <activity android:name=".view.activity.flashcard.ReviewActivity"/>
         <activity android:name=".view.activity.flashcard.SpacedRepetitionActivity"/>
@@ -68,9 +71,17 @@
         <activity android:name=".view.activity.video_youtube.VideoYoutubeActivity" />
         <activity android:name=".view.activity.auth.LoginActivity" />
         <activity android:name=".view.activity.chatbot.ConversationActivity" />
+        <activity android:name=".view.activity.chatbot.ConversationCategoriesActivity" />
+        <activity android:name=".view.activity.pronunciation_assessment.UploadSpeechActivity" />
+        <activity android:name=".view.activity.writing_feedback.UploadNewWritingActivity" />
+        <activity android:name=".view.activity.document_hub.MainDocumentHubActivity" />
+        <activity android:name=".view.activity.browser.BrowserActivity" />
+        <activity android:name=".view.activity.analyze_result.AnalyzeResultActivity" />
+        <activity android:name=".view.activity.quiz.MainQuizActivity" />
+        <activity android:name=".view.activity.pronunciation_assessment.PronunciationAssessmentActivity" />
 
         <activity
-            android:name=".view.activity.chatbot.ConversationCategoriesActivity"
+            android:name=".view.activity.HomeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

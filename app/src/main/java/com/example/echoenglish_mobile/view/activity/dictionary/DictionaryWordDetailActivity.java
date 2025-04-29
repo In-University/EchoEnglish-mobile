@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ import com.example.echoenglish_mobile.model.Synonym;
 import com.example.echoenglish_mobile.model.Word;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
+import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.PronunciationAssessmentActivity;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.flexbox.FlexboxLayout;
@@ -43,6 +45,7 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
     private FlexboxLayout synonymsContainer;
     private ExoPlayer player;
     private ImageView btnPlayUkAudio, btnPlayUsAudio;
+    private Button btnWordPronunAnalyze;
 
     private static final String TAG = "WordDetailActivity";
 
@@ -60,27 +63,32 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
         synonymsContainer = findViewById(R.id.synonymsContainer);
         btnPlayUkAudio = findViewById(R.id.btnPlayUkAudio);
         btnPlayUsAudio = findViewById(R.id.btnPlayUsAudio);
-
+        btnWordPronunAnalyze = findViewById(R.id.btnWordPronunAnalyze);
         Word word = (Word) getIntent().getSerializableExtra("word_data");
 
         if (word != null) {
-            displayWordDetails(word); // Hiển thị thông tin từ được truyền vào
+            displayWordDetails(word);
         } else {
-            // Trường hợp có thể được gọi để tìm kiếm từ mới (ví dụ từ synonym click)
             String keywordToSearch = getIntent().getStringExtra("keyword_to_search");
             if (keywordToSearch != null && !keywordToSearch.isEmpty()) {
-                searchAndDisplayWord(keywordToSearch); // Tìm kiếm từ khóa nếu có
+                searchAndDisplayWord(keywordToSearch);
             } else {
                 Log.e(TAG, "Word data and keyword_to_search are both null.");
                 Toast.makeText(this, "Error: Could not load word data.", Toast.LENGTH_LONG).show();
-                finish(); // Kết thúc activity nếu không có gì để hiển thị
+                finish();
             }
         }
     }
 
-    // Tách riêng hàm hiển thị để tái sử dụng
     private void displayWordDetails(Word word) {
-        // Display word and basic info
+        btnWordPronunAnalyze.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DictionaryWordDetailActivity.this, PronunciationAssessmentActivity.class);
+                intent.putExtra("TARGET_WORD_OBJECT", word);
+                startActivity(intent);
+            }
+        });
         tvWord.setText(word.getWord());
         tvUkPronunciation.setText("/"+word.getUkPronunciation()+"/");
         tvUsPronunciation.setText("/"+word.getUsPronunciation()+"/");

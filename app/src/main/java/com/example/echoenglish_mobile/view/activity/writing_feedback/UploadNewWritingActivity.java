@@ -78,7 +78,7 @@ public class UploadNewWritingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_writing);
-        LoadingDialogFragment.showLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG, "Analyzing pronunciation..."); // Có thể truyền message tùy chỉnh
+//        LoadingDialogFragment.showLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG, "Analyzing pronunciation..."); // Có thể truyền message tùy chỉnh
 
         findViews();
         setupRecyclerView();

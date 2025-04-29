@@ -25,6 +25,7 @@
             android:paddingHorizontal="8dp">
 
             <TextView
+                android:id="@+id/greetingTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Hello Learner!"
@@ -33,6 +34,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/subGreetingTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Ready to boost your English?"
@@ -53,6 +55,7 @@
             app:cardUseCompatPadding="false">
 
             <LinearLayout
+                android:id="@+id/searchInnerLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -61,6 +64,7 @@
                 android:gravity="center_vertical">
 
                 <ImageView
+                    android:id="@+id/searchIcon"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@android:drawable/ic_menu_search"
@@ -94,6 +98,7 @@
             app:cardElevation="6dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/statsConstraintLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp">
@@ -110,6 +115,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <LinearLayout
+                    android:id="@+id/statsDataLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -119,6 +125,7 @@
                     app:layout_constraintEnd_toEndOf="parent">
 
                     <LinearLayout
+                        android:id="@+id/daysStatLayout"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -126,6 +133,7 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/daysCountTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="14"
@@ -134,6 +142,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/daysLabelTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Days"
@@ -142,6 +151,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/wordsStatLayout"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -149,6 +159,7 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/wordsCountTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="278"
@@ -157,6 +168,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/wordsLabelTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Words"
@@ -165,6 +177,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/hoursStatLayout"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -172,6 +185,7 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/hoursCountTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="42"
@@ -180,6 +194,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/hoursLabelTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Hours"
@@ -191,6 +206,7 @@
         </androidx.cardview.widget.CardView>
 
         <TextView
+            android:id="@+id/featuresTitleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Explore Features"
@@ -201,6 +217,7 @@
             android:layout_marginBottom="16dp" />
 
         <GridLayout
+            android:id="@+id/featuresGridLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:columnCount="2"
@@ -209,7 +226,9 @@
             android:alignmentMode="alignMargins"
             android:columnOrderPreserved="false">
 
-            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/dictionaryCard"
+                style="@style/ModernFunctionCardStyle">
                 <LinearLayout style="@style/CardInnerLayoutStyle">
                     <ImageView style="@style/FunctionIconStyle"
                         android:src="@drawable/ic_image_mic" />
@@ -217,7 +236,9 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/flashcardsCard"
+                style="@style/ModernFunctionCardStyle">
                 <LinearLayout style="@style/CardInnerLayoutStyle">
                     <ImageView style="@style/FunctionIconStyle"
                         android:src="@drawable/ic_subtitles" />
@@ -225,7 +246,9 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/grammarCard"
+                style="@style/ModernFunctionCardStyle">
                 <LinearLayout style="@style/CardInnerLayoutStyle">
                     <ImageView style="@style/FunctionIconStyle"
                         android:src="@drawable/ic_attachment" />
@@ -233,7 +256,9 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/listeningCard"
+                style="@style/ModernFunctionCardStyle">
                 <LinearLayout style="@style/CardInnerLayoutStyle">
                     <ImageView style="@style/FunctionIconStyle"
                         android:src="@drawable/ic_play" />
@@ -241,7 +266,9 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/speechAnalyzeCard"
+                style="@style/ModernFunctionCardStyle">
                 <LinearLayout style="@style/CardInnerLayoutStyle">
                     <ImageView style="@style/FunctionIconStyle"
                         android:src="@drawable/ic_image_mic" />
@@ -249,7 +276,9 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/aiConversationCard"
+                style="@style/ModernFunctionCardStyle">
                 <LinearLayout style="@style/CardInnerLayoutStyle">
                     <ImageView style="@style/FunctionIconStyle"
                         android:src="@drawable/ic_image_chat" />
@@ -257,11 +286,31 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <androidx.cardview.widget.CardView style="@style/ModernFunctionCardStyle">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/documentHubCard"
+                style="@style/ModernFunctionCardStyle">
                 <LinearLayout style="@style/CardInnerLayoutStyle">
                     <ImageView style="@style/FunctionIconStyle"
                         android:src="@drawable/ic_document" />
                     <TextView style="@style/FunctionTextStyle" android:text="Document Hub" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:id="@+id/writingCard"
+                style="@style/ModernFunctionCardStyle">
+                <LinearLayout style="@style/CardInnerLayoutStyle">
+                    <ImageView style="@style/FunctionIconStyle"
+                        android:src="@drawable/ic_attachment" />
+                    <TextView style="@style/FunctionTextStyle" android:text="Writing" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:id="@+id/reportCard"
+                style="@style/ModernFunctionCardStyle">
+                <LinearLayout style="@style/CardInnerLayoutStyle">
+                    <ImageView style="@style/FunctionIconStyle"
+                        android:src="@drawable/ic_attachment" />
+                    <TextView style="@style/FunctionTextStyle" android:text="Report" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </GridLayout>

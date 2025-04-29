@@ -57,7 +57,7 @@ import retrofit2.Response;
 public class TestActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
 
     // Views
-    private TextView tvQuestionIndicator, tvQuestionTextPart5; // Bỏ tvExplanationDetail ở đây
+    private TextView tvQuestionIndicator, tvQuestionTextPart5;
     private LinearProgressIndicator progressIndicator;
     private ImageView imgQuestionPart1;
     private View audioPlayerView;

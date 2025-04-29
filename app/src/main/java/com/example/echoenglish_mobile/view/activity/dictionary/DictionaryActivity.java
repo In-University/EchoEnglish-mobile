@@ -19,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -66,6 +67,7 @@ public class DictionaryActivity extends AppCompatActivity {
     private TextInputEditText etSearch;
     private RecyclerView recyclerViewSuggestions;
     private ProgressBar progressBar;
+    private Button btnWordPronunAnalyze;
     private WordSuggestionAdapter suggestionAdapter;
     private List<Word> currentDisplayedList;
 
@@ -90,7 +92,6 @@ public class DictionaryActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
 
         currentDisplayedList = new ArrayList<>();
-
         suggestionAdapter = new WordSuggestionAdapter(this, currentDisplayedList, new WordSuggestionAdapter.OnSuggestionClickListener() {
             @Override
             public void onSuggestionClick(Word word) {
