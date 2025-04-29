@@ -37,7 +37,7 @@
 
 <!--        <activity android:name=".view.activity.pronunciation_assessment.PronunciationAssessmentActivity"/>-->
         <activity android:name=".view.activity.webview.WebViewActivity"/>
-        <activity android:name=".view.activity.auth.LoginActivity"/>
+<!--        <activity android:name=".view.activity.auth.LoginActivity"/>-->
         <activity android:name=".view.activity.auth.SignupActivity"/>
         <activity android:name=".view.activity.auth.ForgotPasswordActivity"/>
         <activity android:name=".view.activity.auth.OtpVerificationActivity"/>
@@ -66,10 +66,11 @@
 
 
         <activity android:name=".view.activity.video_youtube.VideoYoutubeActivity" />
-
+        <activity android:name=".view.activity.auth.LoginActivity" />
+        <activity android:name=".view.activity.chatbot.ConversationActivity" />
 
         <activity
-            android:name=".view.activity.analyze_result.AnalyzeResultActivity"
+            android:name=".view.activity.chatbot.ConversationCategoriesActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

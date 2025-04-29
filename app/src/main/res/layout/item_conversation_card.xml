@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardConversation"
+    android:layout_width="200dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginBottom="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="2dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Color bar at top -->
+        <View
+            android:id="@+id/viewColorAccent"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:background="#4F46E5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Icon and title -->
+        <ImageView
+            android:id="@+id/ivScenarioIcon"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="14dp"
+            android:src="@drawable/ic_attachment"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/viewColorAccent"
+            app:tint="#4F46E5" />
+
+        <TextView
+            android:id="@+id/tvScenarioTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="14dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Customer Support"
+            android:textColor="#1A2138"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@+id/ivScenarioIcon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivScenarioIcon"
+            app:layout_constraintTop_toTopOf="@+id/ivScenarioIcon" />
+
+        <!-- Description -->
+        <TextView
+            android:id="@+id/tvScenarioDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="14dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:minLines="2"
+            android:text="Practice handling customer inquiries and resolving issues"
+            android:textColor="#5D6B98"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivScenarioIcon" />
+
+        <!-- Tags -->
+        <TextView
+            android:id="@+id/tvDifficulty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="12dp"
+            android:background="#EEF2FF"
+            android:paddingStart="10dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="4dp"
+            android:text="Intermediate"
+            android:textColor="#4F46E5"
+            android:textSize="10sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvScenarioDescription" />
+
+        <TextView
+            android:id="@+id/tvDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="#EEF2FF"
+            android:paddingStart="10dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="4dp"
+            android:text="5-10 min"
+            android:textColor="#4F46E5"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tvDifficulty"
+            app:layout_constraintStart_toEndOf="@+id/tvDifficulty"
+            app:layout_constraintTop_toTopOf="@+id/tvDifficulty" />
+
+        <!-- Start button -->
+        <TextView
+            android:id="@+id/btnStartConversation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="14dp"
+            android:layout_marginBottom="14dp"
+            android:background="#3730A3"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:text="Start"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvDifficulty" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

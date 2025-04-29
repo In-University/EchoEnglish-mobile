@@ -33,6 +33,7 @@ import com.example.echoenglish_mobile.model.response.MessageHistoryItem;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
 import com.example.echoenglish_mobile.view.dialog.LoadingDialogFragment;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +51,7 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
 
     private static final String TAG = "ConversationActivity";
     public static final String EXTRA_CONTEXT = "EXTRA_CONTEXT";
-
+    public static final String EXTRA_START_CONVERSATION_JSON = "EXTRA_START_CONVERSATION_JSON";
     private RecyclerView recyclerViewStream;
     private Chat2Adapter chatAdapter;
     private List<ChatMessage> chatMessages;
@@ -62,10 +63,9 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
     private float currentSpeed = 1.0f;
     private MediaPlayer dialogMediaPlayer;
     private ConversationInfoDialog activeDialog = null;
-    private FrameLayout inputContainer; // Thêm biến này
-    private FrameLayout congratulationsContainer; // Thêm biến này
-    private LottieAnimationView lottieAnimationView; // Thêm biến này
-
+    private FrameLayout inputContainer;
+    private FrameLayout congratulationsContainer;
+    private LottieAnimationView lottieAnimationView;
 
     private ApiService apiService;
     private String conversationContext = "";
@@ -73,37 +73,64 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
     private List<MessageHistoryItem> conversationHistory = new ArrayList<>();
     private boolean isConversationStarted = false;
     private boolean isWaitingForResponse = false;
-    private boolean isConversationCompleted = false; // Thêm biến cờ này
+    private boolean isConversationCompleted = false;
     private static final int REQ_CODE_SPEECH_INPUT = 100;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
 
-        conversationContext = getIntent().getStringExtra(EXTRA_CONTEXT);
-        if (conversationContext == null || conversationContext.trim().isEmpty()) {
-            Log.e(TAG, "Conversation context is missing!");
+        String startResponseJson = getIntent().getStringExtra(EXTRA_START_CONVERSATION_JSON);
+        String contextFromExtra = getIntent().getStringExtra(EXTRA_CONTEXT);
+        ConversationResponse initialResponseData = null;
+
+        // 1. Determine Conversation Context (MUST have context)
+        if (contextFromExtra != null && !contextFromExtra.trim().isEmpty()) {
+            conversationContext = contextFromExtra;
+        } else {
             Toast.makeText(this, "Error: Conversation context not provided.", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
-        Log.d(TAG, "Conversation Context: " + conversationContext);
 
+        if (startResponseJson != null && !startResponseJson.trim().isEmpty()) {
+            Log.d(TAG, "Attempting to initialize from JSON Response: " + startResponseJson);
+            try {
+                Gson gson = new Gson();
+                initialResponseData = gson.fromJson(startResponseJson, ConversationResponse.class);
+
+                if (initialResponseData != null && initialResponseData.getAiResponse() != null) {
+                    isConversationStarted = true;
+                    currentChecklist = initialResponseData.getUpdatedChecklist() != null ? initialResponseData.getUpdatedChecklist() : new ArrayList<>();
+                    isConversationCompleted = initialResponseData.isAllCompleted();
+                    Log.d(TAG, "Successfully initialized state from JSON response.");
+                } else {
+                    Log.w(TAG, "Parsed initial response data or AI response was null. Falling back.");
+                    initialResponseData = null; // Ensure fallback
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to parse start conversation JSON response: " + startResponseJson, e);
+                Toast.makeText(this, "Error: Invalid start conversation data format. Using context only.", Toast.LENGTH_LONG).show();
+                initialResponseData = null;
+            }
+        }
+
+        // --- Find Views
         recyclerViewStream = findViewById(R.id.recyclerViewStream);
         editTextMessage = findViewById(R.id.editTextMessage);
         buttonSend = findViewById(R.id.buttonSend);
         buttonShowInfo = findViewById(R.id.buttonShowInfo);
         buttonMic = findViewById(R.id.buttonMic);
-        inputContainer = findViewById(R.id.inputContainer); // Tìm view
-        congratulationsContainer = findViewById(R.id.congratulationsContainer); // Tìm view
-        lottieAnimationView = findViewById(R.id.lottieAnimationView); // Tìm view
+        inputContainer = findViewById(R.id.inputContainer);
+        congratulationsContainer = findViewById(R.id.congratulationsContainer);
+        lottieAnimationView = findViewById(R.id.lottieAnimationView);
 
+        // --- Initialize API Service and Chat List/Adapter
         apiService = ApiClient.getApiService();
-
         chatMessages = new ArrayList<>();
         chatAdapter = new Chat2Adapter(this, chatMessages, this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -112,20 +139,48 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
         recyclerViewStream.setAdapter(chatAdapter);
         recyclerViewStream.setItemAnimator(null);
 
-        String initialUserGreeting = "Hi, let's talk about " + conversationContext;
-        sendMessage(initialUserGreeting);
+        if (initialResponseData != null) {
+            String aiText = initialResponseData.getAiResponse();
+            if (aiText != null && !aiText.trim().isEmpty()) {
+                ChatMessage aiChatMessage = new ChatMessage(aiText, ChatMessage.SenderType.OTHER, System.currentTimeMillis());
+                chatMessages.add(aiChatMessage);
+                conversationHistory.add(new MessageHistoryItem("assistant", aiText));
+                chatAdapter.notifyItemInserted(chatMessages.size() - 1);
+                mainThreadHandler.post(() -> recyclerViewStream.smoothScrollToPosition(chatMessages.size() - 1));
+                Log.d(TAG, "Initial AI Response from JSON added to UI.");
+            } else {
+                Log.w(TAG,"Initial JSON response had empty AI message, none added.");
+            }
 
+            if (isConversationCompleted) {
+                Log.d(TAG, "Conversation loaded as already completed from JSON.");
+                mainThreadHandler.post(() -> {
+                    showCongratulationsScreen();
+                    hideInputControls();
+                    mainThreadHandler.postDelayed(this::hideCongratulationsScreen, 5000);
+                    mainThreadHandler.postDelayed(this::requestConversationReview, 150);
+                });
+            }
+
+        } else {
+            Log.d(TAG, "Initializing normally: Sending initial user message to start conversation.");
+            String initialUserGreeting = "Hi, let's talk about " + conversationContext;
+
+            sendMessage(initialUserGreeting);
+        }
+
+
+        // --- Set Listeners and Initial View State
         buttonShowInfo.setOnClickListener(v -> showConversationInfo());
         buttonSend.setOnClickListener(v -> sendMessage(""));
         buttonMic.setOnClickListener(v -> startSpeechToText());
 
-        // Đảm bảo màn hình congrats ẩn khi bắt đầu
         if (congratulationsContainer != null) {
             congratulationsContainer.setVisibility(View.GONE);
         }
     }
     private void startSpeechToText() {
-        if (isConversationCompleted) return; // Không cho nhập nếu đã hoàn thành
+        if (isConversationCompleted) return;
 
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
@@ -157,7 +212,9 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
             userInput = editTextMessage.getText().toString().trim();
         }
         if (userInput.isEmpty()) {
-            Toast.makeText(this, "Please enter a message", Toast.LENGTH_SHORT).show();
+            if (isConversationStarted) {
+                Toast.makeText(this, "Please enter a message", Toast.LENGTH_SHORT).show();
+            }
             return;
         }
 
@@ -166,7 +223,6 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
             return;
         }
 
-        // --- Add User Message to UI and History ---
         ChatMessage userChatMessage = new ChatMessage(userInput, ChatMessage.SenderType.ME, System.currentTimeMillis());
         addNewMessageToUi(userChatMessage);
         conversationHistory.add(new MessageHistoryItem("user", userInput));
@@ -186,7 +242,7 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
         executorService.execute(() -> {
             try {
                 Response<ConversationResponse> response = apiService.startChat(request).execute();
-                mainThreadHandler.post(() -> handleApiResponse(response)); // Thêm isAutomatic=false
+                mainThreadHandler.post(() -> handleApiResponse(response));
             } catch (Exception e) {
                 Log.e(TAG, "API Call Failed (startChat): ", e);
                 mainThreadHandler.post(() -> handleApiError("Network error. Could not start conversation."));
@@ -206,7 +262,7 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
                 mainThreadHandler.post(() -> handleApiResponse(response));
             } catch (Exception e) {
                 Log.e(TAG, "API Call Failed (continueChat): ", e);
-                mainThreadHandler.post(() -> handleApiError("Network error during conversation.")); // Thêm isAutomatic
+                mainThreadHandler.post(() -> handleApiError("Network error during conversation."));
             }
         });
     }
@@ -242,7 +298,7 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
 
         } else {
             String errorMessage = "Error: " + response.code() + " - " + response.message();
-            Log.e(TAG, "API call failed: " + errorMessage);
+            handleApiError(errorMessage);
             if (response.errorBody() != null) {
                 try {
                     Log.e(TAG, "API Error Body: " + response.errorBody().string());
