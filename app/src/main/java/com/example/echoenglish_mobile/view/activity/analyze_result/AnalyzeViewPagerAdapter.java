@@ -1,12 +1,12 @@
 package com.example.echoenglish_mobile.view.activity.analyze_result;
 
 import android.content.Context;
-import android.view.LayoutInflater; // Không cần nữa nếu chỉ tạo RecyclerView
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.echoenglish_mobile.model.SentenceAnalysisResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +17,14 @@ public class AnalyzeViewPagerAdapter extends RecyclerView.Adapter<AnalyzeViewPag
     private static final int WRITING_PAGE = 1;
     private final Context context;
 
-    public AnalyzeViewPagerAdapter(Context context) {
+    private List<SentenceAnalysisResult> pronunciationResults;
+    private List<WritingResult> writingResults;
+    public AnalyzeViewPagerAdapter(Context context,
+                                   List<SentenceAnalysisResult> initialPronunciation,
+                                   List<WritingResult> initialWriting) {
         this.context = context;
+        this.pronunciationResults = new ArrayList<>(initialPronunciation);
+        this.writingResults = new ArrayList<>(initialWriting);
     }
 
     @Override
@@ -29,78 +35,62 @@ public class AnalyzeViewPagerAdapter extends RecyclerView.Adapter<AnalyzeViewPag
     @NonNull
     @Override
     public PageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // --- Tạo RecyclerView bằng code ---
         RecyclerView recyclerView = new RecyclerView(context);
-        // Quan trọng: Đặt LayoutParams để RecyclerView chiếm toàn bộ không gian của trang ViewPager
         recyclerView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
-        // (Tùy chọn) Thêm padding nếu muốn, giống như trong file XML đã xóa
-        int padding = (int) (context.getResources().getDisplayMetrics().density * 8); // 8dp
-        recyclerView.setPadding(0, padding, 0, padding);
+        int padding = (int) (16 * context.getResources().getDisplayMetrics().density); // 16dp
+        int topBottomPadding = (int) (8 * context.getResources().getDisplayMetrics().density); // 8dp
+        recyclerView.setPadding(padding, topBottomPadding, padding, topBottomPadding);
         recyclerView.setClipToPadding(false);
+        recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER); // Tắt hiệu ứng overscroll nếu muốn
+        recyclerView.setId(View.generateViewId()); // Đặt ID duy nhất
 
-        // (Tùy chọn nhưng nên làm) Đặt ID để tránh xung đột tiềm ẩn
-        recyclerView.setId(View.generateViewId());
-
-        return new PageViewHolder(recyclerView); // Trả về ViewHolder chứa RecyclerView vừa tạo
+        return new PageViewHolder(recyclerView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull PageViewHolder holder, int position) {
-        // Lấy RecyclerView từ ViewHolder
         RecyclerView currentPageRecyclerView = holder.recyclerView;
 
-        // Thiết lập LayoutManager (luôn cần thiết cho RecyclerView)
         currentPageRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        currentPageRecyclerView.setHasFixedSize(true); // Tối ưu hóa
+        currentPageRecyclerView.setHasFixedSize(true); // Tối ưu hóa nếu item size không đổi
 
-        // Thiết lập Adapter tương ứng cho RecyclerView bên trong
         if (position == SPEAKING_PAGE) {
-            List<SpeakingResult> speakingResults = createFakeSpeakingData();
-            SpeakingResultAdapter speakingAdapter = new SpeakingResultAdapter(context, speakingResults);
+            SpeakingResultAdapter speakingAdapter = new SpeakingResultAdapter(context, this.pronunciationResults);
             currentPageRecyclerView.setAdapter(speakingAdapter);
-        } else { // WRITING_PAGE
-            List<WritingResult> writingResults = createFakeWritingData();
-            WritingResultAdapter writingAdapter = new WritingResultAdapter(context, writingResults);
+        } else { 
+                        WritingResultAdapter writingAdapter = new WritingResultAdapter(context, this.writingResults);
             currentPageRecyclerView.setAdapter(writingAdapter);
         }
     }
 
     @Override
     public int getItemCount() {
-        return 2; // Vẫn là 2 trang
+        return 2;
     }
 
-    // --- ViewHolder cho mỗi trang ViewPager ---
+    public void setPronunciationResults(List<SentenceAnalysisResult> newResults) {
+        this.pronunciationResults = new ArrayList<>(newResults); 
+        notifyItemChanged(SPEAKING_PAGE);
+    }
+
+    public void setWritingResults(List<WritingResult> newResults) {
+        this.writingResults = new ArrayList<>(newResults);
+        notifyItemChanged(WRITING_PAGE);
+    }
+
+
     static class PageViewHolder extends RecyclerView.ViewHolder {
-        // Giờ đây ViewHolder giữ tham chiếu trực tiếp đến RecyclerView của trang
         RecyclerView recyclerView;
 
         public PageViewHolder(@NonNull View itemView) {
             super(itemView);
-            // itemView chính là RecyclerView được tạo trong onCreateViewHolder
             this.recyclerView = (RecyclerView) itemView;
         }
     }
 
-    // --- Các phương thức tạo dữ liệu giả (giữ nguyên) ---
-    private List<SpeakingResult> createFakeSpeakingData() {
-        List<SpeakingResult> list = new ArrayList<>();
-        list.add(new SpeakingResult("How to introduce yourself", "24/04/2025 · 15:30", "Giới thiệu", 92, 95, 88, 90));
-        list.add(new SpeakingResult("Ordering food at a restaurant", "23/04/2025 · 11:05", "Đời sống", 85, 88, 80, 86));
-        list.add(new SpeakingResult("Talking about your hobbies", "22/04/2025 · 09:15", "Sở thích", 90, 91, 92, 89));
-        // Thêm dữ liệu khác nếu cần
-        return list;
-    }
-
-    private List<WritingResult> createFakeWritingData() {
-        List<WritingResult> list = new ArrayList<>();
-        list.add(new WritingResult("Advantages and disadvantages of social media", "25/04/2025 · 10:15", "Essay", 250));
-        list.add(new WritingResult("My favorite holiday destination", "24/04/2025 · 16:00", "Description", 180));
-        list.add(new WritingResult("The importance of learning English", "23/04/2025 · 08:30", "Argumentative", 310));
-        // Thêm dữ liệu khác nếu cần
-        return list;
-    }
+    // --- Giữ lại hàm tạo dữ liệu giả cho Writing nếu cần ---
+    // private List<WritingResult> createFakeWritingData() { ... }
 }

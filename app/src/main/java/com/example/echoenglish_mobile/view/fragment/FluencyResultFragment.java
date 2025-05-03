@@ -106,19 +106,37 @@ public class FluencyResultFragment extends Fragment {
 
         // Cấu hình PieChart với điểm tổng hợp
         PieChart pieChart = view.findViewById(R.id.pieChart);
-        float score = calculateOverallScore();
+        float score = (float) calculateFluencyScore();
         setupPieChart(pieChart, score);
     }
 
-    private float calculateOverallScore() {
-        float durationScore = Math.min(totalDuration / 3f * 100, 100);
-        float wordScore = (wordCount / 10f) * 100;
-        float rateScore = (speakingRate / 200f) * 100;
-        float filterScore = 100 - (filterWordCount * 10);
+    public double calculateFluencyScore() {
+        double speed = (double) wordCount / totalDuration * 60; // words per minute
 
-        return (durationScore * 0.2f) + (wordScore * 0.3f) +
-                (rateScore * 0.4f) + (filterScore * 0.1f);
+        // Speed score (ideal: 80–180 wpm)
+        double speedScore;
+        if (speed < 80 || speed > 180) {
+            speedScore = 40;
+        } else if (speed >= 100 && speed <= 160) {
+            speedScore = 100;
+        } else {
+            speedScore = 60 + (100 - Math.abs(130 - speed)) * 0.4;
+        }
+
+        // Filler word penalty
+        double totalWords = wordCount + filterWordCount;
+        double fillerRatio = totalWords == 0 ? 0 : (double) filterWordCount / totalWords;
+        double fillerPenalty = 100 - Math.min(fillerRatio * 200, 100); // heavy penalty if >10%
+
+//        // Duplicate word penalty
+//        double duplicateRatio = wordCount == 0 ? 0 : (double) duplicatedWordCount / wordCount;
+//        double duplicatePenalty = 100 - Math.min(duplicateRatio * 200, 100);
+
+        // Final weighted score
+//        return speedScore * 0.4 + fillerPenalty * 0.3 + duplicatePenalty * 0.3;
+        return speedScore * 0.6 + fillerPenalty * 0.3;
     }
+
 
     private String getScoreLevel(float score) {
         if (score >= 90) return "Expert";

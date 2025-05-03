@@ -11,6 +11,7 @@
 <!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
 
     <application
+        android:name=".util.MyApp"
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -42,7 +43,7 @@
         <activity android:name=".view.activity.auth.ForgotPasswordActivity"/>
         <activity android:name=".view.activity.auth.OtpVerificationActivity"/>
         <activity android:name=".view.activity.auth.ResetPasswordActivity"/>
-        <activity android:name=".view.activity.pronun_summary_result.SummaryResultsActivity"/>
+        <activity android:name=".view.activity.pronunciation_assessment.SummaryResultsActivity"/>
         <activity android:name=".view.activity.webview.WebGameActivity"/>
 <!--        <activity android:name=".view.activity.chatbot.ChatActivity"/>-->
         <activity android:name=".view.activity.dictionary.DictionaryWordDetailActivity" />
@@ -79,7 +80,8 @@
         <activity android:name=".view.activity.analyze_result.AnalyzeResultActivity" />
         <activity android:name=".view.activity.quiz.MainQuizActivity" />
         <activity android:name=".view.activity.pronunciation_assessment.PronunciationAssessmentActivity" />
-
+        <activity android:name=".view.activity.translate_text.TranslateTextActivity" />
+        <activity android:name=".view.dialog.ReLoginPromptActivity" />
         <activity
             android:name=".view.activity.HomeActivity"
             android:exported="true">
@@ -88,7 +90,5 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
-
 </manifest>

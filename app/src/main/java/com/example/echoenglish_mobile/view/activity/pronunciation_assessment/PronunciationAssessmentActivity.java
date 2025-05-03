@@ -26,6 +26,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 // Thêm các import của ExoPlayer
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse;
+import com.example.echoenglish_mobile.view.dialog.AddWordToFlashcardDialog;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
@@ -55,7 +57,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PronunciationAssessmentActivity extends AppCompatActivity {
+public class PronunciationAssessmentActivity extends AppCompatActivity implements AddWordToFlashcardDialog.OnFlashcardSelectedListener {
 
     // Constants
     public static final String EXTRA_WORD = "TARGET_WORD_OBJECT";
@@ -122,22 +124,18 @@ public class PronunciationAssessmentActivity extends AppCompatActivity {
         initializeExoPlayer();
     }
 
-    // Giải phóng ExoPlayer khi Activity không còn nhìn thấy
     @Override
     protected void onStop() {
         super.onStop();
-        releaseExoPlayer(); // Quan trọng: Giải phóng ExoPlayer
-        audioHandler.release(); // Giữ nguyên giải phóng AudioHandler
+        releaseExoPlayer();
+        audioHandler.release();
         if (isRecording) {
             audioHandler.stopRecording();
             updateUIRecordingStopped();
             isRecording = false;
-            Log.d(LOG_TAG, "Recording stopped due to onStop");
         }
     }
 
-
-    // Khởi tạo instance của ExoPlayer
     private void initializeExoPlayer() {
         if (exoPlayer == null) {
             exoPlayer = new ExoPlayer.Builder(this).build();
@@ -237,6 +235,8 @@ public class PronunciationAssessmentActivity extends AppCompatActivity {
         });
 
         btnBookmark.setOnClickListener(v -> {
+            AddWordToFlashcardDialog dialog = AddWordToFlashcardDialog.newInstance(currentWord.getWord());
+            dialog.show(getSupportFragmentManager(), "AddWordToFlashcardDialogTag");
             Toast.makeText(this, "Bookmark clicked (logic not implemented)", Toast.LENGTH_SHORT).show();
         });
     }
@@ -447,6 +447,11 @@ public class PronunciationAssessmentActivity extends AppCompatActivity {
                 Toast.makeText(PronunciationAssessmentActivity.this, "API error: Check connection", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onFlashcardSelectedForWord(String word, FlashcardBasicResponse selectedFlashcard) {
+        Toast.makeText(this, "Đang thêm '" + word + "' vào bộ '" + selectedFlashcard.getName() + "'...", Toast.LENGTH_LONG).show();
     }
 
     // Xóa hàm releaseRemoteMediaPlayer() không còn dùng nữa

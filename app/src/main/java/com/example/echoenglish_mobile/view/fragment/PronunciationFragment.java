@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.echoenglish_mobile.R;
+import com.example.echoenglish_mobile.model.PhonemeComparison;
 import com.example.echoenglish_mobile.model.SentenceAnalysisResult;
 import com.example.echoenglish_mobile.model.WordDetail;
 import com.example.echoenglish_mobile.adapter.ProgressChartAdapter;
@@ -31,6 +32,8 @@ import com.google.android.flexbox.FlexboxLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
+
 public class PronunciationFragment extends Fragment {
     private SentenceAnalysisResult result;
     private static final String ARG_RESULT = "sentence_analysis_result";
@@ -58,26 +61,51 @@ public class PronunciationFragment extends Fragment {
         recyclerViewPhonemeChart = view.findViewById(R.id.recyclerViewPhonemeChart);
         recyclerViewPhonemeChart.setLayoutManager(new LinearLayoutManager(this.getContext()));
 
-        PieChart pieChart = view.findViewById(R.id.pieChart);
-        float score = 92;
-        setupPieChart(pieChart, score);
-        container = view.findViewById(R.id.myAnswerContainer);
         if (getArguments() != null && getArguments().containsKey(ARG_RESULT)) {
             result = (SentenceAnalysisResult) getArguments().getSerializable(ARG_RESULT);
         }
 
-        adapter = new ProgressChartAdapter(this.getContext(), result.getPhonemeStatsList());
+        PieChart pieChart = view.findViewById(R.id.pieChart);
+        float score = (float) calculateAverageSimilarity(result);
+        setupPieChart(pieChart, score);
+        container = view.findViewById(R.id.myAnswerContainer);
+        adapter = new ProgressChartAdapter(this.getContext(), result.getPhonemeStatsList().stream().filter(s -> s.getCorrectCount() > 0).collect(Collectors.toList()));
         recyclerViewPhonemeChart.setAdapter(adapter);
         addPhonemeTextView();
     }
+    public double calculateAverageSimilarity(SentenceAnalysisResult result) {
+        if (result == null || result.getChunks() == null || result.getChunks().isEmpty()) {
+            return 0.0;
+        }
 
+        double totalSimilarity = 0.0;
+        int count = 0;
+
+        for (WordDetail word : result.getChunks()) {
+            if (word != null && word.getPronunciation() != null) {
+                Double similarity = word.getPronunciation().getSimilarity();
+                if (similarity != null && similarity > 0) {
+                    totalSimilarity += similarity;
+                    count++;
+                }
+            }
+        }
+        System.out.println("ssg");
+        return count > 0 ? Math.min(1, totalSimilarity / count + 0.1) * 100 : 0.0;
+    }
     private void addPhonemeTextView() {
         if (container != null) {
             List<WordDetail> phonemeData = result.getChunks();
             for (WordDetail wordDetail : phonemeData) {
                 PhonemeTextView phonemeTextView = new PhonemeTextView(requireContext());
                 phonemeTextView.setTextSize(18);
-                phonemeTextView.setPhonemeData(wordDetail.getText(), wordDetail.getPronunciation().getMapping());
+
+                List<PhonemeComparison> mapping = null;
+                if (wordDetail.getPronunciation() != null) {
+                    mapping = wordDetail.getPronunciation().getMapping();
+                }
+
+                phonemeTextView.setPhonemeData(wordDetail.getText(), mapping);
 
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,

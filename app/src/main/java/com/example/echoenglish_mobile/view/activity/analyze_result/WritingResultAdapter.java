@@ -5,10 +5,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.echoenglish_mobile.R;
+import com.example.echoenglish_mobile.view.activity.webview.WebViewFragment;
 
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +44,26 @@ public class WritingResultAdapter extends RecyclerView.Adapter<WritingResultAdap
         holder.tvType.setText(result.getType());
         // Use String.format for localization and clarity
         holder.tvWordCount.setText(String.format(Locale.getDefault(), "%d từ", result.getWordCount()));
+
+        holder.itemView.setOnClickListener(v -> {
+            String feedbackData = result.getFeedbackJson();
+
+            if (feedbackData == null || feedbackData.isEmpty() || feedbackData.equals("null")) {
+                Toast.makeText(context, "No data.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            AppCompatActivity activity = (AppCompatActivity) context;
+            FragmentManager fragmentManager = activity.getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+            WebViewFragment fragment = WebViewFragment.newInstance(feedbackData);
+
+            transaction.replace(android.R.id.content, fragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        });
+
     }
 
     @Override

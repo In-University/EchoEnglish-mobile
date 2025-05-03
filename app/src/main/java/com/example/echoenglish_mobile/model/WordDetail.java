@@ -6,6 +6,11 @@ public class WordDetail implements Serializable {
     private String text;
     private double start_time;
 
+    private double end_time;
+    private String error;
+    private Pronunciation pronunciation;
+    private AnalysisDetail analysis;
+
     public AnalysisDetail getAnalysis() {
         return analysis;
     }
@@ -13,11 +18,6 @@ public class WordDetail implements Serializable {
     public void setAnalysis(AnalysisDetail analysis) {
         this.analysis = analysis;
     }
-
-    private double end_time;
-    private String error;
-    private Pronunciation pronunciation;
-    private AnalysisDetail analysis;
 
     public String getText() {
         return text;

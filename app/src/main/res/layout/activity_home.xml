@@ -313,6 +313,15 @@
                     <TextView style="@style/FunctionTextStyle" android:text="Report" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:id="@+id/translateCard"
+                style="@style/ModernFunctionCardStyle">
+                <LinearLayout style="@style/CardInnerLayoutStyle">
+                    <ImageView style="@style/FunctionIconStyle"
+                        android:src="@drawable/ic_attachment" />
+                    <TextView style="@style/FunctionTextStyle" android:text="Translate" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
         </GridLayout>
     </LinearLayout>
 </ScrollView>

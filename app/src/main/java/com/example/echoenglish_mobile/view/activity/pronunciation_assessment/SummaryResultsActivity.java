@@ -1,4 +1,4 @@
-package com.example.echoenglish_mobile.view.activity.pronun_summary_result;
+package com.example.echoenglish_mobile.view.activity.pronunciation_assessment;
 
 import android.os.Bundle;
 import android.widget.Toast;
@@ -30,14 +30,21 @@ public class SummaryResultsActivity extends AppCompatActivity {
     private String targetWord;
     private String outputFile;
     private SentenceAnalysisResult sentenceAnalysisResult;
+    public static final String ANALYSIS_RESULT = "ANALYSIS_RESULT";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getIntent().hasExtra(ANALYSIS_RESULT)) {
+            sentenceAnalysisResult = (SentenceAnalysisResult) getIntent().getSerializableExtra(ANALYSIS_RESULT);
+        } else {
+            Toast.makeText(this, "Analysis result not provided.", Toast.LENGTH_LONG).show();
+            return;
+        }
         setContentView(R.layout.activity_scores_results);
+        replaceFragment(PronunciationFragment.newInstance(sentenceAnalysisResult));
 
         Chip chipPronunciation = findViewById(R.id.tabPronunciation);
         chipPronunciation.setText("Pronunciation");
-
         Chip chipFluency = findViewById(R.id.tabFluency);
         chipFluency.setText("Fluency");
         Chip chipIntonation = findViewById(R.id.tabIntonation);
@@ -55,10 +62,6 @@ public class SummaryResultsActivity extends AppCompatActivity {
         if(outputFile == null || outputFile.isEmpty()){
             outputFile = getExternalCacheDir().getAbsolutePath() + "/audiorecord.3gp";
         }
-
-        apiService = ApiClient.getApiService();
-
-        getSentenceAnalysisResult();
 
         chipFluency.setOnClickListener(v -> {
             if (sentenceAnalysisResult != null) {
@@ -92,32 +95,6 @@ public class SummaryResultsActivity extends AppCompatActivity {
             }
         });
     }
-
-    private void getSentenceAnalysisResult() {
-        File audioFile = new File(outputFile);
-        RequestBody audioRequestBody = RequestBody.create(MediaType.parse("audio/3gp"), audioFile);
-        MultipartBody.Part audioPart = MultipartBody.Part.createFormData("audio_file", audioFile.getName(), audioRequestBody);
-        RequestBody targetWordBody = RequestBody.create(MediaType.parse("text/plain"), targetWord);
-
-        Call<SentenceAnalysisResult> call = apiService.analyzeSentences(audioPart, targetWordBody);
-        call.enqueue(new retrofit2.Callback<SentenceAnalysisResult>() {
-            @Override
-            public void onResponse(Call<SentenceAnalysisResult> call, retrofit2.Response<SentenceAnalysisResult> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    sentenceAnalysisResult = response.body();
-                    Toast.makeText(SummaryResultsActivity.this, "Sentences Analysis complete", Toast.LENGTH_SHORT).show();
-//                    replaceFragment(FluencyFragment.newInstance(sentenceAnalysisResult));
-                } else {
-                    Toast.makeText(SummaryResultsActivity.this, "Sentences Analysis failed: " + response.message(), Toast.LENGTH_SHORT).show();
-                }
-            }
-            @Override
-            public void onFailure(Call<SentenceAnalysisResult> call, Throwable t) {
-                Toast.makeText(SummaryResultsActivity.this, "API error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
 
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();

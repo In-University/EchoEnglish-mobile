@@ -11,6 +11,7 @@ import com.example.echoenglish_mobile.model.request.ConverseRequest;
 import com.example.echoenglish_mobile.model.request.StartConversationRequest;
 import com.example.echoenglish_mobile.model.request.WritingAnalysisRequest;
 import com.example.echoenglish_mobile.model.response.ConversationResponse;
+import com.example.echoenglish_mobile.model.response.LoginResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.FlashcardCreateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.FlashcardUpdateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.LearningRecordRequest;
@@ -62,10 +63,8 @@ public interface ApiService {
     @POST("/validate-otp-register")
     Call<ResponseBody> validateOtpRegister(@Body Map<String, String> requestBody);
 
-    // Returns 200 OK with JSON {"token": "..."} in body on success
-    // Returns 401 Unauthorized with JSON {"message": "..."} on failure
     @POST("/auth/login")
-    Call<Map<String, String>> loginUser(@Body LoginRequest loginRequest);
+    Call<LoginResponse> loginUser(@Body LoginRequest loginRequest);
 
     @POST("/forgot-password")
     Call<ResponseBody> forgotPassword(@Body Map<String, String> requestBody);
@@ -176,7 +175,6 @@ public interface ApiService {
     @POST("chatbot/sendMessage")
     Call<TranslateResponse> translateText(@Body TranslateRequest request);
 
-
     // ---------------------------------------------------
     @GET("tests") // Đường dẫn API lấy danh sách Test
     Call<List<Test>> getAllTests();
@@ -207,4 +205,10 @@ public interface ApiService {
     Call<DueReviewCountResponse> getDueReviewCount(
             @Path("userId") Long userId
     );
+
+    @GET("/speech/result/my")
+    Call<List<SentenceAnalysisResult>> getSpeechAnalyzeResultList();
+
+    @GET("/writing/result/my")
+    Call<ResponseBody> getWritingAnalyzeResultList();
 }

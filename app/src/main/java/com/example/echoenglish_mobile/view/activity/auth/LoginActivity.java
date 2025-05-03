@@ -16,9 +16,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.model.LoginRequest;
+import com.example.echoenglish_mobile.model.response.LoginResponse;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
 import com.example.echoenglish_mobile.util.SharedPrefManager;
+import com.example.echoenglish_mobile.view.activity.HomeActivity;
 import com.example.echoenglish_mobile.view.activity.dashboard.DashboardActivity;
 
 import java.io.IOException;
@@ -91,12 +93,12 @@ public class LoginActivity extends AppCompatActivity {
     private void performLogin(String email, String password) {
         LoginRequest loginRequest = new LoginRequest(email, password);
 
-        apiService.loginUser(loginRequest).enqueue(new Callback<Map<String, String>>() {
+        apiService.loginUser(loginRequest).enqueue(new Callback<LoginResponse>() {
             @Override
-            public void onResponse(@NonNull Call<Map<String, String>> call, @NonNull Response<Map<String, String>> response) {
+            public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Map<String, String> responseBody = response.body();
-                    String token = responseBody.get("token");
+                    LoginResponse loginResponse = response.body();
+                    String token = loginResponse.getToken();
                     if (token != null && !token.isEmpty()) {
                         Log.d(TAG, "Login successful");
                         SharedPrefManager.getInstance(LoginActivity.this).saveAuthToken(token);
@@ -114,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(@NonNull Call<Map<String, String>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable t) {
                 Log.e(TAG, "API call failed", t);
                 Toast.makeText(LoginActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
@@ -122,7 +124,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void navigateToDashboardActivity() {
-        Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();

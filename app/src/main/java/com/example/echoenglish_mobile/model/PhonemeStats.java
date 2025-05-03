@@ -1,6 +1,8 @@
 package com.example.echoenglish_mobile.model;
 
-public class PhonemeStats {
+import java.io.Serializable;
+
+public class PhonemeStats implements Serializable {
     private String phoneme;
     private int totalCount;
     private int correctCount;

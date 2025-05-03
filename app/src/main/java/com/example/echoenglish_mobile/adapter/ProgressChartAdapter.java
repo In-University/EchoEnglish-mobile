@@ -55,8 +55,6 @@ public class ProgressChartAdapter extends RecyclerView.Adapter<ProgressChartAdap
             animation.setInterpolator(new DecelerateInterpolator()); // Hiệu ứng chạy chậm dần
             animation.start();
         });
-
-
     }
 
     @Override

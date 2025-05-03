@@ -227,19 +227,15 @@ public class UploadSpeechActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<SentenceAnalysisResult> call, @NonNull Response<SentenceAnalysisResult> response) {
                 setLoadingState(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    SentenceAnalysisResult result = response.body();
+                    SentenceAnalysisResult analysisResult = response.body();
+                    Intent intent = new Intent(UploadSpeechActivity.this, SummaryResultsActivity.class);
+                    intent.putExtra(SummaryResultsActivity.ANALYSIS_RESULT, analysisResult);
+                    startActivity(intent);
+
                     Log.i(TAG, "Upload successful");
                     Toast.makeText(UploadSpeechActivity.this, "Analysis complete! Status: ", Toast.LENGTH_LONG).show();
                 } else {
-                    String errorBody = "Unknown error";
-                    try {
-                        if (response.errorBody() != null) {
-                            errorBody = response.errorBody().string();
-                        }
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error reading error body", e);
-                    }
-                    Log.e(TAG, "API Error: " + response.code() + " - " + errorBody);
+                    Log.e(TAG, "API Error: " + response.code() + " - " + response.errorBody());
                     Toast.makeText(UploadSpeechActivity.this, "API Error: " + response.code(), Toast.LENGTH_LONG).show();
                 }
             }

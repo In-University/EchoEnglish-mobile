@@ -50,15 +50,15 @@ public class TranscriptAdapter extends RecyclerView.Adapter<TranscriptAdapter.Vi
             }
         });
 
-        holder.btnPlay.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onTranscriptItemClick(item);
-            }
-        });
+//        holder.btnPlay.setOnClickListener(v -> {
+//            if (listener != null) {
+//                listener.onTranscriptItemClick(item);
+//            }
+//        });
 
-        holder.btnTranslate.setOnClickListener(v -> {
-            // Translation functionality would go here
-        });
+//        holder.btnTranslate.setOnClickListener(v -> {
+//            // Translation functionality would go here
+//        });
     }
 
     @Override
@@ -72,10 +72,10 @@ public class TranscriptAdapter extends RecyclerView.Adapter<TranscriptAdapter.Vi
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            transcriptText = itemView.findViewById(R.id.transcript_text);
-            timestamp = itemView.findViewById(R.id.timestamp);
-            btnPlay = itemView.findViewById(R.id.btn_play);
-            btnTranslate = itemView.findViewById(R.id.btn_translate);
+            transcriptText = itemView.findViewById(R.id.txtSubtitle);
+            timestamp = itemView.findViewById(R.id.txtTimestamp);
+//            btnPlay = itemView.findViewById(R.id.btn_play);
+//            btnTranslate = itemView.findViewById(R.id.btn_translate);
         }
     }
 }

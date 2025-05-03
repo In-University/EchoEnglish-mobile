@@ -1,8 +1,13 @@
 package com.example.echoenglish_mobile.model;
 
-public class AnalysisDetail {
+import java.io.Serializable;
+
+public class AnalysisDetail implements Serializable {
     private double pitch;
     private double intensity;
+
+    private String stress_level;
+    private double variation;
 
     public double getPitch() {
         return pitch;
@@ -35,7 +40,4 @@ public class AnalysisDetail {
     public void setVariation(double variation) {
         this.variation = variation;
     }
-
-    private String stress_level;
-    private double variation;
 }
