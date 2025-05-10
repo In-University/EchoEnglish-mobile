@@ -16,15 +16,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.model.LoginRequest;
+import com.example.echoenglish_mobile.model.User;
 import com.example.echoenglish_mobile.model.response.LoginResponse;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
 import com.example.echoenglish_mobile.util.SharedPrefManager;
 import com.example.echoenglish_mobile.view.activity.HomeActivity;
-import com.example.echoenglish_mobile.view.activity.dashboard.DashboardActivity;
 
 import java.io.IOException;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         btnSignup = findViewById(R.id.btnSignup);
-        tvForgotPassword = findViewById(R.id.textView6);
+        tvForgotPassword = findViewById(R.id.tvForgotPassword);
 
         apiService = ApiClient.getApiService();
 
@@ -94,20 +93,19 @@ public class LoginActivity extends AppCompatActivity {
         LoginRequest loginRequest = new LoginRequest(email, password);
 
         apiService.loginUser(loginRequest).enqueue(new Callback<LoginResponse>() {
+
             @Override
             public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
-                    String token = loginResponse.getToken();
-                    if (token != null && !token.isEmpty()) {
-                        Log.d(TAG, "Login successful");
-                        SharedPrefManager.getInstance(LoginActivity.this).saveAuthToken(token);
-                        Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
-                        navigateToDashboardActivity();
-                    } else {
-                        Log.w(TAG, "Login successful but token was null/empty in response.");
-                        Toast.makeText(LoginActivity.this, "Login failed: Server response error.", Toast.LENGTH_LONG).show();
-                    }
+                    SharedPrefManager sharedPrefManager = SharedPrefManager.getInstance(LoginActivity.this);
+
+                    sharedPrefManager.saveAuthToken(loginResponse.getToken());
+                    sharedPrefManager.saveUserInfo(loginResponse.getUser());
+
+                    Log.d(TAG, "Login successful");
+                    Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
+                    navigateToDashboardActivity();
                 } else {
                     String errorMessage = parseError(response);
                     Log.w(TAG, "Login failed: " + errorMessage);
@@ -125,7 +123,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void navigateToDashboardActivity() {
         Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Xóa hoàn toán các Activity trước đó trong stack
         startActivity(intent);
         finish();
     }

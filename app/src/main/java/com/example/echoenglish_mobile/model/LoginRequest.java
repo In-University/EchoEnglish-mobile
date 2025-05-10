@@ -9,7 +9,6 @@ public class LoginRequest {
         this.password = password;
     }
 
-    // Getters and Setters (có thể bỏ qua nếu chỉ dùng để gửi đi)
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 

@@ -9,17 +9,16 @@ public class User implements Serializable {
     private String name;
     private String email;
     private String password;
-    private String avatar; // Sẽ là null khi đăng ký
+    private String avatar;
     private Boolean active; // Sẽ là false khi đăng ký
 
-    // Constructors
     public User() {}
     public User(String name, String email, String password, Boolean active) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.active = active;
-        this.avatar = null; // Mặc định avatar là null khi tạo user mới
+        this.avatar = "https://cdn.kona-blue.com/upload/kona-blue_com/post/images/2024/09/18/457/avatar-mac-dinh-11.jpg"; // Mặc định avatar khi tạo user mới
     }
 
     public String getName() {

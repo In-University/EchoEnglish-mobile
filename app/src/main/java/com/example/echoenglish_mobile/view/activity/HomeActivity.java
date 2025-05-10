@@ -36,8 +36,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     private CardView dictionaryCard, flashcardsCard, grammarCard, listeningCard;
     private CardView speechAnalyzeCard, aiConversationCard, documentHubCard, writingCard, reportCard;
     private CardView translateCard;
-
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
