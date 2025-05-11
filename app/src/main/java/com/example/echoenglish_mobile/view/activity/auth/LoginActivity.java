@@ -22,6 +22,7 @@ import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
 import com.example.echoenglish_mobile.util.SharedPrefManager;
 import com.example.echoenglish_mobile.view.activity.HomeActivity;
+import com.example.echoenglish_mobile.view.activity.dashboard.DashboardActivity;
 
 import java.io.IOException;
 
@@ -122,10 +123,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void navigateToDashboardActivity() {
-        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Xóa hoàn toán các Activity trước đó trong stack
+        Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Xóa toàn bộ stack cũ
         startActivity(intent);
-        finish();
     }
 
     private String parseError(Response<?> response) {

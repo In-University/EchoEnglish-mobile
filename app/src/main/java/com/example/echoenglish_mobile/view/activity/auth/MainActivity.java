@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private void checkIfLoggedIn() {
         String token = SharedPrefManager.getInstance(this).getAuthToken();
         if (token != null && !token.isEmpty()) {
-            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+            Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();
