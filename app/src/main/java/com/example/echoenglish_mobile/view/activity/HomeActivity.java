@@ -20,24 +20,21 @@ import com.example.echoenglish_mobile.util.MyApp;
 import com.example.echoenglish_mobile.util.SharedPrefManager;
 import com.example.echoenglish_mobile.view.activity.analyze_result.AnalyzeResultActivity;
 import com.example.echoenglish_mobile.view.activity.chatbot.ConversationCategoriesActivity;
-import com.example.echoenglish_mobile.view.activity.dictionary.DictionaryActivity;
 import com.example.echoenglish_mobile.view.activity.document_hub.MainDocumentHubActivity;
 import com.example.echoenglish_mobile.view.activity.flashcard.MainFlashcardActivity;
 import com.example.echoenglish_mobile.view.activity.grammar.GrammarActivity;
 import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.UploadSpeechActivity;
 import com.example.echoenglish_mobile.view.activity.quiz.MainQuizActivity;
-import com.example.echoenglish_mobile.view.activity.quiz.TestActivity;
 import com.example.echoenglish_mobile.view.activity.translate_text.TranslateTextActivity;
 import com.example.echoenglish_mobile.view.activity.writing_feedback.UploadNewWritingActivity;
-import com.example.echoenglish_mobile.view.dialog.ReLoginPromptActivity;
 
 public class HomeActivity extends AppCompatActivity implements View.OnClickListener {
     private EditText searchEditText;
     private CardView dictionaryCard, flashcardsCard, grammarCard, listeningCard;
     private CardView speechAnalyzeCard, aiConversationCard, documentHubCard, writingCard, reportCard;
     private CardView translateCard;
-
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
@@ -117,9 +114,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         int id = v.getId();
         Intent intent = null;
 
-        if (id == R.id.dictionaryCard) {
-            intent = new Intent(HomeActivity.this, DictionaryActivity.class);
-        } else if (id == R.id.flashcardsCard) {
+        if (id == R.id.flashcardsCard) {
             intent = new Intent(HomeActivity.this, MainFlashcardActivity.class);
         } else if (id == R.id.grammarCard) {
             intent = new Intent(HomeActivity.this, GrammarActivity.class);

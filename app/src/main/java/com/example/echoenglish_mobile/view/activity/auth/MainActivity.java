@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.util.SharedPrefManager;
+import com.example.echoenglish_mobile.view.activity.HomeActivity;
 import com.example.echoenglish_mobile.view.activity.dashboard.DashboardActivity;
 import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.PronunciationAssessmentActivity;
 

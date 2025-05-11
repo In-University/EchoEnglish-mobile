@@ -34,7 +34,6 @@
         </provider>
 
 <!--         <activity android:name=".view.activity.auth.MainActivity"/> -->
-        <activity android:name=".view.activity.dashboard.DashboardActivity"/>
 
 <!--        <activity android:name=".view.activity.pronunciation_assessment.PronunciationAssessmentActivity"/>-->
         <activity android:name=".view.activity.webview.WebViewActivity"/>
@@ -47,7 +46,7 @@
         <activity android:name=".view.activity.webview.WebGameActivity"/>
 <!--        <activity android:name=".view.activity.chatbot.ChatActivity"/>-->
         <activity android:name=".view.activity.dictionary.DictionaryWordDetailActivity" />
-        <activity android:name=".view.activity.dictionary.DictionaryActivity" />
+
 		<activity android:name=".view.activity.flashcard.AddVocabularyActivity"/>
         <activity android:name=".view.activity.flashcard.CreateFlashcardActivity"/>
         <activity android:name=".view.activity.flashcard.MainFlashcardActivity"/>
@@ -82,8 +81,11 @@
         <activity android:name=".view.activity.pronunciation_assessment.PronunciationAssessmentActivity" />
         <activity android:name=".view.activity.translate_text.TranslateTextActivity" />
         <activity android:name=".view.dialog.ReLoginPromptActivity" />
+        <activity android:name=".view.activity.HomeActivity"/>
+        <!--    .view.activity.HomeActivity    -->
+        <activity android:name=".view.activity.dashboard.DashboardActivity"/>
         <activity
-            android:name=".view.activity.HomeActivity"
+            android:name=".view.activity.auth.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

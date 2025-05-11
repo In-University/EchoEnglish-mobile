@@ -75,9 +75,10 @@ public class WordSuggestionAdapter extends RecyclerView.Adapter<WordSuggestionAd
             holder.tvSuggestedPos.setVisibility(View.GONE);
         }
 
-        // Sử dụng cờ isFromHistory để kiểm tra
+        // Kiểm tra cờ isFromHistory để điều chỉnh hiển thị nút
         if (word.isFromHistory()) {
             holder.ivDeleteHistory.setVisibility(View.VISIBLE);
+            holder.ivArrow.setVisibility(View.VISIBLE); // Hiện mũi tên cho lịch sử
             holder.ivDeleteHistory.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onDeleteHistoryClick(word.getWord());
@@ -85,11 +86,12 @@ public class WordSuggestionAdapter extends RecyclerView.Adapter<WordSuggestionAd
             });
         } else {
             holder.ivDeleteHistory.setVisibility(View.GONE);
-            holder.ivDeleteHistory.setOnClickListener(null);
-            holder.ivArrow.setVisibility(View.VISIBLE); // Hiện mũi tên cho gợi ý API
+            holder.ivArrow.setVisibility(View.GONE); // Ẩn mũi tên cho gợi ý API
+            // Không cần setOnClickListener(null) tường minh, GONE đã đủ
         }
 
-        // Listener cho mũi tên (chỉ hoạt động khi visible)
+        // Listener cho mũi tên (chỉ hoạt động khi visible và được click)
+        // Adapter không cần kiểm tra isFromHistory ở đây nữa vì visibility đã làm điều đó
         holder.ivArrow.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onArrowClick(word.getWord());
@@ -102,6 +104,11 @@ public class WordSuggestionAdapter extends RecyclerView.Adapter<WordSuggestionAd
                 listener.onSuggestionClick(word);
             }
         });
+
+        // Reset listener cho nút xóa khi không phải lịch sử để tránh rò rỉ
+        if (!word.isFromHistory()) {
+            holder.ivDeleteHistory.setOnClickListener(null);
+        }
     }
 
     @Override
