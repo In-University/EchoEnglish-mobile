@@ -1,9 +1,12 @@
 package com.example.echoenglish_mobile.model;
 
 import com.example.echoenglish_mobile.model.response.SentenceAnalysisMetadata;
+import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.dto.SpeakingFeedback;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 public class SentenceAnalysisResult implements Serializable {
     private String text;
@@ -12,6 +15,25 @@ public class SentenceAnalysisResult implements Serializable {
     private List<WordDetail> chunks;
     private SentenceSummary summary;
     private List<PhonemeStats> phoneme_statistics;
+    @SerializedName("word_level_count")
+    private Map<String, Integer> wordLevelCount;
+    private SpeakingFeedback feedback;
+
+    public SpeakingFeedback getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(SpeakingFeedback feedback) {
+        this.feedback = feedback;
+    }
+
+    public Map<String, Integer> getWordLevelCount() {
+        return wordLevelCount;
+    }
+
+    public void setWordLevelCount(Map<String, Integer> wordLevelCount) {
+        this.wordLevelCount = wordLevelCount;
+    }
 
     public List<PhonemeStats> getPhonemeStatsList() {
         return phoneme_statistics;

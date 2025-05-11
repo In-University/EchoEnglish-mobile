@@ -13,6 +13,7 @@ import com.example.echoenglish_mobile.model.SentenceAnalysisResult;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
 import com.example.echoenglish_mobile.view.fragment.FluencyResultFragment;
+import com.example.echoenglish_mobile.view.fragment.GrammarResultFragment;
 import com.example.echoenglish_mobile.view.fragment.IntonationResultFragment;
 import com.example.echoenglish_mobile.view.fragment.PronunciationFragment;
 import com.example.echoenglish_mobile.view.fragment.VocabularyResultFragment;
@@ -90,6 +91,14 @@ public class SummaryResultsActivity extends AppCompatActivity {
         chipIntonation.setOnClickListener(v -> {
             if (sentenceAnalysisResult != null) {
                 replaceFragment(IntonationResultFragment.newInstance(sentenceAnalysisResult));
+            } else {
+                Toast.makeText(this, "Data not found!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        chipGrammar.setOnClickListener(v -> {
+            if (sentenceAnalysisResult != null) {
+                replaceFragment(GrammarResultFragment.newInstance(sentenceAnalysisResult.getFeedback()));
             } else {
                 Toast.makeText(this, "Data not found!", Toast.LENGTH_SHORT).show();
             }

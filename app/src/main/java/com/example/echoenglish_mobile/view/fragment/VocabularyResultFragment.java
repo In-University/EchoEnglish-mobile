@@ -30,6 +30,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import java.util.Arrays;
+import java.util.Map;
 
 public class VocabularyResultFragment extends Fragment {
     private SentenceAnalysisResult result;
@@ -58,17 +59,15 @@ public class VocabularyResultFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         TextView headerTextFeedback = view.findViewById(R.id.headerText);
-        headerTextFeedback.setText("Feedback");
+        headerTextFeedback.setText("Feedbacks");
         if (getArguments() != null && getArguments().containsKey(ARG_RESULT)) {
             result = (SentenceAnalysisResult) getArguments().getSerializable(ARG_RESULT);
-            // TODO: Trong tương lai, bạn có thể muốn sử dụng 'result' để tạo dữ liệu cho biểu đồ
-            // Ví dụ: int[] levels = result.getCefrLevelsDistribution();
         }
 
         chart = view.findViewById(R.id.wordFreqChart);
 
         configureMasterChart(chart);
-        loadChartData(chart);
+        loadChartData(chart, result.getWordLevelCount());
     }
 
     private void configureMasterChart(HorizontalBarChart chart) {
@@ -126,54 +125,38 @@ public class VocabularyResultFragment extends Fragment {
         legend.setYEntrySpace(5f); // Khoảng cách dọc giữa các mục chú thích
     }
 
-    private void loadChartData(HorizontalBarChart chart) {
+    private void loadChartData(HorizontalBarChart chart, Map<String, Integer> wordLevelCount) {
         ArrayList<BarEntry> entries = new ArrayList<>();
-        int[] levelsData = {2, 5, 8, 12, 9, 6};
-
         List<String> labels = getLevelLabels(); // ["A1", "A2", "B1", "B2", "C1", "C2"]
 
-        for (int i = 0; i < levelsData.length; i++) {
-            entries.add(new BarEntry(i, levelsData[i]));
+        for (int i = 0; i < labels.size(); i++) {
+            String level = labels.get(i);
+            int count = wordLevelCount.getOrDefault(level, 0);
+            entries.add(new BarEntry(i, count));
         }
 
         BarDataSet dataSet = new BarDataSet(entries, "Word Count by CEFR Level");
         dataSet.setColor(PRIMARY_COLOR);
-        // dataSet.setHighLightColor(SECONDARY_COLOR);
-        dataSet.setDrawValues(true); // Hiển thị giá trị trên các thanh
-
-        // Định dạng giá trị hiển thị trên thanh (số nguyên)
+        dataSet.setDrawValues(true);
         dataSet.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
                 return String.valueOf((int) value);
             }
         });
-
-        // Bar styling perfection
-        dataSet.setValueTextSize(11f); // Kích thước chữ giá trị trên thanh
+        dataSet.setValueTextSize(11f);
         dataSet.setValueTypeface(Typeface.create(TYPEFACE, Typeface.BOLD));
-        dataSet.setValueTextColor(Color.WHITE); // Màu chữ giá trị (trắng để nổi bật trên nền xanh)
-        // dataSet.setBarBorderWidth(0.8f); // Viền thanh - có thể bỏ
-        // dataSet.setBarBorderColor(PRIMARY_COLOR);
-
-        // Gradient fill for depth - bỏ gradient nếu muốn màu đồng nhất
-        // dataSet.setGradientColor(PRIMARY_COLOR, Color.argb(100,
-        //         Color.red(PRIMARY_COLOR),
-        //         Color.green(PRIMARY_COLOR),
-        //         Color.blue(PRIMARY_COLOR)
-        // ));
+        dataSet.setValueTextColor(Color.WHITE);
 
         BarData data = new BarData(dataSet);
-        data.setBarWidth(0.7f); // Độ rộng của các thanh (0.0 - 1.0)
+        data.setBarWidth(0.7f);
 
         chart.setData(data);
-        chart.setFitBars(true); // Căn chỉnh độ rộng thanh cho vừa với không gian
-
-        // Professional animation (Bật lại nếu muốn)
-        chart.animateY(1200); // Animation từ dưới lên
-        // chart.animateX(1200); // Animation từ trái qua
-        chart.invalidate(); // Vẽ lại biểu đồ
+        chart.setFitBars(true);
+        chart.animateY(1200);
+        chart.invalidate();
     }
+
 
     private List<String> getLevelLabels() {
         return Arrays.asList("A1", "A2", "B1", "B2", "C1", "C2");
