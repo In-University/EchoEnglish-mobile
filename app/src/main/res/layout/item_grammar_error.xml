@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <View
+            android:id="@+id/errorTypeIndicator"
+            android:layout_width="4dp"
+            android:layout_height="0dp"
+            android:background="#F44336"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/errorTypeIndicator"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/errorTypeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#F44336"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="Lỗi thì (Tense)" />
+
+            <TextView
+                android:id="@+id/originalText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="#757575"
+                android:textStyle="italic"
+                tools:text="I was go to the store yesterday." />
+
+            <TextView
+                android:id="@+id/correctionText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="#212121"
+                tools:text="I went to the store yesterday." />
+
+            <TextView
+                android:id="@+id/explanationText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="#424242"
+                android:textSize="14sp"
+                tools:text="Với hành động xảy ra và kết thúc trong quá khứ, cần sử dụng quá khứ đơn (simple past) thay vì dạng 'was + động từ nguyên mẫu'." />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>
