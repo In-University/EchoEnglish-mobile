@@ -31,7 +31,7 @@ public class BrowserActivity extends AppCompatActivity implements ShortcutAdapte
 
     private static final String TAG = "BrowserActivity";
     private static final String BROWSER_FRAGMENT_TAG = "BrowserFragmentInstance";
-
+    public static final String EXTRA_URL = "EXTRA_URL";
     private EditText urlEditText;
     private RecyclerView shortcutRecyclerView;
     private ShortcutAdapter shortcutAdapter;
@@ -44,7 +44,11 @@ public class BrowserActivity extends AppCompatActivity implements ShortcutAdapte
 
         urlEditText = findViewById(R.id.urlEditText);
         shortcutRecyclerView = findViewById(R.id.shortcutRecyclerView);
-
+        String initialUrl = getIntent().getStringExtra(EXTRA_URL);
+        if (initialUrl != null && !initialUrl.isEmpty()) {
+            urlEditText.setText(initialUrl);
+            loadUrlInFragment(initialUrl);
+        }
         setupUrlBarListener();
         setupRecyclerView();
         loadInitialShortcuts();

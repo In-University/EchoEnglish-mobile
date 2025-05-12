@@ -13,8 +13,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
-    private static final String BASE_URL = "https://mobile.mkhoavo.space";
-//    private static final String BASE_URL = "http://192.168.1.41:8080";
+//    private static final String BASE_URL = "https://mobile.mkhoavo.space";
+    private static final String BASE_URL = "http://192.168.102.11:8080";
     private static Retrofit retrofit = null;
 
     // GSON Adapter cho LocalDateTime

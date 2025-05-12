@@ -13,7 +13,7 @@
         android:layout_height="60dp"
         android:background="#FFFFFF"
         android:paddingHorizontal="16dp">
-
+        <!-- ... Header content ... -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,7 +35,6 @@
             android:padding="10dp"
             android:scaleType="centerInside"
             app:tint="#566573" />
-
     </RelativeLayout>
 
     <!-- Divider -->
@@ -44,159 +43,124 @@
         android:layout_height="1dp"
         android:background="#EAECEE" />
 
-    <androidx.core.widget.NestedScrollView
+    <!-- Phần nội dung không cuộn (nếu có) hoặc là một phần của RecyclerView header -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="20dp"
+        android:paddingHorizontal="16dp">
+
+        <!-- Section: Add Content -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Your Content"
+            android:textSize="18sp"
+            android:textColor="#34495E"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="20dp"
-            android:paddingBottom="20dp">
-
-            <!-- Section: Add Content -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Add Your Content"
-                android:textSize="18sp"
-                android:textColor="#34495E"
-                android:textStyle="bold"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="12dp"/>
-
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
+            <!-- Browse Web Button -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/browseWebButton"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
-                android:layout_marginBottom="24dp">
-
-                <!-- Browse Web Button -->
-                <LinearLayout
-                    android:id="@+id/browseWebButton"
-                    android:layout_width="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:gravity="center"
+                android:background="#F5F8FA"
+                android:layout_marginEnd="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_computer"
+                    app:tint="#3498DB"
+                    android:layout_marginBottom="8dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:gravity="center"
-                    android:background="#F5F8FA"
-                    android:layout_marginEnd="8dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
-
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_computer"
-                        app:tint="#3498DB"
-                        android:layout_marginBottom="8dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Browse Web"
-                        android:textSize="13sp"
-                        android:textColor="#5D6D7E"
-                        android:maxLines="1"
-                        android:ellipsize="end"/>
-
-                </LinearLayout>
-
-                <!-- YouTube Import Button -->
-                <LinearLayout
-                    android:id="@+id/youtubeImportButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:gravity="center"
-                    android:background="#F5F8FA"
-                    android:layout_marginStart="8dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
-
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        app:tint="#E74C3C"
-                        android:src="@drawable/ic_subtitles"
-                        android:layout_marginBottom="8dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="YouTube Link"
-                        android:textSize="13sp"
-                        android:textColor="#5D6D7E"
-                        android:maxLines="1"
-                        android:ellipsize="end"/>
-
-                </LinearLayout>
-
+                    android:text="Browse Web"
+                    android:textSize="13sp"
+                    android:textColor="#5D6D7E"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
             </LinearLayout>
-
-
-            <!-- Section: Latest News -->
-            <TextView
-                android:layout_width="match_parent"
+            <!-- YouTube Import Button -->
+            <LinearLayout
+                android:id="@+id/youtubeImportButton"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Latest News"
-                android:textSize="18sp"
-                android:textColor="#34495E"
-                android:textStyle="bold"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="12dp"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/newsRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                android:clipToPadding="false"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:layout_marginBottom="24dp"
-                tools:itemCount="4"
-                tools:listitem="@layout/item_news_card"/>
-
-
-            <!-- Section: You Might Like -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="You Might Like"
-                android:textSize="18sp"
-                android:textColor="#34495E"
-                android:textStyle="bold"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="12dp"/>
-
-<!--            <androidx.recyclerview.widget.RecyclerView-->
-<!--                android:id="@+id/videosRecyclerView"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:orientation="horizontal"-->
-<!--                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
-<!--                android:clipToPadding="false"-->
-<!--                android:paddingStart="12dp"-->
-<!--                android:paddingEnd="12dp"-->
-<!--                android:layout_marginBottom="16dp"-->
-<!--                tools:itemCount="3"-->
-<!--                tools:listitem="@layout/item_video_card"/>-->
-
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:gravity="center"
+                android:background="#F5F8FA"
+                android:layout_marginStart="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    app:tint="#E74C3C"
+                    android:src="@drawable/ic_subtitles"
+                    android:layout_marginBottom="8dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="YouTube Link"
+                    android:textSize="13sp"
+                    android:textColor="#5D6D7E"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
+            </LinearLayout>
         </LinearLayout>
 
-    </androidx.core.widget.NestedScrollView>
+        <!-- Section: Latest News Title -->
+        <TextView
+            android:id="@+id/newsSectionTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Latest News"
+            android:textSize="18sp"
+            android:textColor="#34495E"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"/>
+    </LinearLayout>
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/newsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="8dp"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </FrameLayout>
 </LinearLayout>

@@ -2,6 +2,7 @@ package com.example.echoenglish_mobile.network;
 
 import com.example.echoenglish_mobile.model.ApiResponse;
 import com.example.echoenglish_mobile.model.LoginRequest;
+import com.example.echoenglish_mobile.model.PageResponse;
 import com.example.echoenglish_mobile.model.PhonemeComparison;
 import com.example.echoenglish_mobile.model.ResetPasswordRequest;
 import com.example.echoenglish_mobile.model.SentenceAnalysisResult;
@@ -12,6 +13,7 @@ import com.example.echoenglish_mobile.model.request.StartConversationRequest;
 import com.example.echoenglish_mobile.model.request.WritingAnalysisRequest;
 import com.example.echoenglish_mobile.model.response.ConversationResponse;
 import com.example.echoenglish_mobile.model.response.LoginResponse;
+import com.example.echoenglish_mobile.view.activity.document_hub.dto.NewsItem;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.FlashcardCreateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.FlashcardUpdateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.LearningRecordRequest;
@@ -211,4 +213,10 @@ public interface ApiService {
 
     @GET("/writing/result/my")
     Call<ResponseBody> getWritingAnalyzeResultList();
+
+    @GET("/document/news")
+    Call<PageResponse<NewsItem>> getNews(
+            @Query("page") int page,
+            @Query("size") int size
+    );
 }
