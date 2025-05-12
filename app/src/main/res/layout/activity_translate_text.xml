@@ -5,13 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#F8F8F8"> <!-- Changed background to subtle off-white -->
+    android:background="#FFF"> <!-- Changed background to subtle off-white -->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
-
+        android:padding="16dp"> 
         <TextView
             android:id="@+id/labelSource"
             android:layout_width="wrap_content"
@@ -58,28 +57,32 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:orientation="horizontal"
+            android:background="#F8F8F8"
+            android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/labelDirection">
 
             <RadioButton
                 android:id="@+id/radioEngToVie"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
+                android:layout_weight="1"
                 android:checked="true"
                 android:text="English -> Vietnamese"
-                android:textSize="14sp"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
 
             <RadioButton
                 android:id="@+id/radioVieToEng"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+
                 android:text="Vietnamese -> English"
-                android:textSize="14sp"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
         </RadioGroup>
 
         <Button
