@@ -19,7 +19,6 @@ import com.example.echoenglish_mobile.network.ForbiddenHandler;
 import com.example.echoenglish_mobile.util.MyApp;
 import com.example.echoenglish_mobile.util.SharedPrefManager;
 import com.example.echoenglish_mobile.view.activity.analyze_result.AnalyzeResultActivity;
-import com.example.echoenglish_mobile.view.activity.chatbot.ConversationCategoriesActivity;
 import com.example.echoenglish_mobile.view.activity.document_hub.MainDocumentHubActivity;
 import com.example.echoenglish_mobile.view.activity.flashcard.MainFlashcardActivity;
 import com.example.echoenglish_mobile.view.activity.grammar.GrammarActivity;
@@ -126,8 +125,6 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 return;
             }
             intent = new Intent(HomeActivity.this, UploadSpeechActivity.class);
-        } else if (id == R.id.aiConversationCard) {
-            intent = new Intent(HomeActivity.this, ConversationCategoriesActivity.class);
         } else if (id == R.id.documentHubCard) {
             intent = new Intent(HomeActivity.this, MainDocumentHubActivity.class);
         } else if (id == R.id.writingCard) {

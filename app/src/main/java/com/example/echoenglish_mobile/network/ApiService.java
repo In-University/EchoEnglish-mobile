@@ -72,9 +72,6 @@ public interface ApiService {
     @POST("/reset-password")
     Call<ResponseBody> resetPassword(@Body ResetPasswordRequest resetPasswordRequest);
 
-    @POST("chatbot/sendMessage")
-    @Headers("Content-Type: application/json")
-    Call<ApiResponse> sendMessage(@Body String message);
 
     @Multipart
     @POST("/speech/analyze/word")
@@ -99,14 +96,18 @@ public interface ApiService {
     @POST("/writing/analyze")
     Call<ResponseBody> analyzeWriting(@Body WritingAnalysisRequest request);
 
-  	@POST("/chatbot/start")
-    Call<ConversationResponse> startChat(@Body StartConversationRequest request);
-
-    @POST("/chatbot/converse")
-    Call<ConversationResponse> continueChat(@Body ConverseRequest request);
-
-    @POST("/chatbot/review")
-    Call<ConversationResponse> reviewConversation(@Body ConverseRequest request);
+// BỎ
+//    @POST("chatbot/sendMessage")
+//    @Headers("Content-Type: application/json")
+//    Call<ApiResponse> sendMessage(@Body String message);
+//  	@POST("/chatbot/start")
+//    Call<ConversationResponse> startChat(@Body StartConversationRequest request);
+//
+//    @POST("/chatbot/converse")
+//    Call<ConversationResponse> continueChat(@Body ConverseRequest request);
+//
+//    @POST("/chatbot/review")
+//    Call<ConversationResponse> reviewConversation(@Body ConverseRequest request);
 
  // --- Flashcards ---
     @POST("api/flashcards/user-defined")
