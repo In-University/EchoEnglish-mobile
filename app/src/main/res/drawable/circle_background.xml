@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <!-- Màu nền cho hình tròn -->
+    <!-- Bạn có thể dùng màu theme hoặc một màu nhạt khác -->
+    <solid android:color="#90D0CECE" /> <!-- Ví dụ màu xám nhạt -->
+    <!-- Hoặc dùng màu từ theme: <solid android:color="?attr/colorPrimaryContainer" /> -->
+</shape>
