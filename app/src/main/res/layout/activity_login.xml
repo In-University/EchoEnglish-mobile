@@ -113,6 +113,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Forget password?"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:clickable="true"
                 android:textAlignment="textEnd"
                 android:layout_marginEnd="32dp"
                 android:layout_marginTop="8dp"/>

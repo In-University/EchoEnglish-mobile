@@ -1,13 +1,15 @@
 package com.example.echoenglish_mobile.view.activity.dashboard;
 
-import android.annotation.SuppressLint; // Import @SuppressLint
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.text.TextUtils; // Import TextUtils
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -19,8 +21,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView; // Import TextView
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.PopupMenu; // Import PopupMenu
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +31,7 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.adapter.DashboardAdapter;
@@ -35,8 +39,8 @@ import com.example.echoenglish_mobile.model.ListDomain;
 import com.example.echoenglish_mobile.model.Word;
 import com.example.echoenglish_mobile.network.ForbiddenHandler;
 import com.example.echoenglish_mobile.util.MyApp;
-import com.example.echoenglish_mobile.util.SharedPrefManager; // Import SharedPrefManager
-import com.example.echoenglish_mobile.model.User; // Import User model
+import com.example.echoenglish_mobile.util.SharedPrefManager;
+import com.example.echoenglish_mobile.model.User;
 import com.example.echoenglish_mobile.view.activity.HomeActivity;
 import com.example.echoenglish_mobile.view.activity.analyze_result.AnalyzeResultActivity;
 import com.example.echoenglish_mobile.view.activity.auth.MainActivity;
@@ -52,24 +56,27 @@ import com.example.echoenglish_mobile.view.activity.quiz.MainQuizActivity;
 import com.example.echoenglish_mobile.view.activity.translate_text.TranslateTextActivity;
 import com.example.echoenglish_mobile.view.activity.webview.WebGameActivity;
 
-import com.bumptech.glide.Glide; // Import Glide
-import com.bumptech.glide.request.RequestOptions; // Import RequestOptions (tùy chọn)
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.echoenglish_mobile.view.activity.writing_feedback.UploadNewWritingActivity;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
+import java.util.List;
 
-// Implement SearchFragment.SearchListener
 public class DashboardActivity extends AppCompatActivity implements SearchFragment.SearchListener, View.OnClickListener {
 
     private static final String TAG = "DashboardActivity";
 
-    private RecyclerView.Adapter adapter;
-    private RecyclerView recyclerViewList; // RecyclerView cho Last Articles
+    private FrameLayout suggestionsOverlayContainer;
 
-    private FrameLayout suggestionsOverlayContainer; // Container cho danh sách gợi ý nổi
+    private ImageView ivProfile; // Already exists
+    private ViewPager2 viewPagerBanners;
 
-    // ImageView để hiển thị ảnh đại diện
-    private ImageView ivProfile;
+    // Cho tự động cuộn
+    private Handler sliderHandler = new Handler(Looper.getMainLooper());
+    private Runnable sliderRunnable;
 
     private CardView flashcardsCard, translateCard,  grammarCard, quizCard;
     private CardView speechAnalyzeCard, documentHubCard, writingCard, reportCard;
@@ -78,15 +85,6 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
-
-        // sharedPreferences không còn được dùng trực tiếp ở đây sau khi bỏ ProgressBar
-
-        // --- Tìm TextView và ImageView cho thông tin người dùng ---
-        ivProfile = findViewById(R.id.ivProfile);
-
-        // --- Lấy thông tin người dùng và cập nhật View ---
-        loadAndDisplayUserInfo();
-
 
         // --- Tìm container cho danh sách gợi ý nổi ---
         suggestionsOverlayContainer = findViewById(R.id.suggestions_overlay_container);
@@ -138,9 +136,14 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         }
 
         initializeViews();
+        // --- Lấy thông tin người dùng và cập nhật View SAU khi initializeViews ---
+        loadAndDisplayUserInfo();
+
         setClickListeners();
 
+        setupBanners();
     }
+
     private void initializeViews() {
         flashcardsCard = findViewById(R.id.flashcardsCard);
         translateCard = findViewById(R.id.translateCard);
@@ -150,7 +153,9 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         documentHubCard = findViewById(R.id.documentHubCard);
         reportCard = findViewById(R.id.reportCard);
         writingCard = findViewById(R.id.writingCard);
-
+        // Find the ImageView for the profile picture
+        ivProfile = findViewById(R.id.ivProfile); // Make sure ivProfile is found here
+        viewPagerBanners = findViewById(R.id.viewPagerBanners);
     }
 
     private void setClickListeners() {
@@ -162,6 +167,9 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         if (writingCard != null) writingCard.setOnClickListener(this);
         if (reportCard != null) reportCard.setOnClickListener(this);
         if (translateCard != null) translateCard.setOnClickListener(this);
+
+        // Add click listener for the profile image
+        if (ivProfile != null) ivProfile.setOnClickListener(this);
     }
 
     @Override
@@ -197,7 +205,11 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
             intent = new Intent(DashboardActivity.this, AnalyzeResultActivity.class);
         } else if (id == R.id.translateCard) {
             intent = new Intent(DashboardActivity.this, TranslateTextActivity.class);
+        } else if (id == R.id.ivProfile) { // Handle click on profile avatar
+            showProfilePopupMenu(v); // Call the method to show the popup
+            return; // Consume the click event
         }
+
 
         if (intent != null) {
             startActivity(intent);
@@ -208,6 +220,106 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         String token = SharedPrefManager.getInstance(MyApp.getAppContext()).getAuthToken();
         return token != null && !token.isEmpty();
     }
+
+    private void setupBanners() {
+        List<String> bannerUrls = new ArrayList<>();
+        bannerUrls.add("https://edumart.edu.vn/public/files/upload/0000000000000000000000111111111111/images/banner(6).jpg");
+        bannerUrls.add("https://bmyc.vn/wp-content/uploads/2024/06/banner-dong-hanh-cung-con-tu-hoc-tieng-anh-tai-nha-scaled.jpg");
+        bannerUrls.add("https://thedragon.edu.vn/wp-content/uploads/2022/10/Banner-tieng-Anh-tong-quat-min.png");
+        bannerUrls.add("https://newsky.edu.vn/wp-content/uploads/khoa-hoc-tieng-trung-tai-newsky.png");
+
+        if (bannerUrls.isEmpty()) {
+            if (viewPagerBanners != null) viewPagerBanners.setVisibility(View.GONE);
+            // Xóa dòng ẩn TabLayout
+            // if (tabLayoutBannerIndicator != null) tabLayoutBannerIndicator.setVisibility(View.GONE);
+            return;
+        }
+
+        BannerAdapter bannerAdapter = new BannerAdapter(this, bannerUrls);
+        if (viewPagerBanners != null) {
+            viewPagerBanners.setAdapter(bannerAdapter);
+
+            // Thiết lập hiệu ứng chuyển trang (vẫn giữ lại nếu muốn)
+            viewPagerBanners.setPageTransformer(new ZoomOutPageTransformer());
+
+            // Xóa toàn bộ phần code liên kết TabLayoutMediator
+            /*
+            if (tabLayoutBannerIndicator != null) {
+                new TabLayoutMediator(tabLayoutBannerIndicator, viewPagerBanners,
+                        (tab, position) -> {
+                            // Không cần đặt text cho tab, chỉ cần indicator dot
+                        }
+                ).attach();
+            }
+            */
+
+            // Cài đặt tự động cuộn (vẫn giữ lại nếu muốn)
+            sliderRunnable = () -> {
+                if (viewPagerBanners.getCurrentItem() == bannerUrls.size() - 1) {
+                    viewPagerBanners.setCurrentItem(0);
+                } else {
+                    viewPagerBanners.setCurrentItem(viewPagerBanners.getCurrentItem() + 1);
+                }
+            };
+
+            // Thêm Listener để dừng auto-scroll khi người dùng vuốt (vẫn giữ lại nếu muốn)
+            viewPagerBanners.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                @Override
+                public void onPageScrollStateChanged(int state) {
+                    if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                        stopAutoScroll();
+                    } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                        // Có thể thêm delay nhỏ ở đây nếu cần, ví dụ 500ms
+                        sliderHandler.postDelayed(sliderRunnable, 3000); // Bắt đầu lại sau 3 giây delay
+                    }
+                }
+
+                @Override
+                public void onPageSelected(int position) {
+                    // Có thể không cần làm gì ở đây nếu không có indicator
+                    // Super class implementation is empty, so safe to leave blank or remove override if not needed
+                }
+
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                    // Super class implementation is empty, so safe to leave blank or remove override if not needed
+                }
+            });
+
+            // Bắt đầu auto-scroll ban đầu (vẫn giữ lại nếu muốn)
+            startAutoScroll();
+        }
+    }
+
+    // Hàm bắt đầu tự động cuộn
+    private void startAutoScroll() {
+        stopAutoScroll();
+        sliderHandler.postDelayed(sliderRunnable, 3000);
+    }
+
+    // Hàm dừng tự động cuộn
+    private void stopAutoScroll() {
+        sliderHandler.removeCallbacks(sliderRunnable);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Dừng tự động cuộn khi Activity không còn hiển thị
+        stopAutoScroll();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Bắt đầu lại tự động cuộn khi Activity hiển thị lại
+        // Chỉ bắt đầu nếu có banner
+        if (viewPagerBanners != null && viewPagerBanners.getAdapter() != null && viewPagerBanners.getAdapter().getItemCount() > 0) {
+            startAutoScroll();
+        }
+    }
+
+
     // --- Hàm mới để lấy thông tin người dùng và hiển thị (bao gồm ảnh) ---
     private void loadAndDisplayUserInfo() {
         // Lấy thông tin người dùng từ SharedPrefManager
@@ -221,12 +333,53 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
                 // Sử dụng Glide để tải ảnh từ URL và ÁP DỤNG circleCropTransform
                 Glide.with(this)
                         .load(avatarUrl)
-                        .placeholder(R.drawable.image_profile)
-                        .error(R.drawable.image_profile)
+                        .placeholder(R.drawable.image_profile) // Placeholder image while loading
+                        .error(R.drawable.image_profile) // Image to show if loading fails
+                        // .apply(RequestOptions.circleCropTransform()) // Optional: Apply circle crop transformation if not using CircleImageView
                         .into(ivProfile);
+            } else {
+                // Set default image if no avatar URL or URL is empty
+                ivProfile.setImageResource(R.drawable.image_profile);
             }
+        } else {
+            // Set default image if user is not logged in or info is not available
+            ivProfile.setImageResource(R.drawable.image_profile);
         }
     }
+
+    // --- New method to show the profile popup menu ---
+    private void showProfilePopupMenu(View anchorView) {
+        PopupMenu popup = new PopupMenu(this, anchorView);
+        // Inflate the menu from the XML file
+        popup.getMenuInflater().inflate(R.menu.profile_menu, popup.getMenu());
+
+        // Set a listener to handle menu item clicks
+        popup.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.menu_settings) {
+                // Handle Settings click
+                Toast.makeText(DashboardActivity.this, "Chức năng cài đặt chưa khả dụng", Toast.LENGTH_SHORT).show();
+                // TODO: Navigate to Settings Activity if you have one
+                return true; // Indicate that the click was handled
+            } else if (id == R.id.menu_logout) {
+                // Handle Logout click
+                performLogout(); // Call your existing logout method
+                return true; // Indicate that the click was handled
+            } else if (id == R.id.menu_exit) {
+                // Handle Exit click
+                finish(); // Close the current activity
+                // If you want to close the entire application, you might need additional flags
+                // or navigate back to the root (e.g., HomeActivity if it's the root)
+                // but 'finish()' is the standard way to exit the current screen.
+                return true; // Indicate that the click was handled
+            }
+            return false; // Return false if the item ID was not handled
+        });
+
+        // Show the popup menu
+        popup.show();
+    }
+
 
     // --- Implement phương thức từ SearchFragment.SearchListener ---
 
@@ -291,14 +444,14 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         startActivity(intent);
     }
 
-    // --- Hàm xử lý logout ---
+    // --- Hàm xử lý logout (Already exists) ---
     private void performLogout() {
         SharedPrefManager.getInstance(this).clear();
         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+
         Intent intent = new Intent(DashboardActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        finish();
     }
 
     // --- Implement logic ẩn bàn phím/list khi chạm ngoài ---
@@ -340,6 +493,8 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
 
                         // Nếu chạm không nằm trên bất kỳ View con nào (chạm vào khoảng trống của overlay)
                         if (!touchedChild) {
+                            // This block is reached when touching the overlay but not a child (like the RecyclerView)
+                            // We might still want to dismiss the keyboard/suggestions here
                             focusedView.clearFocus();
                             hideKeyboard(focusedView);
                             SearchFragment searchFragment = (SearchFragment) getSupportFragmentManager().findFragmentById(R.id.search_fragment_container);
@@ -347,6 +502,7 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
                                 searchFragment.hideSuggestionsList();
                             }
                         }
+                        // If touchedChild is true, the touch is on the RecyclerView item, let it handle the event naturally.
                     }
                 } else {
                     // Nếu overlay không hiển thị, xử lý chạm ngoài EditText bất kỳ
