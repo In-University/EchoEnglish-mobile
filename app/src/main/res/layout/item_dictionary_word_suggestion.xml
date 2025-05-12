@@ -84,13 +84,12 @@
             android:contentDescription="Delete from history"
             android:visibility="gone"
             android:clickable="true"
-            android:focusable="true"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:focusable="true"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/ivArrow"
-            tools:visibility="visible"
-            app:tint="?attr/colorPrimary"/>
+            tools:visibility="visible" />
 
         <!-- Icon Mũi tên -->
         <ImageView
@@ -106,7 +105,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:tint="?attr/colorPrimary" />
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

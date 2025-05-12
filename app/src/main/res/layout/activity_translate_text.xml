@@ -4,144 +4,177 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="#F8F8F8"> <!-- Changed background to subtle off-white -->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        tools:context=".MainActivity">
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/labelSource"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Văn bản nguồn:"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        <TextView
+            android:id="@+id/labelSource"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Source Text:"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <EditText
-        android:id="@+id/editTextSource"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/background_edittext"
-        android:gravity="top"
-        android:hint="Nhập văn bản cần dịch hoặc nhấn Chụp ảnh"
-        android:inputType="textMultiLine"
-        android:minLines="4"
-        android:padding="12dp"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/labelSource" />
+        <EditText
+            android:id="@+id/editTextSource"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/background_edittext"
+            android:gravity="top"
+            android:hint="Enter text to translate or tap Capture Image"
+            android:inputType="textMultiLine"
+            android:minLines="4"
+            android:padding="12dp"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_hint"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/labelSource" />
 
-    <TextView
-        android:id="@+id/labelDirection"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Chiều dịch:"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-        app:layout_constraintTop_toBottomOf="@id/editTextSource"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <RadioGroup
-        android:id="@+id/radioGroupDirection"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/labelDirection">
-
-        <RadioButton
-            android:id="@+id/radioEngToVie"
+        <TextView
+            android:id="@+id/labelDirection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:checked="true"
-            android:text="Anh -> Việt"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"/>
+            android:layout_marginTop="16dp"
+            android:text="Translation Direction:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            app:layout_constraintTop_toBottomOf="@id/editTextSource"
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <RadioButton
-            android:id="@+id/radioVieToEng"
-            android:layout_width="wrap_content"
+        <RadioGroup
+            android:id="@+id/radioGroupDirection"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Việt -> Anh"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"/>
-    </RadioGroup>
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/labelDirection">
 
-    <!-- Sử dụng MaterialButton -->
+            <RadioButton
+                android:id="@+id/radioEngToVie"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:checked="true"
+                android:text="English -> Vietnamese"
+                android:textSize="14sp"
+                android:textColor="@color/text_primary" />
 
-        <!-- Button chụp ảnh có thể dùng style khác -->
-        <com.google.android.material.button.MaterialButton
+            <RadioButton
+                android:id="@+id/radioVieToEng"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Vietnamese -> English"
+                android:textSize="14sp"
+                android:textColor="@color/text_primary" />
+        </RadioGroup>
+
+        <Button
             android:id="@+id/buttonTranslate"
-            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="8dp"
-            android:text="Dịch văn bản"
-            app:icon="@android:drawable/ic_menu_send"
+            android:text="Translate Text"
+            android:background="@drawable/background_button_primary"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:drawableLeft="@android:drawable/ic_menu_send"
+            android:drawablePadding="8dp"
+            android:paddingVertical="12dp"
+            android:paddingHorizontal="16dp"
             app:layout_constraintEnd_toStartOf="@+id/buttonCaptureImage"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/radioGroupDirection" />
 
-        <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonCaptureImage"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="Chụp ảnh"
-        app:icon="@android:drawable/ic_menu_camera"
-        app:layout_constraintBottom_toBottomOf="@+id/buttonTranslate"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/buttonTranslate"
-        app:layout_constraintTop_toTopOf="@+id/buttonTranslate" />
+        <Button
+            android:id="@+id/buttonCaptureImage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Capture Image"
+            android:background="@drawable/background_button_outline"
+            android:textColor="@color/primary_blue"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:drawableLeft="@android:drawable/ic_menu_camera"
+            android:drawablePadding="8dp"
+            android:paddingVertical="12dp"
+            android:paddingHorizontal="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/buttonTranslate"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/buttonTranslate"
+            app:layout_constraintTop_toTopOf="@+id/buttonTranslate" />
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/buttonTranslate"
-        tools:visibility="visible"/> <!-- Để dễ nhìn trong preview -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/buttonTranslate" />
 
-    <TextView
-        android:id="@+id/labelResult"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Kết quả:"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-        app:layout_constraintTop_toBottomOf="@id/progressBar"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:id="@+id/labelResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Result:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            app:layout_constraintTop_toBottomOf="@id/progressBar"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/textViewResult"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/background_text_view"
-        android:minHeight="100dp"
-        android:padding="12dp"
-        android:textIsSelectable="true"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/labelResult"
-        app:layout_constraintVertical_bias="0.0"
-        tools:text="Kết quả dịch sẽ hiển thị ở đây...\nNội dung có thể rất dài và cần phải cuộn.\nĐây là dòng ví dụ thứ ba.\nĐây là dòng ví dụ thứ tư." />
+        <TextView
+            android:id="@+id/textViewResult"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/background_text_view"
+            android:minHeight="100dp"
+            android:padding="12dp"
+            android:textIsSelectable="true"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/labelResult"
+            tools:text="Translation result will appear here...\nContent can be very long and may need scrolling.\nThis is the third example line.\nThis is the fourth example line." /> <!-- Translated placeholder -->
 
-</androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+        <!-- New Copy Button -->
+        <ImageButton
+            android:id="@+id/buttonCopyResult"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_xml_content_copy_24px"
+            android:background="@drawable/background_button_copy"
+            android:contentDescription="Copy translated text"
+            app:layout_constraintTop_toBottomOf="@+id/textViewResult"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:tint="@color/black" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

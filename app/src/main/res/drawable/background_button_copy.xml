@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- State when disabled -->
+    <item android:state_enabled="false">
+        <shape android:shape="rectangle">
+            <corners android:radius="4dp"/> <!-- Slightly smaller radius for a smaller button -->
+            <solid android:color="#E0E0E0"/> <!-- Light gray when disabled -->
+        </shape>
+    </item>
+    <!-- Default state -->
+    <item>
+        <!-- Add a ripple effect for touch feedback (requires API 21+) -->
+        <ripple android:color="?android:attr/colorButtonNormal">
+            <item>
+                <shape android:shape="rectangle">
+                    <corners android:radius="4dp"/> <!-- Slightly smaller radius -->
+                    <solid android:color="#FFFFFF"/> <!-- White background -->
+                    <stroke android:color="#CCCCCC" android:width="1dp"/> <!-- Subtle border -->
+                </shape>
+            </item>
+        </ripple>
+    </item>
+</selector>

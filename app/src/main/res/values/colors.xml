@@ -44,4 +44,11 @@
     <color name="level3_color">#8BC34A</color> <!-- Xanh lá cây nhạt -->
     <color name="level4_color">#4CAF50</color> <!-- Xanh lá cây -->
     <color name="mastered_color">#2196F3</color> <!-- Xanh dương (Thành thạo) -->
+
+    <!-- Example primary color -->
+    <color name="primary_blue">#3372F4</color>
+    <!-- Default text colors -->
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_hint">#888888</color>
 </resources>
