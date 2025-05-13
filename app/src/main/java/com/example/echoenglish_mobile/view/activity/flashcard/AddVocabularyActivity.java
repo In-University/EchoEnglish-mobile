@@ -15,7 +15,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +26,7 @@ import com.bumptech.glide.Glide;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.VocabularyCreateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.VocabularyUpdateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse;
-import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse; // Ensure VocabularyResponse is Serializable
 import com.example.echoenglish_mobile.view.activity.flashcard.model.PexelsPhoto;
 import com.example.echoenglish_mobile.view.activity.flashcard.model.PexelsResponse;
 import com.google.android.material.textfield.TextInputEditText;
@@ -35,6 +34,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
+import com.example.echoenglish_mobile.view.dialog.LoadingDialogFragment; // Import Loading Dialog
+
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -50,13 +51,18 @@ import retrofit2.Response;
 
 public class AddVocabularyActivity extends AppCompatActivity implements ImageSuggestionAdapter.OnImageSelectedListener {
 
-    private static final String TAG = "AddVocabularyActivity";
+    private static final String ACTIVITY_TAG = "AddVocabActivity";
     private static final long TEXT_CHANGED_DELAY = 700;
     private static final Long DEFAULT_USER_ID_TO_FETCH = 27L;
+    private static final String LOADING_DIALOG_TAG = "AddVocabularyLoadingDialog";
 
     public static final String EXTRA_EDIT_MODE = "IS_EDIT_MODE";
     public static final String EXTRA_VOCABULARY_TO_EDIT = "VOCABULARY_TO_EDIT";
     public static final String EXTRA_PARENT_FLASHCARD_ID = "PARENT_FLASHCARD_ID";
+
+
+    private ImageView backButton;
+    private TextView textScreenTitle;
 
     private TextInputLayout textFieldLayoutSelectFlashcard, textFieldLayoutVocabWord, textFieldLayoutVocabDefinition, textFieldLayoutVocabType, textFieldLayoutVocabPhonetic, textFieldLayoutVocabExample;
     private AutoCompleteTextView autoCompleteTextViewSelectFlashcard, autoCompleteTextViewVocabType;
@@ -64,7 +70,6 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
     private EditText editTextSelectedImageUrl;
     private ImageView imageViewSelectedPreview;
     private RecyclerView recyclerViewImageSuggestions;
-    private ProgressBar progressBarImageSearch, progressBarAddVocab;
     private TextView textViewPexelsCredit;
     private Button buttonSubmit;
 
@@ -79,6 +84,11 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
     private boolean isEditMode = false;
     private VocabularyResponse editingVocabulary = null;
 
+    private int loadingApiCount = 0;
+
+    private View formScrollView;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,19 +98,23 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
         apiService = ApiClient.getApiService();
 
         parentFlashcardId = getIntent().getLongExtra(EXTRA_PARENT_FLASHCARD_ID, -1L);
-        Log.d(TAG, "Received parentFlashcardId: " + parentFlashcardId);
+        Log.d(ACTIVITY_TAG, "Received parentFlashcardId: " + parentFlashcardId);
 
-        editingVocabulary = (VocabularyResponse) getIntent().getSerializableExtra(EXTRA_VOCABULARY_TO_EDIT);
-
-        // Kiểm tra chế độ Edit hay Add VÀ gọi hàm setup UI tương ứng
         if (getIntent().hasExtra(EXTRA_EDIT_MODE) && getIntent().getBooleanExtra(EXTRA_EDIT_MODE, false)) {
             isEditMode = true;
-            // ... (lấy editingVocabulary) ...
-            if (editingVocabulary == null || editingVocabulary.getId() == null || parentFlashcardId == -1L) {
-                handleInvalidEditData(); return;
+            Object extraVocab = getIntent().getSerializableExtra(EXTRA_VOCABULARY_TO_EDIT);
+            if (extraVocab instanceof VocabularyResponse) {
+                editingVocabulary = (VocabularyResponse) extraVocab;
+            }
+
+            if (editingVocabulary == null || editingVocabulary.getId() == null) {
+                handleInvalidEditData();
+                return;
             }
             setupEditModeUI();
-            loadUserFlashcards(DEFAULT_USER_ID_TO_FETCH); // Vẫn load để preselect dropdown (dù bị disable)
+            // Load user flashcards to populate the dropdown (IT WILL BE ENABLED IN EDIT MODE NOW)
+            // The preselection will happen in loadUserFlashcards's callback
+            loadUserFlashcards(DEFAULT_USER_ID_TO_FETCH);
         } else {
             isEditMode = false;
             selectedFlashcardId = parentFlashcardId != -1L ? parentFlashcardId : null;
@@ -108,30 +122,32 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
             loadUserFlashcards(DEFAULT_USER_ID_TO_FETCH);
         }
 
-        // Cài đặt các thành phần UI khác
         setupRecyclerView();
         setupTextWatcher();
         setupVocabTypeDropdown();
         setupFlashcardSelectionDropdown();
 
-        // *** CHỈ ĐẶT LISTENER Ở ĐÂY MỘT LẦN ***
         buttonSubmit.setOnClickListener(v -> {
-            Log.d(TAG, "buttonSubmit is null: " + (buttonSubmit == null));
             if (isEditMode) {
                 attemptUpdateVocabulary();
             } else {
                 attemptAddVocabulary();
             }
         });
-        // *** KHÔNG GỌI setOnClickListener Ở BẤT KỲ CHỖ NÀO KHÁC ***
+
+        backButton.setOnClickListener(v -> finish());
     }
 
     private void findViews() {
+        backButton = findViewById(R.id.backButton);
+        textScreenTitle = findViewById(R.id.textScreenTitle);
+
+        formScrollView = findViewById(R.id.formScrollView);
+
         textFieldLayoutSelectFlashcard = findViewById(R.id.textFieldLayoutSelectFlashcard);
         autoCompleteTextViewSelectFlashcard = findViewById(R.id.autoCompleteTextViewSelectFlashcard);
         textFieldLayoutVocabWord = findViewById(R.id.textFieldLayoutVocabWord);
         editTextWord = findViewById(R.id.editTextVocabWord);
-        progressBarImageSearch = findViewById(R.id.progressBarImageSearch);
         recyclerViewImageSuggestions = findViewById(R.id.recyclerViewImageSuggestions);
         textViewPexelsCredit = findViewById(R.id.textViewPexelsCredit);
         imageViewSelectedPreview = findViewById(R.id.imageViewSelectedPreview);
@@ -144,7 +160,6 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
         autoCompleteTextViewVocabType = findViewById(R.id.autoCompleteTextViewVocabType);
         textFieldLayoutVocabExample = findViewById(R.id.textFieldLayoutVocabExample);
         editTextExample = findViewById(R.id.editTextVocabExample);
-        progressBarAddVocab = findViewById(R.id.progressBarAddVocab);
         buttonSubmit = findViewById(R.id.buttonAddVocabSubmit);
     }
 
@@ -161,14 +176,18 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
                 if (searchRunnable != null) searchHandler.removeCallbacks(searchRunnable);
             }
             @Override public void afterTextChanged(Editable s) {
-                // *** LUÔN KÍCH HOẠT TÌM KIẾM (HOẶC THÊM LOGIC KIỂM TRA KHÁC) ***
                 String query = s.toString().trim();
                 searchRunnable = () -> {
                     if (query.length() > 1) {
-                        searchImages(query); // Luôn gọi searchImages
-                        // Chỉ reset ảnh đã chọn khi Thêm MỚI để giữ ảnh cũ khi Sửa
+                        searchImages(query);
+                        if (!isEditMode) {
+                            resetSelectedImage();
+                        }
                     } else {
-                        clearImageSuggestions(); // Xóa gợi ý nếu query ngắn
+                        clearImageSuggestions();
+                        if (!isEditMode) {
+                            resetSelectedImage();
+                        }
                     }
                 };
                 searchHandler.postDelayed(searchRunnable, TEXT_CHANGED_DELAY);
@@ -188,44 +207,59 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
             String selectedName = (String) parent.getItemAtPosition(position);
             selectedFlashcardId = flashcardNameToIdMap.get(selectedName);
             if (selectedFlashcardId != null) {
-                Log.d(TAG, "Selected Flashcard: Name=" + selectedName + ", ID=" + selectedFlashcardId);
+                Log.d(ACTIVITY_TAG, "Selected Flashcard: Name=" + selectedName + ", ID=" + selectedFlashcardId);
                 textFieldLayoutSelectFlashcard.setError(null);
             } else {
-                Log.w(TAG, "Selected flashcard name not found in map: " + selectedName);
+                Log.w(ACTIVITY_TAG, "Selected flashcard name not found in map: " + selectedName);
                 autoCompleteTextViewSelectFlashcard.setText("", false);
                 selectedFlashcardId = null;
-                textFieldLayoutSelectFlashcard.setError("Lựa chọn không hợp lệ");
+                textFieldLayoutSelectFlashcard.setError("Invalid selection.");
             }
         });
     }
 
     private void loadUserFlashcards(Long creatorId) {
-        // Không cần disable dropdown ở đây nếu gọi từ cả Add và Edit
-        showSubmitLoading(true);
+        startApiCall();
 
         apiService.getFlashcardsByCreator(creatorId).enqueue(new Callback<List<FlashcardBasicResponse>>() {
             @Override
             public void onResponse(Call<List<FlashcardBasicResponse>> call, Response<List<FlashcardBasicResponse>> response) {
-                showSubmitLoading(false);
+                finishApiCall();
+
                 if (response.isSuccessful() && response.body() != null) {
                     userFlashcards = response.body();
                     populateFlashcardDropdown();
-                    Log.d(TAG, "Loaded " + userFlashcards.size() + " flashcards for creator " + creatorId);
-                    preselectFlashcard(); // Luôn gọi để xử lý cả Add và Edit
-                    if(userFlashcards.isEmpty() && !isEditMode){
-                        textFieldLayoutSelectFlashcard.setError("Bạn chưa có bộ thẻ nào");
+                    Log.d(ACTIVITY_TAG, "Loaded " + userFlashcards.size() + " flashcards for creator " + creatorId);
+                    preselectFlashcard();
+
+                    // Set enabled state based on mode and availability AFTER loading
+                    // In Edit mode, always ENABLE dropdown after loading (user wants to change it)
+                    // In Add mode, enable only if list is not empty
+                    boolean hasFlashcards = userFlashcards != null && !userFlashcards.isEmpty();
+                    setFlashcardDropdownEnabled(hasFlashcards);
+                    if (!hasFlashcards) {
+                        textFieldLayoutSelectFlashcard.setError("You don't have any flashcard sets.");
+                    } else {
+                        textFieldLayoutSelectFlashcard.setError(null); // Clear error if flashcards are available
                     }
+
+
                 } else {
-                    Log.e(TAG, "Failed to load flashcards for creator " + creatorId + ": " + response.code());
-                    Toast.makeText(AddVocabularyActivity.this, "Lỗi tải danh sách bộ thẻ", Toast.LENGTH_SHORT).show();
+                    Log.e(ACTIVITY_TAG, "Failed to load flashcards for creator " + creatorId + ": " + response.code());
+                    Toast.makeText(AddVocabularyActivity.this, "Failed to load flashcard list.", Toast.LENGTH_SHORT).show();
+                    // On failure, disable and show error
+                    setFlashcardDropdownEnabled(false);
+                    textFieldLayoutSelectFlashcard.setError("Failed to load flashcard list.");
                 }
             }
             @Override
             public void onFailure(Call<List<FlashcardBasicResponse>> call, Throwable t) {
-                showSubmitLoading(false);
-                if (!isEditMode) setFlashcardDropdownEnabled(true); // Chỉ enable lại khi Add
-                Log.e(TAG, "Error loading flashcards for creator " + creatorId, t);
-                Toast.makeText(AddVocabularyActivity.this, "Lỗi mạng khi tải bộ thẻ", Toast.LENGTH_SHORT).show();
+                finishApiCall();
+                Log.e(ACTIVITY_TAG, "Error loading flashcards for creator " + creatorId, t);
+                Toast.makeText(AddVocabularyActivity.this, "Network error loading flashcard list.", Toast.LENGTH_SHORT).show();
+                // On network error, disable and show error
+                setFlashcardDropdownEnabled(false);
+                textFieldLayoutSelectFlashcard.setError("Network error loading flashcard list.");
             }
         });
     }
@@ -244,177 +278,204 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
         Collections.sort(flashcardNames);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, flashcardNames);
         autoCompleteTextViewSelectFlashcard.setAdapter(adapter);
-        Log.d(TAG, "Flashcard dropdown populated with " + flashcardNames.size() + " items.");
+        Log.d(ACTIVITY_TAG, "Flashcard dropdown populated with " + flashcardNames.size() + " items.");
     }
 
     private void setFlashcardDropdownEnabled(boolean enabled) {
         textFieldLayoutSelectFlashcard.setEnabled(enabled);
         autoCompleteTextViewSelectFlashcard.setEnabled(enabled);
+
+        if (!enabled && !isEditMode) {
+            autoCompleteTextViewSelectFlashcard.setHint("No flashcard sets available");
+            autoCompleteTextViewSelectFlashcard.setFocusable(false);
+        } else {
+            autoCompleteTextViewSelectFlashcard.setHint("Select Flashcard Set (*)");
+            autoCompleteTextViewSelectFlashcard.setFocusableInTouchMode(enabled);
+        }
     }
 
     private void setupEditModeUI() {
-        setTitle("Sửa từ vựng");
-        buttonSubmit.setText("Lưu thay đổi");
+        textScreenTitle.setText("Edit Vocabulary");
+        buttonSubmit.setText("Save Changes");
 
-        // Hiển thị và kích hoạt dropdown flashcard (cho phép chọn lại)
         textFieldLayoutSelectFlashcard.setVisibility(View.VISIBLE);
-        setFlashcardDropdownEnabled(true);
-
-        // Các view tìm ảnh cũng hiển thị (trạng thái ban đầu là ẩn)
-        progressBarImageSearch.setVisibility(View.GONE);
+        // setFlashcardDropdownEnabled(true) will be called after loadUserFlashcards
+        // Image search views are initially hidden in Edit mode, appear on text change
         recyclerViewImageSuggestions.setVisibility(View.GONE);
         textViewPexelsCredit.setVisibility(View.GONE);
 
-        // Log kiểm tra editingVocabulary trước khi sử dụng
-        Log.d(TAG, "Entering setupEditModeUI. editingVocabulary is null: " + (editingVocabulary == null));
+        Log.d(ACTIVITY_TAG, "Entering setupEditModeUI. editingVocabulary is null: " + (editingVocabulary == null));
 
-        // Điền dữ liệu cũ vào các trường
         if (editingVocabulary != null) {
-            Log.d(TAG, "Populating fields for Edit Mode. Vocab ID: " + editingVocabulary.getId());
+            Log.d(ACTIVITY_TAG, "Populating fields for Edit Mode. Vocab ID: " + editingVocabulary.getId());
 
-            // Điền các trường Text
-            editTextWord.setText(editingVocabulary.getWord() != null ? editingVocabulary.getWord() : "");
-            editTextDefinition.setText(editingVocabulary.getDefinition() != null ? editingVocabulary.getDefinition() : "");
-            editTextPhonetic.setText(editingVocabulary.getPhonetic() != null ? editingVocabulary.getPhonetic() : "");
-            // Đặt giá trị cho AutoCompleteTextView Type (quan trọng là dùng setText)
-            autoCompleteTextViewVocabType.setText(editingVocabulary.getType() != null ? editingVocabulary.getType() : "", false);
-            editTextExample.setText(editingVocabulary.getExample() != null ? editingVocabulary.getExample() : "");
+            editTextWord.setText(editingVocabulary.getWord());
+            editTextDefinition.setText(editingVocabulary.getDefinition());
+            editTextPhonetic.setText(editingVocabulary.getPhonetic());
+            autoCompleteTextViewVocabType.setText(editingVocabulary.getType(), false);
+            editTextExample.setText(editingVocabulary.getExample());
 
-            // Lưu URL ảnh cũ vào EditText ẩn (có thể null)
             String imageUrl = editingVocabulary.getImageUrl();
             editTextSelectedImageUrl.setText(imageUrl);
-            Log.d(TAG, "Setting initial imageUrl: " + imageUrl);
+            Log.d(ACTIVITY_TAG, "Setting initial imageUrl: " + imageUrl);
 
-
-            // *** HIỂN THỊ ẢNH CŨ (NẾU CÓ) BẰNG GLIDE ***
-            if (imageUrl != null && !imageUrl.isEmpty()) {
-                imageViewSelectedPreview.setVisibility(View.VISIBLE); // Hiển thị ImageView
-                Log.d(TAG, "Loading existing image into preview: " + imageUrl);
-                Glide.with(this) // Sử dụng context của Activity
-                        .load(imageUrl) // Load URL ảnh cũ
-                        .placeholder(R.drawable.ic_placeholder_image) // Ảnh chờ
-                        .error(R.drawable.ic_placeholder_image) // Ảnh lỗi
-                        .into(imageViewSelectedPreview); // Đặt vào ImageView preview
+            if (!TextUtils.isEmpty(imageUrl)) {
+                imageViewSelectedPreview.setVisibility(View.VISIBLE);
+                Log.d(ACTIVITY_TAG, "Loading existing image into preview: " + imageUrl);
+                Glide.with(this)
+                        .load(imageUrl)
+                        .placeholder(R.drawable.ic_placeholder_image)
+                        .error(R.drawable.ic_placeholder_image)
+                        .into(imageViewSelectedPreview);
             } else {
-                // Nếu không có ảnh cũ, ẩn ImageView đi
                 imageViewSelectedPreview.setVisibility(View.GONE);
-                Log.d(TAG, "No existing image URL found.");
+                Log.d(ACTIVITY_TAG, "No existing image URL found.");
             }
-            // *** KẾT THÚC PHẦN GLIDE ***
 
-            // Tự động chọn flashcard hiện tại sẽ được xử lý trong preselectFlashcard
-            // sau khi loadUserFlashcards hoàn tất.
-
+            // Preselect flashcard is handled after loadUserFlashcards
         } else {
-            Log.e(TAG, "editingVocabulary is NULL inside setupEditModeUI! Cannot populate fields.");
-            // Xử lý lỗi nghiêm trọng nếu editingVocabulary là null ở đây
-            Toast.makeText(this, "Lỗi tải dữ liệu từ vựng để sửa.", Toast.LENGTH_LONG).show();
-            finish(); // Đóng activity nếu không có dữ liệu sửa
+            Log.e(ACTIVITY_TAG, "editingVocabulary is NULL inside setupEditModeUI! Cannot populate fields.");
+            Toast.makeText(this, "Error loading vocabulary data for editing.", Toast.LENGTH_LONG).show();
+            finish();
         }
     }
+
     private void setupAddModeUI() {
-        setTitle("Thêm từ vựng mới");
-        buttonSubmit.setText("Thêm từ vào bộ thẻ");
+        textScreenTitle.setText("Add New Vocabulary");
+        buttonSubmit.setText("Add Vocabulary to Set");
+
         textFieldLayoutSelectFlashcard.setVisibility(View.VISIBLE);
-        setFlashcardDropdownEnabled(true); // Cho phép chọn
-        // Các view ảnh sẽ ẩn/hiện theo logic tìm kiếm
-        progressBarImageSearch.setVisibility(View.GONE);
+        // setFlashcardDropdownEnabled(true) will be called after loadUserFlashcards
+
         recyclerViewImageSuggestions.setVisibility(View.GONE);
         textViewPexelsCredit.setVisibility(View.GONE);
         imageViewSelectedPreview.setVisibility(View.GONE);
+        resetSelectedImage();
     }
 
     private void handleInvalidEditData() {
-        Log.e(TAG, "Invalid data received for edit mode.");
-        Toast.makeText(this, "Lỗi: Dữ liệu sửa không hợp lệ.", Toast.LENGTH_LONG).show();
+        Log.e(ACTIVITY_TAG, "Invalid data received for edit mode.");
+        Toast.makeText(this, "Error: Invalid data for editing.", Toast.LENGTH_LONG).show();
         finish();
     }
 
     private void preselectFlashcard() {
-        Long idToSelect = isEditMode ? parentFlashcardId : selectedFlashcardId; // Lấy ID cần chọn
+        Long idToSelect = null;
+        if (isEditMode && editingVocabulary != null) {
+            idToSelect = editingVocabulary.getFlashcardId(); // Use the correct getter
+            Log.d(ACTIVITY_TAG, "Edit mode preselect target ID: " + idToSelect + " from editingVocabulary");
+        } else if (parentFlashcardId != null && parentFlashcardId != -1L) {
+            idToSelect = parentFlashcardId;
+            Log.d(ACTIVITY_TAG, "Add mode preselect target ID: " + idToSelect + " from parentFlashcardId");
+        } else {
+            Log.d(ACTIVITY_TAG, "No specific flashcard ID to preselect.");
+        }
 
-        if (idToSelect != null && idToSelect != -1L && !userFlashcards.isEmpty()) {
+        if (idToSelect != null && idToSelect != -1L && userFlashcards != null) {
             String preselectedName = null;
             for (FlashcardBasicResponse fc : userFlashcards) {
                 if (idToSelect.equals(fc.getId())) {
                     preselectedName = fc.getName();
+                    selectedFlashcardId = fc.getId();
                     break;
                 }
             }
             if (preselectedName != null) {
                 autoCompleteTextViewSelectFlashcard.setText(preselectedName, false);
-                // Nếu là chế độ Add, cập nhật selectedFlashcardId
-                selectedFlashcardId = idToSelect;
-                Log.d(TAG, "Preselected flashcard: " + preselectedName + " (ID: " + idToSelect + ")");
+                Log.d(ACTIVITY_TAG, "Preselected flashcard: " + preselectedName + " (ID: " + idToSelect + ")");
                 textFieldLayoutSelectFlashcard.setError(null);
+
+                // In Edit mode, the dropdown is enabled by setFormEnabled(true) after loading.
+                // In Add mode, enabled state is set after loadUserFlashcards.
+
             } else {
-                Log.w(TAG, "Flashcard ID " + idToSelect + " not found in list for preselection.");
-                if (isEditMode) {
-                    textFieldLayoutSelectFlashcard.setError("Không tìm thấy bộ thẻ gốc");
-                } else {
-                    selectedFlashcardId = null; // Reset ở chế độ Add nếu không tìm thấy
-                }
+                Log.w(ACTIVITY_TAG, "Flashcard ID " + idToSelect + " not found in loaded list (" + (userFlashcards != null ? userFlashcards.size() : 0) + " items) for preselection.");
+                autoCompleteTextViewSelectFlashcard.setText("", false);
+                selectedFlashcardId = null;
+                // Error messages set based on mode and availability in loadUserFlashcards or setFormEnabled
             }
-        } else if (!isEditMode) {
-            selectedFlashcardId = null; // Reset ở chế độ Add nếu không có ID ban đầu
+        } else if (!isEditMode && (userFlashcards == null || userFlashcards.isEmpty())) {
+            Log.w(ACTIVITY_TAG, "No user flashcards available for selection in Add mode (preselect).");
+            selectedFlashcardId = null;
+            // Error and disabled state are set in loadUserFlashcards callback
+        } else {
+            Log.d(ACTIVITY_TAG, "No preselection needed based on intent or editing vocabulary.");
+            selectedFlashcardId = null;
+            // Error message will be shown on submit validation if in Add mode and no selection
         }
     }
 
-    private void searchImages(String query) {
-        showImageSearchLoading(true);
-        Log.d(TAG, "Searching images via backend for query: " + query);
 
-        // Gọi API backend mới
-        apiService.searchImagesViaBackend(query, 15, 1, "landscape") // Truyền tham số cần thiết
-            .enqueue(new Callback<PexelsResponse>() { // Vẫn nhận PexelsResponse từ backend
-                @Override
-                public void onResponse(Call<PexelsResponse> call, Response<PexelsResponse> response) {
-                    showImageSearchLoading(false);
-                    if (response.isSuccessful() && response.body() != null && response.body().getPhotos() != null) {
-                        List<PexelsPhoto> photos = response.body().getPhotos();
-                        Log.d(TAG, "Received " + photos.size() + " image suggestions from backend.");
-                        imageSuggestionAdapter.updateData(photos);
-                        boolean hasSuggestions = !photos.isEmpty();
-                        recyclerViewImageSuggestions.setVisibility(hasSuggestions ? View.VISIBLE : View.GONE);
-                        // Hiển thị credit "Ảnh từ Pexels" vì nguồn gốc vẫn là Pexels
-                        textViewPexelsCredit.setVisibility(hasSuggestions ? View.VISIBLE : View.GONE);
-                    } else {
-                        Log.e(TAG, "Backend image search failed: " + response.code());
-                        Toast.makeText(AddVocabularyActivity.this, "Lỗi tìm ảnh từ server: " + response.code(), Toast.LENGTH_SHORT).show();
+    private void searchImages(String query) {
+        startApiCall();
+
+        Log.d(ACTIVITY_TAG, "Searching images via backend for query: " + query);
+
+        String encodedQuery;
+        try {
+            encodedQuery = URLEncoder.encode(query, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            Log.e(ACTIVITY_TAG, "Error encoding image search query", e);
+            Toast.makeText(this, "Error encoding search query.", Toast.LENGTH_SHORT).show();
+            finishApiCall();
+            return;
+        }
+
+
+        apiService.searchImagesViaBackend(encodedQuery, 15, 1, "landscape")
+                .enqueue(new Callback<PexelsResponse>() {
+                    @Override
+                    public void onResponse(Call<PexelsResponse> call, Response<PexelsResponse> response) {
+                        finishApiCall();
+                        if (response.isSuccessful() && response.body() != null && response.body().getPhotos() != null) {
+                            List<PexelsPhoto> photos = response.body().getPhotos();
+                            Log.d(ACTIVITY_TAG, "Received " + photos.size() + " image suggestions from backend.");
+                            imageSuggestionAdapter.updateData(photos);
+                            boolean hasSuggestions = !photos.isEmpty();
+                            recyclerViewImageSuggestions.setVisibility(hasSuggestions ? View.VISIBLE : View.GONE);
+                            textViewPexelsCredit.setVisibility(hasSuggestions ? View.VISIBLE : View.GONE);
+                        } else {
+                            Log.e(ACTIVITY_TAG, "Backend image search failed: " + response.code());
+                            Toast.makeText(AddVocabularyActivity.this, "Image search failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                            clearImageSuggestions();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<PexelsResponse> call, Throwable t) {
+                        finishApiCall();
+                        Log.e(ACTIVITY_TAG, "Backend image search network error", t);
+                        Toast.makeText(AddVocabularyActivity.this, "Image search network error.", Toast.LENGTH_SHORT).show();
                         clearImageSuggestions();
                     }
-                }
-
-                @Override
-                public void onFailure(Call<PexelsResponse> call, Throwable t) {
-                    showImageSearchLoading(false);
-                    Log.e(TAG, "Backend image search network error", t);
-                    Toast.makeText(AddVocabularyActivity.this, "Lỗi mạng khi tìm ảnh", Toast.LENGTH_SHORT).show();
-                    clearImageSuggestions();
-                }
-            });
+                });
     }
 
     @Override
     public void onImageSelected(PexelsPhoto image) {
-//        if (isEditMode) return; // Không cho chọn ảnh khi sửa
-
-        if (image == null || image.getSrc() == null) return;
+        if (image == null || image.getSrc() == null) {
+            Log.w(ACTIVITY_TAG, "Selected image or its source is null.");
+            return;
+        }
         String url = image.getSrc().getMedium();
-        if (url == null || url.isEmpty()) url = image.getSrc().getLarge();
-        if (url == null || url.isEmpty()) return;
+        if (TextUtils.isEmpty(url)) url = image.getSrc().getLarge();
+        if (TextUtils.isEmpty(url)) url = image.getSrc().getOriginal();
+        if (TextUtils.isEmpty(url)) {
+            Log.w(ACTIVITY_TAG, "No suitable image URL found for selected photo.");
+            Toast.makeText(this, "Error getting image URL.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        Log.d(TAG, "Pexels Image selected: " + url);
+        Log.d(ACTIVITY_TAG, "Pexels Image selected: " + url);
         editTextSelectedImageUrl.setText(url);
         imageViewSelectedPreview.setVisibility(View.VISIBLE);
         Glide.with(this).load(url).placeholder(R.drawable.ic_placeholder_image).error(R.drawable.ic_placeholder_image).into(imageViewSelectedPreview);
-        Toast.makeText(this, "Ảnh: " + image.getPhotographer() + " / Pexels", Toast.LENGTH_SHORT).show();
     }
 
     private void resetSelectedImage() {
         editTextSelectedImageUrl.setText("");
         imageViewSelectedPreview.setVisibility(View.GONE);
-        imageViewSelectedPreview.setImageResource(R.drawable.ic_placeholder_image);
+        imageViewSelectedPreview.setImageResource(0);
     }
 
     private void clearImageSuggestions() {
@@ -426,11 +487,16 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
     }
 
     private void attemptUpdateVocabulary() {
-        if (editingVocabulary == null || editingVocabulary.getId() == null) { /* Báo lỗi */ return; }
+        if (editingVocabulary == null || editingVocabulary.getId() == null) {
+            Log.e(ACTIVITY_TAG, "Attempted to update null or invalid vocabulary.");
+            Toast.makeText(this, "Error: Cannot update invalid vocabulary.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // Lấy dữ liệu đã sửa
-        // *** LẤY FLASHCARD ID MỚI NHẤT TỪ DROPDOWN ***
-        Long targetFlashcardId = selectedFlashcardId; // Lấy ID từ biến toàn cục đã được cập nhật bởi dropdown listener
+        // Get data from fields
+        // In Edit mode, selectedFlashcardId IS the value from the dropdown if user changed it
+        Long targetFlashcardId = selectedFlashcardId; // Use the potentially NEW selected ID
+
         String word = editTextWord.getText().toString().trim();
         String definition = editTextDefinition.getText().toString().trim();
         String phonetic = editTextPhonetic.getText().toString().trim();
@@ -438,15 +504,18 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
         String example = editTextExample.getText().toString().trim();
         String selectedImageUrl = editTextSelectedImageUrl.getText().toString().trim();
 
-        // Validation (Thêm validation cho flashcard đã chọn)
+        // Validation
         boolean valid = true;
-        if (targetFlashcardId == null) { textFieldLayoutSelectFlashcard.setError("Vui lòng chọn bộ thẻ"); valid = false; } else { textFieldLayoutSelectFlashcard.setError(null); }
-        if (TextUtils.isEmpty(word)) { textFieldLayoutVocabWord.setError("Từ vựng trống"); valid = false; } else { textFieldLayoutVocabWord.setError(null); }
-        if (TextUtils.isEmpty(definition)) { textFieldLayoutVocabDefinition.setError("Định nghĩa trống"); valid = false; } else { textFieldLayoutVocabDefinition.setError(null); }
-        if (TextUtils.isEmpty(type)) { textFieldLayoutVocabType.setError("Vui lòng chọn loại từ"); valid = false; } else { textFieldLayoutVocabType.setError(null); }
-        if (!valid) return;
+        if (targetFlashcardId == null || targetFlashcardId == -1L) { textFieldLayoutSelectFlashcard.setError("Please select a flashcard set."); valid = false; } else { textFieldLayoutSelectFlashcard.setError(null); }
+        if (TextUtils.isEmpty(word)) { textFieldLayoutVocabWord.setError("Vocabulary word cannot be empty."); valid = false; } else { textFieldLayoutVocabWord.setError(null); }
+        if (TextUtils.isEmpty(definition)) { textFieldLayoutVocabDefinition.setError("Definition cannot be empty."); valid = false; } else { textFieldLayoutVocabDefinition.setError(null); }
+        if (TextUtils.isEmpty(type)) { textFieldLayoutVocabType.setError("Please select a type."); valid = false; } else { textFieldLayoutVocabType.setError(null); }
+        if (!valid) {
+            Log.w(ACTIVITY_TAG, "Update validation failed.");
+            return;
+        }
 
-        // Tạo Request Body Update
+        // Create Request Body Update
         VocabularyUpdateRequest updateRequest = new VocabularyUpdateRequest();
         updateRequest.setWord(word);
         updateRequest.setDefinition(definition);
@@ -454,38 +523,41 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
         updateRequest.setType(type);
         updateRequest.setExample(example);
         updateRequest.setImageUrl(selectedImageUrl);
-        // *** GỬI FLASHCARD ID MỚI ĐÃ CHỌN ***
-        updateRequest.setFlashcardId(targetFlashcardId);
+        // PASS THE POTENTIALLY NEWLY SELECTED FLASHCARD ID
+        updateRequest.setFlashcardId(targetFlashcardId); // <-- Use the ID from the dropdown
 
-        Log.d(TAG, "Attempting to update vocabulary ID: " + editingVocabulary.getId() + " | Target Flashcard ID: " + targetFlashcardId +" | Request: " + updateRequest);
-        showSubmitLoading(true);
+        Log.d(ACTIVITY_TAG, "Attempting to update vocabulary ID: " + editingVocabulary.getId() + " | Target Flashcard ID: " + targetFlashcardId +" | Request: " + updateRequest);
+        startApiCall();
 
-        // Gọi API Update
         apiService.updateVocabulary(editingVocabulary.getId(), updateRequest).enqueue(new Callback<VocabularyResponse>() {
             @Override
             public void onResponse(Call<VocabularyResponse> call, Response<VocabularyResponse> response) {
-                showSubmitLoading(false);
-                Log.d(TAG, "Update API onResponse - Code: " + response.code() + ", Successful: " + response.isSuccessful()); // Log mã và trạng thái
+                finishApiCall();
+                Log.d(ACTIVITY_TAG, "Update API onResponse - Code: " + response.code() + ", Successful: " + response.isSuccessful());
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.i(TAG, "Vocabulary updated successfully. Finishing activity.");
-                    Toast.makeText(AddVocabularyActivity.this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
+                    Log.i(ACTIVITY_TAG, "Vocabulary updated successfully. Finishing activity.");
+                    Toast.makeText(AddVocabularyActivity.this, "Updated successfully!", Toast.LENGTH_SHORT).show();
                     setResult(Activity.RESULT_OK);
                     finish();
                 } else {
-                    String errorBody = "";
-                    try { if (response.errorBody() != null) errorBody = response.errorBody().string(); }
-                    catch (Exception e) { Log.e(TAG, "Error reading error body", e); }
-                    Log.e(TAG, "Failed update vocabulary API response. Code: " + response.code() + ", Message: " + response.message() + ", Error Body: " + errorBody);
-                    Toast.makeText(AddVocabularyActivity.this, "Lỗi cập nhật: " + response.code(), Toast.LENGTH_SHORT).show();
-                    // KHÔNG finish() khi lỗi
+                    String errorMsg = "Failed to update: " + response.code();
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            Log.e(ACTIVITY_TAG, "Error Body: " + errorBody);
+                        }
+                    } catch (Exception e) {
+                        Log.e(ACTIVITY_TAG, "Error reading error body", e);
+                    }
+                    Log.e(ACTIVITY_TAG, "Failed update vocabulary API response: " + errorMsg);
+                    Toast.makeText(AddVocabularyActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
             public void onFailure(Call<VocabularyResponse> call, Throwable t) {
-                showSubmitLoading(false);
-                Log.e(TAG, "Error updating vocabulary (Network Failure or other exception)", t); // Log cả Throwable
-                Toast.makeText(AddVocabularyActivity.this, "Lỗi mạng khi cập nhật", Toast.LENGTH_SHORT).show();
-                // KHÔNG finish() khi lỗi
+                finishApiCall();
+                Log.e(ACTIVITY_TAG, "Error updating vocabulary (Network Failure or other exception)", t);
+                Toast.makeText(AddVocabularyActivity.this, "Network error while updating.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -501,11 +573,15 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
         String selectedImageUrl = editTextSelectedImageUrl.getText().toString().trim();
 
         boolean valid = true;
-        if (targetFlashcardId == null) { textFieldLayoutSelectFlashcard.setError("Vui lòng chọn bộ thẻ"); valid = false; } else { textFieldLayoutSelectFlashcard.setError(null); }
-        if (TextUtils.isEmpty(word)) { textFieldLayoutVocabWord.setError("Từ vựng trống"); valid = false; } else { textFieldLayoutVocabWord.setError(null); }
-        if (TextUtils.isEmpty(definition)) { textFieldLayoutVocabDefinition.setError("Định nghĩa trống"); valid = false; } else { textFieldLayoutVocabDefinition.setError(null); }
-        if (TextUtils.isEmpty(type)) { textFieldLayoutVocabType.setError("Vui lòng chọn loại từ"); valid = false; } else { textFieldLayoutVocabType.setError(null); }
-        if (!valid) return;
+        if (targetFlashcardId == null || targetFlashcardId == -1L) { textFieldLayoutSelectFlashcard.setError("Please select a flashcard set."); valid = false; } else { textFieldLayoutSelectFlashcard.setError(null); }
+        if (TextUtils.isEmpty(word)) { textFieldLayoutVocabWord.setError("Vocabulary word cannot be empty."); valid = false; } else { textFieldLayoutVocabWord.setError(null); }
+        if (TextUtils.isEmpty(definition)) { textFieldLayoutVocabDefinition.setError("Definition cannot be empty."); valid = false; } else { textFieldLayoutVocabDefinition.setError(null); }
+        if (TextUtils.isEmpty(type)) { textFieldLayoutVocabType.setError("Please select a type."); valid = false; } else { textFieldLayoutVocabType.setError(null); }
+
+        if (!valid) {
+            Log.w(ACTIVITY_TAG, "Add validation failed.");
+            return;
+        }
 
         VocabularyCreateRequest request = new VocabularyCreateRequest();
         request.setWord(word);
@@ -515,40 +591,108 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
         if (!TextUtils.isEmpty(example)) request.setExample(example);
         if (!TextUtils.isEmpty(selectedImageUrl)) request.setImageUrl(selectedImageUrl);
 
-        Log.d(TAG, "Attempting add vocab to Flashcard ID: " + targetFlashcardId + " | Request: " + request);
-        showSubmitLoading(true);
+        Log.d(ACTIVITY_TAG, "Attempting add vocab to Flashcard ID: " + targetFlashcardId + " | Request: " + request);
+        startApiCall();
 
         apiService.addVocabulary(targetFlashcardId, request).enqueue(new Callback<VocabularyResponse>() {
             @Override
             public void onResponse(Call<VocabularyResponse> call, Response<VocabularyResponse> response) {
-                showSubmitLoading(false);
+                finishApiCall();
+                Log.d(ACTIVITY_TAG, "Add API onResponse - Code: " + response.code() + ", Successful: " + response.isSuccessful());
                 if (response.isSuccessful() && response.body() != null) {
-                    Toast.makeText(AddVocabularyActivity.this, "Thêm từ thành công!", Toast.LENGTH_SHORT).show();
+                    Log.i(ACTIVITY_TAG, "Vocabulary added successfully. Finishing activity.");
+                    Toast.makeText(AddVocabularyActivity.this, "Vocabulary added successfully!", Toast.LENGTH_SHORT).show();
                     setResult(Activity.RESULT_OK);
                     finish();
                 } else {
-                    Log.e(TAG, "Failed add vocab: " + response.code() + " " + response.message());
-                    Toast.makeText(AddVocabularyActivity.this, "Lỗi thêm từ vựng: " + response.code(), Toast.LENGTH_SHORT).show();
+                    String errorMsg = "Failed to add vocabulary: " + response.code();
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            Log.e(ACTIVITY_TAG, "Error Body: " + errorBody);
+                        }
+                    } catch (Exception e) {
+                        Log.e(ACTIVITY_TAG, "Error reading error body", e);
+                    }
+                    Log.e(ACTIVITY_TAG, "Failed add vocabulary API response: " + errorMsg);
+                    Toast.makeText(AddVocabularyActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
             public void onFailure(Call<VocabularyResponse> call, Throwable t) {
-                showSubmitLoading(false);
-                Log.e(TAG, "Error adding vocab", t);
-                Toast.makeText(AddVocabularyActivity.this, "Lỗi mạng khi thêm", Toast.LENGTH_SHORT).show();
+                finishApiCall();
+                Log.e(ACTIVITY_TAG, "Error adding vocab (Network Failure or other exception)", t);
+                Toast.makeText(AddVocabularyActivity.this, "Network error while adding vocabulary.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void showImageSearchLoading(boolean isLoading) {
-        progressBarImageSearch.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+    // --- Loading Logic using DialogFragment ---
+
+    private synchronized void startApiCall() {
+        loadingApiCount++;
+        if (loadingApiCount == 1) {
+            showLoading(true);
+        }
+        setFormEnabled(false);
     }
-    private void showSubmitLoading(boolean isLoading) {
-        progressBarAddVocab.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        buttonSubmit.setEnabled(!isLoading);
+
+    private synchronized void finishApiCall() {
+        loadingApiCount--;
+        if (loadingApiCount <= 0) {
+            loadingApiCount = 0;
+            showLoading(false);
+            setFormEnabled(true);
+            // preselectFlashcard() is called in loadUserFlashcards callback
+            // It is not needed here after every API call finishes
+        }
     }
+
+    // Controls the visibility of the loading dialog and message
+    private void showLoading(boolean isLoading) {
+        String message = isLoading ? (isEditMode ? "Saving changes..." : "Adding vocabulary...") : "";
+        if (isLoading) {
+            LoadingDialogFragment.showLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG, message);
+        } else {
+            LoadingDialogFragment.hideLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG);
+        }
+    }
+
+    // Utility to enable/disable form fields and submit button
+    private void setFormEnabled(boolean enabled) {
+        // Always enable/disable these based on overall loading state
+        editTextWord.setEnabled(enabled);
+        editTextDefinition.setEnabled(enabled);
+        editTextPhonetic.setEnabled(enabled);
+        autoCompleteTextViewVocabType.setEnabled(enabled);
+        editTextExample.setEnabled(enabled);
+        buttonSubmit.setEnabled(enabled);
+        backButton.setEnabled(enabled);
+
+        // Flashcard dropdown enabled logic is different for Add vs Edit
+        if (isEditMode) {
+            // In Edit mode, dropdown is ALWAYS enabled unless the form is globally disabled by loading
+            setFlashcardDropdownEnabled(enabled); // Enable/disable based on overall 'enabled' status
+        } else {
+            // In Add mode, dropdown enabled state depends on 'enabled' AND userFlashcards availability
+            boolean hasFlashcards = userFlashcards != null && !userFlashcards.isEmpty();
+            boolean canEnableDropdown = enabled && hasFlashcards;
+            setFlashcardDropdownEnabled(canEnableDropdown);
+
+            if (!canEnableDropdown && enabled) { // If form enabled, but dropdown disabled due to no flashcards
+                textFieldLayoutSelectFlashcard.setError("You don't have any flashcard sets.");
+            } else {
+                // Clear error if re-enabled or disabled by loading
+                textFieldLayoutSelectFlashcard.setError(null);
+            }
+        }
+        // Image search RecyclerView and preview visibility are handled by their own logic
+    }
+
+
     @Override protected void onDestroy() {
         super.onDestroy();
         if (searchRunnable != null) searchHandler.removeCallbacks(searchRunnable);
+        LoadingDialogFragment.hideLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG);
     }
 }
