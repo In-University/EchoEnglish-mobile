@@ -8,163 +8,169 @@
     android:background="@color/background_gray"
     tools:context=".view.activity.flashcard.FlashcardDetailActivity">
 
-    <!-- Custom Header: Back Button and Title (Fixed at the top) -->
-<ImageView
-android:id="@+id/backButton"
-android:layout_width="24dp"
-android:layout_height="24dp"
-android:layout_marginTop="16dp"
-android:layout_marginStart="16dp"
-android:src="@drawable/ic_xml_arrow_back_ios_24px"
-android:contentDescription="Back"
-android:clickable="true"
-android:focusable="true"
-android:background="?attr/selectableItemBackgroundBorderless"
-app:layout_constraintTop_toTopOf="parent"
-app:layout_constraintStart_toStartOf="parent"
-app:tint="@color/black" />
+    <ImageView
+        android:id="@+id/backButton"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:src="@drawable/ic_xml_arrow_back_ios_24px"
+        android:contentDescription="Back"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="@color/black" />
 
-<TextView
-android:id="@+id/textScreenTitle"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:layout_marginStart="8dp"
-android:layout_marginEnd="16dp"
-tools:text="Flashcard Set Title"
-android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-android:textColor="@android:color/black"
-app:layout_constraintTop_toTopOf="@+id/backButton"
-app:layout_constraintBottom_toBottomOf="@+id/backButton"
-app:layout_constraintStart_toEndOf="@+id/backButton"
-app:layout_constraintEnd_toEndOf="parent" />
+    <TextView
+        android:id="@+id/textScreenTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        tools:text="Flashcard Set Title"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toTopOf="@+id/backButton"
+        app:layout_constraintBottom_toBottomOf="@+id/backButton"
+        app:layout_constraintStart_toEndOf="@+id/backButton"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Flashcard Header Image (Fixed below the custom header) -->
-<ImageView
-android:id="@+id/imageViewDetailHeader"
-android:layout_width="0dp"
-android:layout_height="150dp"
-    android:layout_marginTop="16dp"
-    android:scaleType="centerCrop"
-    app:layout_constraintTop_toBottomOf="@+id/backButton"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    tools:srcCompat="@tools:sample/backgrounds/scenic"
-    android:contentDescription="Flashcard set cover image" />
+    <ImageView
+        android:id="@+id/imageViewDetailHeader"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="16dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toBottomOf="@+id/backButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:srcCompat="@tools:sample/backgrounds/scenic"
+        android:contentDescription="Flashcard set cover image" />
 
-    <!-- Search Bar (Fixed below the image) -->
-<androidx.appcompat.widget.SearchView
-android:id="@+id/searchViewVocabulary"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:layout_marginStart="16dp"
-android:layout_marginEnd="16dp"
-android:layout_marginTop="8dp"
-android:layout_marginBottom="8dp"
-android:background="@drawable/background_edittext"
-app:queryHint="Search vocabulary..."
-app:iconifiedByDefault="false"
-app:layout_constraintTop_toBottomOf="@+id/imageViewDetailHeader"
-app:layout_constraintStart_toStartOf="parent"
-app:layout_constraintEnd_toEndOf="parent" />
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchViewVocabulary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/background_edittext"
+        app:queryHint="Search vocabulary..."
+        app:iconifiedByDefault="false"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewDetailHeader"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Vocabulary Label (Fixed below the search bar) -->
-<TextView
-android:id="@+id/textViewVocabulariesLabel"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:text="Vocabulary"
-android:layout_marginStart="16dp"
-android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-android:layout_marginTop="8dp"
-app:layout_constraintTop_toBottomOf="@+id/searchViewVocabulary"
-app:layout_constraintStart_toStartOf="parent" />
+    <TextView
+        android:id="@+id/textViewVocabulariesLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vocabulary"
+        android:layout_marginStart="16dp"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/searchViewVocabulary"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Bottom Control Buttons (Fixed at the bottom) -->
-<LinearLayout
-android:id="@+id/layoutDetailButtons"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:orientation="horizontal"
-android:paddingStart="8dp"
-android:paddingEnd="8dp"
-android:paddingTop="8dp"
-android:paddingBottom="8dp"
-android:background="?android:attr/windowBackground"
-android:elevation="4dp"
-app:layout_constraintBottom_toBottomOf="parent"
-app:layout_constraintStart_toStartOf="parent"
-app:layout_constraintEnd_toEndOf="parent">
+    <LinearLayout
+        android:id="@+id/layoutDetailButtons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:background="?android:attr/windowBackground"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-<com.google.android.material.button.MaterialButton
-    android:id="@+id/buttonLearn"
-    style="@style/Widget.Material3.Button.Icon"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:text="Learn"
-    android:layout_marginEnd="4dp"  />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonLearn"
+            style="@style/Widget.Material3.Button.Icon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Learn"
+            android:layout_marginEnd="4dp"
+            android:textColor="@color/white"
+            app:icon="@drawable/ic_xml_play_arrow_24px"
+            app:iconTint="@color/white"
+            app:iconPadding="8dp"
+            app:backgroundTint="@color/teal_700" /> <!-- Sử dụng màu từ palette cho nền -->
 
-<com.google.android.material.button.MaterialButton
-    android:id="@+id/buttonGame1"
-    style="@style/Widget.Material3.Button.OutlinedButton.Icon"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:layout_marginStart="4dp"
-    android:layout_marginEnd="4dp"
-    android:text="Game 1" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonGame1"
+            style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:text="Puzzle"
+            android:textColor="@color/teal_700"
+            app:icon="@drawable/ic_xml_crossword_24px"
+            app:iconTint="@color/teal_700"
+            app:iconPadding="7dp"
+            app:strokeColor="@color/teal_700" /> <!-- Sử dụng màu từ palette cho viền -->
 
-<com.google.android.material.button.MaterialButton
-    android:id="@+id/buttonGame2"
-    style="@style/Widget.Material3.Button.OutlinedButton.Icon"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:layout_marginStart="4dp"
-    android:text="Game 2"  />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonGame2"
+            style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:text="Quiz"
+            android:textColor="@color/teal_700"
+        app:icon="@drawable/ic_xml_stadia_controller_24px"
+        app:iconTint="@color/teal_700"
+        app:iconPadding="7dp"
+        app:strokeColor="@color/teal_700" />
 
-</LinearLayout>
+    </LinearLayout>
 
-    <!-- Vocabulary RecyclerView (Fills space between label and buttons, IS scrollable) -->
-<androidx.recyclerview.widget.RecyclerView
-android:id="@+id/recyclerViewVocabularies"
-android:layout_width="0dp"
-android:layout_height="0dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp"
-    app:layout_constraintTop_toBottomOf="@+id/textViewVocabulariesLabel"
-    app:layout_constraintBottom_toTopOf="@+id/layoutDetailButtons"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    tools:listitem="@layout/item_vocabulary"
-    tools:itemCount="5"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewVocabularies"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/textViewVocabulariesLabel"
+        app:layout_constraintBottom_toTopOf="@+id/layoutDetailButtons"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/item_vocabulary"
+        tools:itemCount="5"/>
 
+    <TextView
+        android:id="@+id/textViewNoVocabularies"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No vocabulary found in this set."
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="?android:attr/textColorSecondary"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@+id/recyclerViewVocabularies"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerViewVocabularies"
+        app:layout_constraintStart_toStartOf="@+id/recyclerViewVocabularies"
+        app:layout_constraintEnd_toEndOf="@+id/recyclerViewVocabularies"/>
 
-<TextView
-android:id="@+id/textViewNoVocabularies"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:text="No vocabulary found in this set."
-    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-    android:textColor="?android:attr/textColorSecondary"
-    android:gravity="center"
-    android:visibility="gone"
-    app:layout_constraintTop_toTopOf="@+id/recyclerViewVocabularies"
-    app:layout_constraintBottom_toBottomOf="@+id/recyclerViewVocabularies"
-    app:layout_constraintStart_toStartOf="@+id/recyclerViewVocabularies"
-    app:layout_constraintEnd_toEndOf="@+id/recyclerViewVocabularies"/>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddVocabularyDetail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:contentDescription="Add vocabulary"
+        app:srcCompat="@drawable/ic_add"
+        app:layout_constraintBottom_toTopOf="@+id/layoutDetailButtons"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"/>
 
-
-    <!-- FAB Add Vocabulary (Anchored above the bottom buttons) -->
-<com.google.android.material.floatingactionbutton.FloatingActionButton
-android:id="@+id/fabAddVocabularyDetail"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:layout_margin="16dp"
-android:contentDescription="Add vocabulary"
-app:srcCompat="@drawable/ic_add"
-app:layout_constraintBottom_toTopOf="@+id/layoutDetailButtons"
-app:layout_constraintEnd_toEndOf="parent"
-android:visibility="gone"/>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

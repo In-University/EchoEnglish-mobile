@@ -5,51 +5,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="?android:colorBackground"> <!-- Use theme background color -->
 
-    <!-- Loading Indicator - Initially visible -->
-    <LinearLayout
-        android:id="@+id/loadingContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Đang khởi tạo âm thanh..."
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"/>
-
-    </LinearLayout>
-
-
-    <!-- Game Content - Initially Invisible -->
+    <!-- Game Content - Always visible in XML, visibility controlled by code vs LoadingDialogFragment -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/gameContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible"> <!-- Set to invisible initially -->
-
-        <!-- Existing Game Elements Here -->
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/textGame2Progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Câu 1 / 10" />
+            android:textColor="?attr/colorOnSurfaceVariant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Question 1 / 10" /> <!-- Đã dịch -->
 
         <ImageButton
             android:id="@+id/buttonGame2PlaySound"
@@ -57,25 +34,25 @@
             android:layout_height="96dp"
             android:layout_marginTop="24dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Phát âm thanh"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_image_volume"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textGame2Progress"
-            app:tint="?attr/colorPrimary" />
+            android:contentDescription="Play word sound"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/ic_xml_volume_up_24px"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textGame2Progress"
+        app:tint="?attr/colorPrimary" />
 
         <TextView
             android:id="@+id/textViewListenInstruction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Nhấn loa để nghe từ"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-            android:textColor="?android:attr/textColorSecondary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/buttonGame2PlaySound" />
+            android:text="Press speaker to hear the word"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+        android:textColor="?android:attr/textColorSecondary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonGame2PlaySound" />
 
         <GridLayout
             android:id="@+id/gridGame2Answers"
@@ -88,26 +65,46 @@
             android:alignmentMode="alignMargins"
             android:columnOrderPreserved="false"
             android:useDefaultMargins="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewListenInstruction">
-            <!-- Items will be inflated here -->
-        </GridLayout>
+            app:layout_constraintBottom_toTopOf="@+id/buttonGame2Skip"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewListenInstruction">
+        <!-- Items will be inflated here -->
+    </GridLayout>
 
-<!--        <Button-->
-<!--            android:id="@+id/buttonGame2Skip"-->
-<!--            style="@style/Widget.MaterialComponents.Button.TextButton"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginBottom="16dp"-->
-<!--            android:text="Bỏ qua"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent" />-->
-
-        <!-- End of Existing Game Elements -->
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Skip button (using Material TextButton) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonGame2Skip"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Skip"
+    android:textColor="?attr/colorPrimary"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Loading Indicator - This will be managed by the DialogFragment -->
+    <!-- It's here just for structure, but DialogFragment will overlay -->
+    <!-- Keeping the layout container structure might still be useful for other reasons -->
+    <!--
+    <LinearLayout
+        android:id="@+id/loadingContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <ProgressBar android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Loading..." android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"/>
+    </LinearLayout>
+    -->
+
+    </androidx.constraintlayout.widget.ConstraintLayout>

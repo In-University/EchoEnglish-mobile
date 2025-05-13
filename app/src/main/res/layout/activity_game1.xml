@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="?android:colorBackground"> <!-- Use theme background color -->
+    android:background="?android:colorBackground">
 
     <TextView
         android:id="@+id/textGame1Progress"
@@ -15,7 +16,7 @@
         android:textColor="#757575"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Câu 1 / 10" />
+        tools:text="Question 1 / 10" /> <!-- Đã dịch -->
 
     <ImageView
         android:id="@+id/imageGame1Word"
@@ -23,54 +24,70 @@
         android:layout_height="200dp"
         android:layout_marginTop="16dp"
         android:scaleType="centerCrop"
-        android:background="#FFF"
+        android:background="@android:color/white"
         android:padding="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textGame1Progress"
         tools:srcCompat="@drawable/ic_placeholder_image" />
 
-    <TextView
-        android:id="@+id/textGame1Definition"
+    <LinearLayout
+        android:id="@+id/layoutDefinitionArea"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:gravity="center"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-        android:textColor="#212121"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageGame1Word"
-        tools:text="Nghĩa: Một loại quả" />
-
-    <!-- Khu vực hiển thị câu trả lời người dùng ghép -->
-    <LinearLayout
-        android:id="@+id/layoutGame1Answer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textGame1Definition"
-        app:layout_constraintVertical_chainStyle="packed">
-        <!-- letter boxes will be added here programmatically -->
+        app:layout_constraintTop_toBottomOf="@+id/imageGame1Word">
+
+        <TextView
+            android:id="@+id/textGame1Definition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textColor="#212121"
+            tools:text="Meaning: A type of fruit" /> <!-- Đã dịch -->
+
+        <ImageButton
+            android:id="@+id/buttonGame1PlaySound"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Play word sound"
+            android:src="@drawable/ic_xml_volume_up_24px"
+            app:tint="@color/teal_700" />
+
     </LinearLayout>
 
-    <!-- Divider under the answer area -->
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/layoutGame1Answer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:gravity="center"
+        app:flexWrap="wrap"
+        app:justifyContent="center"
+        app:alignItems="center"
+        app:alignContent="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutDefinitionArea">
+    </com.google.android.flexbox.FlexboxLayout>
+
     <View
         android:id="@+id/dividerAnswer"
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:layout_marginTop="16dp"
         android:background="#CCC"
-        app:layout_constraintEnd_toEndOf="@+id/layoutGame1Answer"
-        app:layout_constraintStart_toStartOf="@+id/layoutGame1Answer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/layoutGame1Answer" />
 
-
-    <!-- Khu vực chứa các lựa chọn chữ cái (dùng FlexboxLayout) -->
     <com.google.android.flexbox.FlexboxLayout
         android:id="@+id/layoutGame1Choices"
         android:layout_width="0dp"
@@ -86,34 +103,34 @@
         app:layout_constraintTop_toBottomOf="@+id/dividerAnswer"
         app:layout_constraintBottom_toTopOf="@+id/buttonGame1Check"
         app:layout_constraintVertical_bias="0">
-    <!-- letter choice boxes will be added here programmatically -->
-</com.google.android.flexbox.FlexboxLayout>
+    </com.google.android.flexbox.FlexboxLayout>
 
-    <!-- Check button (initially hidden) -->
-    <Button
-    android:id="@+id/buttonGame1Check"
-    style="@style/Widget.MaterialComponents.Button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Kiểm tra"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonGame1Check"
+        style="@style/Widget.Material3.Button.Icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Check"
     android:visibility="gone"
     app:icon="@drawable/ic_xml_check_24px"
     app:layout_constraintBottom_toTopOf="@+id/buttonGame1Skip"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
+    app:backgroundTint="@color/teal_700"
+    app:iconTint="@color/white"
+    app:cornerRadius="8dp"
     tools:visibility="visible" />
 
-    <!-- Skip button -->
-    <Button
-    android:id="@+id/buttonGame1Skip"
-    style="@style/Widget.MaterialComponents.Button.TextButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
-    android:text="Bỏ qua"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonGame1Skip"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Skip"
+    android:textColor="@color/teal_700"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
