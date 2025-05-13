@@ -115,6 +115,21 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
         }
     }
 
+    private void setupButtonClickListeners() {
+        buttonLearn.setOnClickListener(v -> {
+            if (vocabularyAdapter != null && vocabularyAdapter.getFullList() != null && !vocabularyAdapter.getFullList().isEmpty()) {
+                Intent intent = new Intent(this, LearnActivity.class);
+                intent.putExtra("VOCABULARY_LIST", new ArrayList<>(vocabularyAdapter.getFullList()));
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "No vocabulary available for learning.", Toast.LENGTH_SHORT).show();
+            }
+        });
+        buttonGame1.setOnClickListener(v -> openGameActivity(Game1Activity.class));
+        buttonGame2.setOnClickListener(v -> openGameActivity(Game2Activity.class));
+        // FAB listener được set trong onCreate
+    }
+
     private void findViews() {
         backButton = findViewById(R.id.backButton);
         textScreenTitle = findViewById(R.id.textScreenTitle);
@@ -163,20 +178,7 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
         });
     }
 
-    private void setupButtonClickListeners() {
-        buttonLearn.setOnClickListener(v -> {
-            if (vocabularyAdapter != null && vocabularyAdapter.getFullList() != null && !vocabularyAdapter.getFullList().isEmpty()) {
-                Intent intent = new Intent(this, LearnActivity.class);
-                intent.putExtra("VOCABULARY_LIST", new ArrayList<>(vocabularyAdapter.getFullList()));
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "No vocabulary available for learning.", Toast.LENGTH_SHORT).show();
-            }
-        });
-        buttonGame1.setOnClickListener(v -> openGameActivity(Game1Activity.class));
-        buttonGame2.setOnClickListener(v -> openGameActivity(Game2Activity.class));
-        // FAB listener được set trong onCreate
-    }
+
 
     private void loadFlashcardDetails() {
         startApiCall();
