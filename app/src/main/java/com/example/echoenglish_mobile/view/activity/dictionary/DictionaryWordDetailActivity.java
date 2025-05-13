@@ -3,13 +3,10 @@ package com.example.echoenglish_mobile.view.activity.dictionary;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView; // Use ImageView instead of ImageButton for the back button
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,7 +25,7 @@ import com.example.echoenglish_mobile.model.Synonym;
 import com.example.echoenglish_mobile.model.Word;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
-import com.example.echoenglish_mobile.view.activity.dashboard.DashboardActivity;
+import com.example.echoenglish_mobile.view.activity.home.HomeActivity;
 import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.PronunciationAssessmentActivity;
 import com.example.echoenglish_mobile.view.dialog.LoadingDialogFragment; // Assuming you have this class
 
@@ -143,7 +140,7 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
         btnBackHeader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(DictionaryWordDetailActivity.this, DashboardActivity.class);
+                Intent intent = new Intent(DictionaryWordDetailActivity.this, HomeActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Xóa toàn bộ stack cũ
                 startActivity(intent);
             }

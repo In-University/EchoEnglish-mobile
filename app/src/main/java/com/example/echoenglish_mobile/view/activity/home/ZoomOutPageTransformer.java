@@ -1,4 +1,4 @@
-package com.example.echoenglish_mobile.view.activity.dashboard;
+package com.example.echoenglish_mobile.view.activity.home;
 
 import android.view.View;
 

@@ -1,4 +1,4 @@
-package com.example.echoenglish_mobile.view.activity.dashboard;
+package com.example.echoenglish_mobile.view.activity.home;
 
 import androidx.appcompat.app.AppCompatActivity;
 // import androidx.appcompat.widget.Toolbar; // No longer needed
@@ -10,7 +10,6 @@ import android.util.Patterns;
 // import android.view.MenuItem; // No longer needed for Toolbar menu
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 // import android.widget.ProgressBar; // No longer needed
 import android.widget.FrameLayout; // Added for overlay
 import android.widget.ImageView; // Added for custom back button
@@ -179,7 +178,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     SharedPrefManager.getInstance(MyApp.getAppContext()).saveUserInfo(updatedUser);
                     Toast.makeText(EditProfileActivity.this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
 
-                    Intent intent = new Intent(EditProfileActivity.this, DashboardActivity.class);
+                    Intent intent = new Intent(EditProfileActivity.this, HomeActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Xóa toàn bộ stack cũ
                     startActivity(intent);
 

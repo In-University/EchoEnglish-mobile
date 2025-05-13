@@ -1,5 +1,5 @@
 // File: com.example.echoenglish_mobile.adapter.BannerAdapter.java
-package com.example.echoenglish_mobile.view.activity.dashboard;
+package com.example.echoenglish_mobile.view.activity.home;
 
 import android.content.Context;
 import android.view.LayoutInflater;

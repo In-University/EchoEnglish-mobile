@@ -60,7 +60,7 @@
         <activity android:name=".view.activity.flashcard.PublicFlashcardsActivity"/>
         <activity android:name=".view.activity.grammar.GrammarActivity"/>
         <activity android:name=".view.activity.quiz.TestActivity"/>
-        <activity android:name=".view.activity.dashboard.EditProfileActivity"/>
+        <activity android:name=".view.activity.home.EditProfileActivity"/>
         <activity
             android:name="com.canhub.cropper.CropImageActivity"
             android:theme="@style/Theme.AppCompat.DayNight" />
@@ -82,9 +82,8 @@
         <activity android:name=".view.activity.pronunciation_assessment.PronunciationAssessmentActivity" />
         <activity android:name=".view.activity.translate_text.TranslateTextActivity" />
         <activity android:name=".view.dialog.ReLoginPromptActivity" />
-        <activity android:name=".view.activity.HomeActivity"/>
         <!--    .view.activity.HomeActivity    -->
-        <activity android:name=".view.activity.dashboard.DashboardActivity"/>
+        <activity android:name=".view.activity.home.HomeActivity"/>
         <activity
             android:name=".view.activity.auth.MainActivity"
             android:exported="true">

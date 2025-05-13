@@ -1,4 +1,4 @@
-package com.example.echoenglish_mobile.view.activity.dashboard;
+package com.example.echoenglish_mobile.view.activity.home;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -16,50 +16,39 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.PopupMenu;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.example.echoenglish_mobile.R;
-import com.example.echoenglish_mobile.adapter.DashboardAdapter; // Assuming you have this
-import com.example.echoenglish_mobile.model.ListDomain; // Assuming you have this
 import com.example.echoenglish_mobile.model.Word; // Assuming you have this
 import com.example.echoenglish_mobile.network.ForbiddenHandler; // Assuming you have this
 import com.example.echoenglish_mobile.util.MyApp; // Assuming you have this
 import com.example.echoenglish_mobile.util.SharedPrefManager; // Assuming you have this
 import com.example.echoenglish_mobile.model.User; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.HomeActivity; // Assuming you have this
 import com.example.echoenglish_mobile.view.activity.analyze_result.AnalyzeResultActivity; // Assuming you have this
 import com.example.echoenglish_mobile.view.activity.auth.MainActivity; // Assuming you have this
 import com.example.echoenglish_mobile.view.activity.chatbot.ConversationCategoriesActivity; // Assuming you have this
 import com.example.echoenglish_mobile.view.activity.dictionary.DictionaryWordDetailActivity; // Assuming you have this
 import com.example.echoenglish_mobile.view.activity.dictionary.SearchFragment; // Assuming you have this
 import com.example.echoenglish_mobile.view.activity.document_hub.MainDocumentHubActivity; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.flashcard.MainFlashcardActivity; // Assuming you have this
 import com.example.echoenglish_mobile.view.activity.flashcard.SpacedRepetitionActivity; // Assuming you have this
 import com.example.echoenglish_mobile.view.activity.grammar.GrammarActivity; // Assuming you have this
 import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.UploadSpeechActivity; // Assuming you have this
 import com.example.echoenglish_mobile.view.activity.quiz.MainQuizActivity; // Assuming you have this
 import com.example.echoenglish_mobile.view.activity.translate_text.TranslateTextActivity; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.webview.WebGameActivity; // Assuming you have this
 import com.example.echoenglish_mobile.view.activity.writing_feedback.UploadNewWritingActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DashboardActivity extends AppCompatActivity implements SearchFragment.SearchListener, View.OnClickListener {
+public class HomeActivity extends AppCompatActivity implements SearchFragment.SearchListener, View.OnClickListener {
 
     private static final String TAG = "DashboardActivity";
     private static final long CLICK_DEBOUNCE_DELAY_MS = 500; // Delay to prevent rapid clicks
@@ -79,7 +68,7 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dashboard);
+        setContentView(R.layout.activity_home);
 
         suggestionsOverlayContainer = findViewById(R.id.suggestions_overlay_container);
 
@@ -120,6 +109,9 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         loadAndDisplayUserInfo();
         setClickListeners(); // Set listeners AFTER views are initialized
         setupBanners();
+
+
+
     }
 
     private void initializeViews() {
@@ -209,13 +201,13 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         Intent intent = null;
 
         if (id == R.id.flashcardsCard) {
-            intent = new Intent(DashboardActivity.this, SpacedRepetitionActivity.class);
+            intent = new Intent(HomeActivity.this, SpacedRepetitionActivity.class);
         } else if (id == R.id.translateCard) {
-            intent = new Intent(DashboardActivity.this, TranslateTextActivity.class);
+            intent = new Intent(HomeActivity.this, TranslateTextActivity.class);
         } else if (id == R.id.grammarCard) {
-            intent = new Intent(DashboardActivity.this, GrammarActivity.class);
+            intent = new Intent(HomeActivity.this, GrammarActivity.class);
         } else if (id == R.id.quizCard) {
-            intent = new Intent(DashboardActivity.this, MainQuizActivity.class);
+            intent = new Intent(HomeActivity.this, MainQuizActivity.class);
         } else if (id == R.id.speechAnalyzeCard) {
             if (!isUserLoggedIn()) {
                 ForbiddenHandler.handleForbidden();
@@ -224,25 +216,25 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
                 // For simplicity, let it run.
                 return;
             }
-            intent = new Intent(DashboardActivity.this, UploadSpeechActivity.class);
+            intent = new Intent(HomeActivity.this, UploadSpeechActivity.class);
         } else if (id == R.id.documentHubCard) {
-            intent = new Intent(DashboardActivity.this, MainDocumentHubActivity.class);
+            intent = new Intent(HomeActivity.this, MainDocumentHubActivity.class);
         } else if (id == R.id.writingCard) {
             if (!isUserLoggedIn()) {
                 ForbiddenHandler.handleForbidden();
                 return;
             }
-            intent = new Intent(DashboardActivity.this, UploadNewWritingActivity.class);
+            intent = new Intent(HomeActivity.this, UploadNewWritingActivity.class);
         } else if (id == R.id.reportCard) {
             if (!isUserLoggedIn()) {
                 ForbiddenHandler.handleForbidden();
                 return;
             }
-            intent = new Intent(DashboardActivity.this, AnalyzeResultActivity.class);
+            intent = new Intent(HomeActivity.this, AnalyzeResultActivity.class);
         } else if (id == R.id.translateCard) {
-            intent = new Intent(DashboardActivity.this, TranslateTextActivity.class);
+            intent = new Intent(HomeActivity.this, TranslateTextActivity.class);
         } else if (id == R.id.conversationCard) {
-            intent = new Intent(DashboardActivity.this, ConversationCategoriesActivity.class);
+            intent = new Intent(HomeActivity.this, ConversationCategoriesActivity.class);
         } else if (id == R.id.ivProfile) { // Handle click on profile avatar
             showProfilePopupMenu(v); // Call the method to show the popup
             return; // Consume the click event
@@ -360,7 +352,7 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         popup.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.menu_profile) {
-                Intent intent = new Intent(DashboardActivity.this, EditProfileActivity.class);
+                Intent intent = new Intent(HomeActivity.this, EditProfileActivity.class);
                 startActivity(intent);
                 return true;
             } else if (id == R.id.menu_logout) {
@@ -427,7 +419,7 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         SharedPrefManager.getInstance(this).clear();
         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
 
-        Intent intent = new Intent(DashboardActivity.this, MainActivity.class);
+        Intent intent = new Intent(HomeActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
