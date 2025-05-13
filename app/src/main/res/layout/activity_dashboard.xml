@@ -5,7 +5,7 @@
     android:id="@+id/root_dashboard_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF">
+    android:background="@color/background_gray" >
 
     <!-- ScrollView chứa nội dung Dashboard -->
     <ScrollView
@@ -126,8 +126,8 @@
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"
-                            android:src="@drawable/ic_subtitles" />
-                        <TextView style="@style/FunctionTextStyle" android:text="Flashcards" />
+                            android:src="@drawable/ic_xml_book_4_24px" />
+                        <TextView style="@style/FunctionTextStyle" android:text="Vocabulary" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -136,7 +136,7 @@
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"
-                            android:src="@drawable/ic_attachment" />
+                            android:src="@drawable/ic_xml_g_translate_24px" />
                         <TextView style="@style/FunctionTextStyle" android:text="Translate" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -146,7 +146,7 @@
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"
-                            android:src="@drawable/ic_attachment" />
+                            android:src="@drawable/ic_xml_spellcheck_24px" />
                         <TextView style="@style/FunctionTextStyle" android:text="Grammar" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>

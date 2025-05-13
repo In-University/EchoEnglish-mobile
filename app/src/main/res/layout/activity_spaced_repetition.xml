@@ -6,28 +6,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".view.activity.flashcard.SpacedRepetitionActivity"
-    android:background="@color/background_gray"> <!-- Màu nền tổng thể -->
+    android:background="@color/background_gray">
 
-    <!-- Toolbar (tùy chọn, bạn có thể thêm nếu cần) -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbarSpacedRepetition"
-        android:layout_width="0dp"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+    <!-- Custom Header: Back Button and Title (Reverted to separate views) -->
+    <ImageView
+        android:id="@+id/backButton"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:src="@drawable/ic_xml_arrow_back_ios_24px"
+        android:contentDescription="Back"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:title="Tiến độ học và Ôn tập SRS" /> <!-- Tiêu đề -->
+        app:tint="@color/black" />
+
+    <TextView
+        android:id="@+id/textScreenTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:text="Vocabulary"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toTopOf="@+id/backButton"
+        app:layout_constraintBottom_toBottomOf="@+id/backButton"
+        app:layout_constraintStart_toEndOf="@+id/backButton"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Content ScrollView -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:id="@+id/contentScrollView"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarSpacedRepetition"
+        app:layout_constraintTop_toBottomOf="@+id/backButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -38,7 +54,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Card: Memory Levels (Toàn cầu) -->
+            <!-- Card: Memory Levels (Global) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -52,21 +68,20 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- TIÊU ĐỀ Memory Levels -->
+                    <!-- TITLE Memory Levels -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Cấp độ ghi nhớ"
+                        android:text="Memory Levels"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                         android:layout_marginBottom="16dp"/>
 
-                    <!-- Memory Levels Bars (Simplified representation) -->
-                    <!-- Rows for each level -->
+                    <!-- Memory Levels Rows -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
-                        <!-- Example for Level 0 -->
+                        <!-- Level 0 -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -76,7 +91,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Level 0 (Quên/Chưa nhớ):"
+                                android:text="Level 0 (Forgotten/New):"
                                 android:textStyle="bold"/>
                             <TextView
                                 android:id="@+id/textMemoryLevel0"
@@ -84,12 +99,13 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginStart="8dp"
-                                tools:text="0 từ"/>
+                                tools:text="0 words"/>
                             <View
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 android:background="@drawable/bg_memory_level_0"/>
                         </LinearLayout>
+                        <!-- Level 1 -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -107,12 +123,13 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginStart="8dp"
-                                tools:text="1 từ"/>
+                                tools:text="1 word"/>
                             <View
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 android:background="@drawable/bg_memory_level_1"/>
                         </LinearLayout>
+                        <!-- Level 2 -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -130,12 +147,13 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginStart="8dp"
-                                tools:text="1 từ"/>
+                                tools:text="1 word"/>
                             <View
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 android:background="@drawable/bg_memory_level_2"/>
                         </LinearLayout>
+                        <!-- Level 3 -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -153,12 +171,13 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginStart="8dp"
-                                tools:text="0 từ"/>
+                                tools:text="0 words"/>
                             <View
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 android:background="@drawable/bg_memory_level_3"/>
                         </LinearLayout>
+                        <!-- Level 4 -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -176,17 +195,18 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginStart="8dp"
-                                tools:text="0 từ"/>
+                                tools:text="0 words"/>
                             <View
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 android:background="@drawable/bg_memory_level_4"/>
                         </LinearLayout>
+                        <!-- Mastered -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:gravity="center_vertical"> <!-- No bottom margin for the last item -->
+                            android:gravity="center_vertical">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -198,7 +218,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginStart="8dp"
-                                tools:text="0 từ"/>
+                                tools:text="0 words"/>
                             <View
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
@@ -209,7 +229,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Card: It's time to review (Toàn cầu) -->
+            <!-- Card: It's time to review (Global) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -235,6 +255,7 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:src="@drawable/ic_info"
+                            android:contentDescription="Info icon"
                             android:layout_marginEnd="16dp"
                             app:tint="?attr/colorPrimary"/>
 
@@ -247,7 +268,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Đã đến hạn ôn tập"
+                                android:text="Due for Review"
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                                 android:textStyle="bold"/>
 
@@ -255,7 +276,7 @@
                                 android:id="@+id/textDueReviewCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                tools:text="2 từ"
+                                tools:text="2 words"
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                                 android:textColor="@color/incorrect_red"/>
 
@@ -265,10 +286,11 @@
                         <ImageView
                             android:layout_width="80dp"
                             android:layout_height="80dp"
-                            android:src="@drawable/ic_xml_quick_reference_all_24px" />
+                            android:src="@drawable/ic_xml_quick_reference_all_24px"
+                            android:contentDescription="Review illustration"
+                            app:tint="?attr/colorPrimary" />
 
                     </LinearLayout>
-
 
                     <!-- Review Button -->
                     <com.google.android.material.button.MaterialButton
@@ -276,27 +298,105 @@
                         style="@style/Widget.Material3.Button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Ôn tập ngay"/>
+                        android:text="Review Now"/>
 
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Item for My Decks -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardMyDecks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_xml_folder_24px"
+                        android:contentDescription="My Flashcards icon"
+                        android:layout_marginEnd="16dp"  />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="My Flashcards"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                        android:textColor="@android:color/black"/>
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_xml_arrow_forward_ios_24px"
+                        android:contentDescription="Go to My Flashcards"
+                        app:tint="@android:color/darker_gray" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Item for Public Decks -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPublicDecks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_xml_public_24px"
+                        android:contentDescription="Public Flashcards icon"
+                        android:layout_marginEnd="16dp"  />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Public Flashcards"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                        android:textColor="@android:color/black"/>
 
 
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_xml_arrow_forward_ios_24px"
+                        android:contentDescription="Go to Public Flashcards"
+                        app:tint="@android:color/darker_gray" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </ScrollView>
 
-    <!-- Placeholder for loading -->
-    <ProgressBar
-        android:id="@+id/progressBarSRS"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        tools:ignore="MissingConstraints" />
-
+    <!-- Removed ProgressBar here -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,155 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_gray"
     tools:context=".view.activity.flashcard.FlashcardDetailActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+    <!-- Custom Header: Back Button and Title (Fixed at the top) -->
+<ImageView
+android:id="@+id/backButton"
+android:layout_width="24dp"
+android:layout_height="24dp"
+android:layout_marginTop="16dp"
+android:layout_marginStart="16dp"
+android:src="@drawable/ic_xml_arrow_back_ios_24px"
+android:contentDescription="Back"
+android:clickable="true"
+android:focusable="true"
+android:background="?attr/selectableItemBackgroundBorderless"
+app:layout_constraintTop_toTopOf="parent"
+app:layout_constraintStart_toStartOf="parent"
+app:tint="@color/black" />
 
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/collapsingToolbar"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
-            app:title="Flashcard Title">
+<TextView
+android:id="@+id/textScreenTitle"
+android:layout_width="0dp"
+android:layout_height="wrap_content"
+android:layout_marginStart="8dp"
+android:layout_marginEnd="16dp"
+tools:text="Flashcard Set Title"
+android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+android:textColor="@android:color/black"
+app:layout_constraintTop_toTopOf="@+id/backButton"
+app:layout_constraintBottom_toBottomOf="@+id/backButton"
+app:layout_constraintStart_toEndOf="@+id/backButton"
+app:layout_constraintEnd_toEndOf="parent" />
 
-            <ImageView
-                android:id="@+id/imageViewDetailHeader"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                app:layout_collapseMode="parallax"
-                tools:srcCompat="@tools:sample/backgrounds/scenic" />
+    <!-- Flashcard Header Image (Fixed below the custom header) -->
+<ImageView
+android:id="@+id/imageViewDetailHeader"
+android:layout_width="0dp"
+android:layout_height="150dp"
+    android:layout_marginTop="16dp"
+    android:scaleType="centerCrop"
+    app:layout_constraintTop_toBottomOf="@+id/backButton"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    tools:srcCompat="@tools:sample/backgrounds/scenic"
+    android:contentDescription="Flashcard set cover image" />
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbarDetail"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+    <!-- Search Bar (Fixed below the image) -->
+<androidx.appcompat.widget.SearchView
+android:id="@+id/searchViewVocabulary"
+android:layout_width="0dp"
+android:layout_height="wrap_content"
+android:layout_marginStart="16dp"
+android:layout_marginEnd="16dp"
+android:layout_marginTop="8dp"
+android:layout_marginBottom="8dp"
+android:background="@drawable/background_edittext"
+app:queryHint="Search vocabulary..."
+app:iconifiedByDefault="false"
+app:layout_constraintTop_toBottomOf="@+id/imageViewDetailHeader"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintEnd_toEndOf="parent" />
 
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-    </com.google.android.material.appbar.AppBarLayout>
+    <!-- Vocabulary Label (Fixed below the search bar) -->
+<TextView
+android:id="@+id/textViewVocabulariesLabel"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Vocabulary"
+android:layout_marginStart="16dp"
+android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+android:layout_marginTop="8dp"
+app:layout_constraintTop_toBottomOf="@+id/searchViewVocabulary"
+app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    <!-- Bottom Control Buttons (Fixed at the bottom) -->
+<LinearLayout
+android:id="@+id/layoutDetailButtons"
+android:layout_width="0dp"
+android:layout_height="wrap_content"
+android:orientation="horizontal"
+android:paddingStart="8dp"
+android:paddingEnd="8dp"
+android:paddingTop="8dp"
+android:paddingBottom="8dp"
+android:background="?android:attr/windowBackground"
+android:elevation="4dp"
+app:layout_constraintBottom_toBottomOf="parent"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="8dp"
-            android:paddingBottom="80dp">
+<com.google.android.material.button.MaterialButton
+    android:id="@+id/buttonLearn"
+    style="@style/Widget.Material3.Button.Icon"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:text="Learn"
+    android:layout_marginEnd="4dp"  />
 
+<com.google.android.material.button.MaterialButton
+    android:id="@+id/buttonGame1"
+    style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
+    android:text="Game 1" />
 
-            <!-- Thanh tìm kiếm -->
-            <androidx.appcompat.widget.SearchView
-                android:id="@+id/searchViewVocabulary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/background_edittext"
-                app:queryHint="Tìm từ trong bộ thẻ..."
-                app:iconifiedByDefault="false" />
+<com.google.android.material.button.MaterialButton
+    android:id="@+id/buttonGame2"
+    style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:layout_marginStart="4dp"
+    android:text="Game 2"  />
 
+</LinearLayout>
 
-            <TextView
-                android:id="@+id/textViewVocabulariesLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Từ vựng"
-                android:layout_marginStart="16dp"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                android:layout_marginBottom="8dp"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewVocabularies"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_vocabulary"
-                tools:itemCount="5"/>
-
-            <ProgressBar
-                android:id="@+id/progressBarDetail"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
-                android:visibility="gone" />
-
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
-
-    <!-- Nút điều khiển ở dưới -->
-    <LinearLayout
-        android:id="@+id/layoutDetailButtons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="bottom"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:background="?android:attr/windowBackground"
-        android:elevation="4dp">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonLearn"
-            style="@style/Widget.Material3.Button.Icon"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Học"
-            android:layout_marginEnd="4dp"  />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonGame1"
-            style="@style/Widget.Material3.Button.OutlinedButton.Icon"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
-            android:text="Game 1" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonGame2"
-            style="@style/Widget.Material3.Button.OutlinedButton.Icon"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:text="Game 2"  />
-
-    </LinearLayout>
-
-    <!-- FAB Thêm từ (Chỉ hiển thị cho bộ thẻ user) -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddVocabularyDetail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:contentDescription="Thêm từ vựng"
-        app:srcCompat="@drawable/ic_add"
-        app:layout_anchor="@id/layoutDetailButtons"
-        app:layout_anchorGravity="top|end"
-        android:visibility="gone"/> <!-- Mặc định ẩn -->
+    <!-- Vocabulary RecyclerView (Fills space between label and buttons, IS scrollable) -->
+<androidx.recyclerview.widget.RecyclerView
+android:id="@+id/recyclerViewVocabularies"
+android:layout_width="0dp"
+android:layout_height="0dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    app:layout_constraintTop_toBottomOf="@+id/textViewVocabulariesLabel"
+    app:layout_constraintBottom_toTopOf="@+id/layoutDetailButtons"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    tools:listitem="@layout/item_vocabulary"
+    tools:itemCount="5"/>
 
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+<TextView
+android:id="@+id/textViewNoVocabularies"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="No vocabulary found in this set."
+    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+    android:textColor="?android:attr/textColorSecondary"
+    android:gravity="center"
+    android:visibility="gone"
+    app:layout_constraintTop_toTopOf="@+id/recyclerViewVocabularies"
+    app:layout_constraintBottom_toBottomOf="@+id/recyclerViewVocabularies"
+    app:layout_constraintStart_toStartOf="@+id/recyclerViewVocabularies"
+    app:layout_constraintEnd_toEndOf="@+id/recyclerViewVocabularies"/>
+
+
+    <!-- FAB Add Vocabulary (Anchored above the bottom buttons) -->
+<com.google.android.material.floatingactionbutton.FloatingActionButton
+android:id="@+id/fabAddVocabularyDetail"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:layout_margin="16dp"
+android:contentDescription="Add vocabulary"
+app:srcCompat="@drawable/ic_add"
+app:layout_constraintBottom_toTopOf="@+id/layoutDetailButtons"
+app:layout_constraintEnd_toEndOf="parent"
+android:visibility="gone"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
