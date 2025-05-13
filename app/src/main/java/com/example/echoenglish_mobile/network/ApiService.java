@@ -88,7 +88,7 @@ public interface ApiService {
 
     @Multipart
     @POST("/speech/analyze/sentences")
-    Call<SentenceAnalysisResult> analyzeSentences(
+    Call<String> analyzeSentences(
             @Part MultipartBody.Part audioFile,
             @Part("target_word") RequestBody targetWord
     );

@@ -120,7 +120,7 @@ public class AnalyzeResultActivity extends AppCompatActivity {
         try {
             int pronCount = Integer.parseInt(tvPronunciationCount.getText().toString());
             int writeCount = Integer.parseInt(tvWritingCount.getText().toString());
-            tvSummary.setText(String.format(Locale.getDefault(), "Bạn đã hoàn thành %d bài luyện tập trong tuần này", pronCount + writeCount));
+            tvSummary.setText(String.format(Locale.getDefault(), "You have completed %d practice exercises this week", pronCount + writeCount));
         } catch (NumberFormatException e) {
         }
     }

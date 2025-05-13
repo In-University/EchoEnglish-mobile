@@ -223,20 +223,20 @@ public class UploadSpeechActivity extends AppCompatActivity {
     private void uploadFile(MultipartBody.Part audioFilePart, RequestBody targetWordRequestBody) {
         setLoadingState(true);
 
-        Call<SentenceAnalysisResult> call = apiService.analyzeSentences(audioFilePart, targetWordRequestBody);
+        Call<String> call = apiService.analyzeSentences(audioFilePart, targetWordRequestBody);
 
-        call.enqueue(new Callback<SentenceAnalysisResult>() {
+        call.enqueue(new Callback<String>() {
             @Override
-            public void onResponse(@NonNull Call<SentenceAnalysisResult> call, @NonNull Response<SentenceAnalysisResult> response) {
+            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 setLoadingState(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    SentenceAnalysisResult analysisResult = response.body();
+                    String analysisResult = response.body();
                     Intent intent = new Intent(UploadSpeechActivity.this, SummaryResultsActivity.class);
-                    intent.putExtra(SummaryResultsActivity.ANALYSIS_RESULT, analysisResult);
+                    intent.putExtra("ANALYSIS_RESULT", analysisResult); // Truyền String thay vì SentenceAnalysisResult
                     startActivity(intent);
 
                     Log.i(TAG, "Upload successful");
-                    Toast.makeText(UploadSpeechActivity.this, "Analysis complete! Status: ", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UploadSpeechActivity.this, "Analysis complete! Result: " + analysisResult, Toast.LENGTH_LONG).show();
                 } else {
                     Log.e(TAG, "API Error: " + response.code() + " - " + response.errorBody());
                     Toast.makeText(UploadSpeechActivity.this, "API Error: " + response.code(), Toast.LENGTH_LONG).show();
@@ -244,7 +244,7 @@ public class UploadSpeechActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(@NonNull Call<SentenceAnalysisResult> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 setLoadingState(false);
                 Log.e(TAG, "Upload failed", t);
                 Toast.makeText(UploadSpeechActivity.this, "Upload failed: " + t.getMessage(), Toast.LENGTH_LONG).show();

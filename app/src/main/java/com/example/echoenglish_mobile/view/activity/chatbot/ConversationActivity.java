@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -56,14 +57,14 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
     private Chat2Adapter chatAdapter;
     private List<ChatMessage> chatMessages;
     private EditText editTextMessage;
-    private Button buttonSend;
+    private ImageButton buttonSend;
     private ImageButton buttonShowInfo;
     private ImageButton buttonMic;
     private String currentVoiceId = "1";
     private float currentSpeed = 1.0f;
     private MediaPlayer dialogMediaPlayer;
     private ConversationInfoDialog activeDialog = null;
-    private FrameLayout inputContainer;
+    private ConstraintLayout inputContainer;
     private FrameLayout congratulationsContainer;
     private LottieAnimationView lottieAnimationView;
 

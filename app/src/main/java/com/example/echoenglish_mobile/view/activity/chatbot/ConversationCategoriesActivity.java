@@ -126,31 +126,21 @@ public class ConversationCategoriesActivity extends AppCompatActivity {
     // --- Launch the Conversation Activity with Context and JSON ---
     private void launchScenarioActivity(ConversationScenario scenario) {
         Intent intent = new Intent(this, ConversationActivity.class);
-
-        // 1. Pass the context (e.g., scenario title)
         String context = scenario.getTitle();
         intent.putExtra(ConversationActivity.EXTRA_CONTEXT, context);
-
-        // 2. Get the initial JSON for this specific scenario
         String initialJson = getInitialJsonForScenario(scenario.getId());
 
-        // 3. Pass the JSON string IF it exists
         if (initialJson != null && !initialJson.isEmpty()) {
             intent.putExtra(ConversationActivity.EXTRA_START_CONVERSATION_JSON, initialJson);
             Log.d("CategoriesActivity", "Launching scenario: " + context + " with initial JSON.");
         } else {
-            // If no specific JSON is found, ConversationActivity will just use the context
-            // and call startConversation API itself.
             Log.d("CategoriesActivity", "Launching scenario: " + context + " (context only, no initial JSON found).");
         }
 
         startActivity(intent);
     }
 
-    // --- NEW HELPER: Generate Fake Initial JSON based on Scenario ID ---
     private String getInitialJsonForScenario(String scenarioId) {
-        // Using multi-line String literals (Java 15+) for readability.
-        // If using older Java, escape quotes (\") and newlines (\n).
         switch (scenarioId) {
             case "demo_presentation":
                 return """
@@ -159,7 +149,7 @@ public class ConversationCategoriesActivity extends AppCompatActivity {
                   "updatedChecklist": [
                     {"id": "say_name", "description": "Say your name clearly.", "completed": false},
                     {"id": "share_job_or_study", "description": "Briefly mention what you do (job or study).", "completed": false},
-                    {"id": "say_where_from", "description": "Mention where you're from (optional).", "completed": false}
+                    {"id": "say_where_from", "description": "Mention where you're from.", "completed": false}
                   ],
                   "allTasksCompleted": false
                 }
