@@ -94,6 +94,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     // Timer cho cả bài thi
     private CountDownTimer totalTestTimer; // Timer tổng
     private long totalTimeMillis = 0; // Tổng thời gian (ms)
+    private long millisRemaining = 0; // <-- THÊM BIẾN NÀY
 
     private static final String TAG = "TestActivity";
 
@@ -469,8 +470,8 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         // int totalQuestionsInPart đã gán ở prepareTestData
         Log.d(TAG, "Local score: " + correctCount + "/" + totalQuestionsInPart);
         Intent intent = new Intent(TestActivity.this, ResultActivity.class);
-        intent.putExtra(Constants.EXTRA_CORRECT_ANSWERS, correctCount);
-        intent.putExtra(Constants.EXTRA_TOTAL_QUESTIONS, totalQuestionsInPart);
+        intent.putExtra(ResultActivity.EXTRA_SCORE, correctCount);
+        intent.putExtra(ResultActivity.EXTRA_TOTAL_QUESTIONS, totalQuestionsInPart);
         startActivity(intent);
         finish();
     }
@@ -479,20 +480,32 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void startTotalTestTimer(long duration) {
-        stopTotalTestTimer();
+        stopTotalTestTimer(); // Dừng timer cũ nếu đang chạy
         Log.d(TAG, "Starting total timer for " + duration + " ms");
         totalTestTimer = new CountDownTimer(duration, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                String timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished), TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished)));
-                if (millisUntilFinished <= 60 * 1000) { tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, R.color.red_incorrect)); }
-                else { tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, R.color.blue)); }
+                millisRemaining = millisUntilFinished; // <-- LƯU THỜI GIAN CÒN LẠI Ở ĐÂY
+                String timeFormatted = String.format(Locale.getDefault(), "%02d:%02d",
+                        TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished),
+                        TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))
+                );
+                if (millisUntilFinished <= 60 * 1000) {
+                    tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, R.color.red_incorrect));
+                } else {
+                    // Có thể thay đổi màu cho đẹp hơn, ví dụ màu của theme
+                    tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, android.R.color.tab_indicator_text)); // Màu xanh mặc định
+                    // Hoặc dùng màu theme: tvTimer.setTextColor(getColor(R.color.blue)); // Nếu bạn định nghĩa màu xanh riêng
+                }
                 tvTimer.setText(timeFormatted);
             }
+
             @Override
             public void onFinish() {
-                tvTimer.setText("00:00"); tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, R.color.red_incorrect));
+                tvTimer.setText("00:00");
+                tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, R.color.red_incorrect));
                 Log.d(TAG, "Total test time finished!");
+                millisRemaining = 0; // Đảm bảo reset về 0 khi hết giờ
                 handleTotalTimeUp();
             }
         }.start();
@@ -532,8 +545,33 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     public void onBackPressed() {
+        // Khi bấm back, dừng timer hiện tại trước khi hiển thị dialog
         stopTotalTestTimer();
-        new AlertDialog.Builder(this).setTitle("Exit Test?").setMessage("Exit now? Timer stopped, progress lost.").setPositiveButton("Exit", (d, w) -> { stopAudio(); super.onBackPressed(); }).setNegativeButton("Cancel", (d,w)->{ calculateAndStartTotalTimer(); /* TODO: Restart timer cần thời gian còn lại */ }).show();
+
+        new AlertDialog.Builder(this)
+                .setTitle("Exit Test?")
+                // Sửa lại thông báo cho chính xác hơn
+                .setMessage("Are you sure you want to exit?")
+                .setPositiveButton("Exit", (dialog, which) -> {
+                    // Xử lý khi chọn Exit
+                    stopAudio(); // Dừng audio
+                    super.onBackPressed(); // Quay lại hoặc thoát activity
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    // Xử lý khi chọn Cancel
+                    // Khởi động lại timer với thời gian còn lại
+                    if (millisRemaining > 0) { // Chỉ khởi động lại nếu còn thời gian
+                        startTotalTestTimer(millisRemaining);
+                    } else {
+                        // Nếu millisRemaining == 0 (đã hết giờ trước khi dialog bật lên)
+                        // thì không cần làm gì cả, timer đã finish
+                        tvTimer.setText("00:00"); // Đảm bảo hiển thị 00:00
+                        tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, R.color.red_incorrect));
+                    }
+                    dialog.dismiss(); // Đóng dialog
+                })
+                .setCancelable(false) // Người dùng phải chọn 1 trong 2 nút
+                .show();
     }
 
     // --- Click Listener ---
