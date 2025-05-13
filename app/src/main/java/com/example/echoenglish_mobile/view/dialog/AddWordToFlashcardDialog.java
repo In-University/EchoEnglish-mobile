@@ -17,9 +17,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.echoenglish_mobile.R;
+import com.example.echoenglish_mobile.model.Word;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.VocabularyCreateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse;
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -36,8 +39,9 @@ public class AddWordToFlashcardDialog extends DialogFragment {
     private static final String TAG = "AddToFlashcardDialog";
     private static final String ARG_WORD = "word_to_add";
 
-    private String wordToAdd;
-    private ApiService apiService; // Cần được khởi tạo hoặc inject
+    private ApiService apiService;
+    private static final String ARG_WORD_DETAIL = "arg_word_detail";
+    private Word currentWordDetail;
 
     private TextInputLayout textInputLayout;
     private AutoCompleteTextView autoCompleteTextView;
@@ -46,16 +50,6 @@ public class AddWordToFlashcardDialog extends DialogFragment {
     private List<FlashcardBasicResponse> loadedFlashcards;
     private FlashcardBasicResponse selectedFlashcard = null;
 
-    // --- Listener để trả kết quả về Activity/Fragment gọi ---
-    public interface OnFlashcardSelectedListener {
-        void onFlashcardSelectedForWord(String word, FlashcardBasicResponse selectedFlashcard);
-        // Có thể thêm hàm onError nếu cần
-        // void onFlashcardSelectionError(String errorMessage);
-    }
-
-    private OnFlashcardSelectedListener listener;
-
-    // --- Phương thức khởi tạo an toàn (Factory Pattern) ---
     public static AddWordToFlashcardDialog newInstance(String word) {
         AddWordToFlashcardDialog fragment = new AddWordToFlashcardDialog();
         Bundle args = new Bundle();
@@ -64,44 +58,19 @@ public class AddWordToFlashcardDialog extends DialogFragment {
         return fragment;
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        // Đảm bảo Activity/Fragment gọi đã implement Listener
-        try {
-            // Thử ép kiểu context trực tiếp (nếu gọi từ Activity)
-            listener = (OnFlashcardSelectedListener) context;
-        } catch (ClassCastException e) {
-            // Thử lấy từ Fragment cha (nếu gọi từ Fragment khác)
-            if (getParentFragment() != null) {
-                try {
-                    listener = (OnFlashcardSelectedListener) getParentFragment();
-                } catch (ClassCastException e2) {
-                    throw new ClassCastException("Calling Fragment or Activity must implement OnFlashcardSelectedListener");
-                }
-            } else {
-                throw new ClassCastException("Calling Activity must implement OnFlashcardSelectedListener");
-            }
-        }
-
-        // Khởi tạo ApiService (ví dụ, bạn có thể dùng DI)
-        apiService = ApiClient.getApiService(); // Hoặc cách khởi tạo khác
-        if (apiService == null) {
-            Log.e(TAG, "ApiService is null! Cannot load flashcards.");
-            // Có thể đóng dialog hoặc báo lỗi ngay lập tức
-        }
+    public static AddWordToFlashcardDialog newInstance(Word wordDetail) {
+        AddWordToFlashcardDialog fragment = new AddWordToFlashcardDialog();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_WORD_DETAIL, wordDetail);
+        fragment.setArguments(args);
+        return fragment;
     }
-
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         if (getArguments() != null) {
-            wordToAdd = getArguments().getString(ARG_WORD);
-        } else {
-            Log.e(TAG, "Word argument is missing!");
-            // Nên đóng dialog hoặc báo lỗi
-            return super.onCreateDialog(savedInstanceState); // Trả về dialog rỗng hoặc xử lý khác
+            currentWordDetail = (Word) getArguments().getSerializable(ARG_WORD_DETAIL);
         }
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
@@ -112,38 +81,64 @@ public class AddWordToFlashcardDialog extends DialogFragment {
         autoCompleteTextView = dialogView.findViewById(R.id.dialog_flashcard_dropdown);
         loadingIndicator = dialogView.findViewById(R.id.dialog_loading_indicator);
 
+        apiService = ApiClient.getApiService();
+
         builder.setView(dialogView)
-                .setTitle("Thêm \"" + wordToAdd + "\" vào bộ thẻ")
-                .setPositiveButton("Thêm", null) // Listener sẽ được override trong onShow
-                .setNegativeButton("Hủy", (dialog, which) -> dismiss());
+                .setTitle("Add \"" + currentWordDetail.getWord() + "\" vào bộ thẻ")
+                .setPositiveButton("Add", null)
+                .setNegativeButton("Cancel", (dialog, which) -> dismiss());
 
         AlertDialog alertDialog = builder.create();
 
-        // Override listener của nút Positive sau khi dialog hiển thị để ngăn đóng tự động
         alertDialog.setOnShowListener(dialogInterface -> {
             Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            positiveButton.setEnabled(false); // Vô hiệu hóa ban đầu
+            positiveButton.setEnabled(false);
 
             positiveButton.setOnClickListener(view -> {
-                if (selectedFlashcard != null) {
-                    // Gọi listener để trả kết quả về
-                    if (listener != null) {
-                        listener.onFlashcardSelectedForWord(wordToAdd, selectedFlashcard);
-                    }
-                    dismiss(); // Đóng dialog
+                if (selectedFlashcard != null && currentWordDetail != null) {
+                    VocabularyCreateRequest request = new VocabularyCreateRequest();
+                    request.setWord(currentWordDetail.getWord());
+                    request.setImageUrl(currentWordDetail.getImageUrl());
+                    request.setPhonetic("/" + currentWordDetail.getUkPronunciation() + "/");
+                    request.setType(currentWordDetail.getMeanings() != null && !currentWordDetail.getMeanings().isEmpty()
+                            ? currentWordDetail.getMeanings().get(0).getPartOfSpeech()
+                            : null);
+                    request.setDefinition(currentWordDetail.getMeanings() != null && !currentWordDetail.getMeanings().isEmpty()
+                            ? currentWordDetail.getMeanings().get(0).getDefinition()
+                            : null);
+                    request.setExample(currentWordDetail.getMeanings() != null && !currentWordDetail.getMeanings().isEmpty()
+                            ? currentWordDetail.getMeanings().get(0).getExample()
+                            : null);
+
+                    apiService.addVocabulary(selectedFlashcard.getId(), request).enqueue(new Callback<VocabularyResponse>() {
+                        @Override
+                        public void onResponse(Call<VocabularyResponse> call, Response<VocabularyResponse> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(getContext(), "Successfully added \"" + currentWordDetail.getWord() +
+                                        "\" to flashcard \"" + selectedFlashcard.getName() + "\"", Toast.LENGTH_SHORT).show();
+                                dismiss();
+                            } else {
+                                Toast.makeText(getContext(), "Failed to add vocabulary: " + response.code(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<VocabularyResponse> call, Throwable t) {
+                            Toast.makeText(getContext(), "Network error while adding vocabulary: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
                 } else {
                     textInputLayout.setError("Vui lòng chọn một bộ thẻ");
-                    // Toast.makeText(getContext(), "Vui lòng chọn một bộ thẻ", Toast.LENGTH_SHORT).show();
                 }
             });
 
-            // Bắt đầu load dữ liệu khi dialog hiển thị
-            Long currentUserId = getCurrentUserId(); // Lấy ID user (CẦN IMPLEMENT)
+            Long currentUserId = getCurrentUserId();
             if (currentUserId != null && apiService != null) {
-                loadUserFlashcards(currentUserId, alertDialog); // Truyền cả dialog vào để enable/disable nút
+                loadUserFlashcards(currentUserId, alertDialog);
             } else {
                 Log.e(TAG, "Cannot load flashcards: Missing User ID or ApiService.");
-                showErrorState("Không thể tải danh sách thẻ (Lỗi cấu hình)");
+                showErrorState("Cannot load flashcards!");
                 positiveButton.setEnabled(false);
             }
         });
@@ -152,37 +147,34 @@ public class AddWordToFlashcardDialog extends DialogFragment {
         return alertDialog;
     }
 
-    // --- Hàm tải danh sách flashcard (tương tự như trước) ---
     private void loadUserFlashcards(Long creatorId, AlertDialog dialog) {
         showLoadingState(true);
-        selectedFlashcard = null; // Reset lựa chọn
-        autoCompleteTextView.setText("", false); // Clear text cũ
-        textInputLayout.setError(null); // Clear lỗi cũ
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false); // Disable nút Thêm khi đang load
+        selectedFlashcard = null;
+        autoCompleteTextView.setText("", false);
+        textInputLayout.setError(null);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 
 
         apiService.getFlashcardsByCreator(creatorId).enqueue(new Callback<List<FlashcardBasicResponse>>() {
             @Override
             public void onResponse(Call<List<FlashcardBasicResponse>> call, Response<List<FlashcardBasicResponse>> response) {
-                if (!isAdded() || dialog == null || !dialog.isShowing()) return; // Kiểm tra Fragment/Dialog còn tồn tại không
+                if (!isAdded() || dialog == null || !dialog.isShowing()) return;
 
                 showLoadingState(false);
                 if (response.isSuccessful() && response.body() != null) {
                     loadedFlashcards = response.body();
-                    Log.d(TAG, "Loaded " + loadedFlashcards.size() + " flashcards.");
                     if (loadedFlashcards.isEmpty()) {
-                        showErrorState("Bạn chưa có bộ thẻ nào");
-                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false); // Vẫn disable nút
+                        showErrorState("You don't have any flashcards.");
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                     } else {
                         populateDropdown(loadedFlashcards);
-                        textInputLayout.setEnabled(true); // Enable dropdown
-                        // Không cần enable nút Positive ở đây, chỉ enable khi user chọn item
+                        textInputLayout.setEnabled(true);
                     }
                 } else {
                     Log.e(TAG, "Failed to load flashcards. Code: " + response.code());
-                    String errorMsg = "Lỗi tải bộ thẻ (" + response.code() + ")";
+                    String errorMsg = "Failed to load flashcards (" + response.code() + ")";
                     showErrorState(errorMsg);
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false); // Disable nút
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                 }
             }
 
@@ -192,17 +184,16 @@ public class AddWordToFlashcardDialog extends DialogFragment {
 
                 Log.e(TAG, "Network error loading flashcards", t);
                 showLoadingState(false);
-                showErrorState("Lỗi mạng: " + t.getMessage());
+                showErrorState("Network error loading flashcards: " + t.getMessage());
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false); // Disable nút
             }
         });
     }
 
-    // --- Hàm đổ dữ liệu vào dropdown ---
     private void populateDropdown(List<FlashcardBasicResponse> flashcards) {
         List<String> flashcardTitles = new ArrayList<>();
         for (FlashcardBasicResponse flashcard : flashcards) {
-            flashcardTitles.add(flashcard.getName()); // Giả sử có getTitle()
+            flashcardTitles.add(flashcard.getName());
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -215,8 +206,7 @@ public class AddWordToFlashcardDialog extends DialogFragment {
         autoCompleteTextView.setOnItemClickListener((parent, view, position, id) -> {
             if (loadedFlashcards != null && position >= 0 && position < loadedFlashcards.size()) {
                 selectedFlashcard = loadedFlashcards.get(position);
-                textInputLayout.setError(null); // Xóa lỗi nếu có
-                // Enable nút "Thêm" khi đã chọn
+                textInputLayout.setError(null);
                 Dialog currentDialog = getDialog();
                 if (currentDialog instanceof AlertDialog) {
                     ((AlertDialog) currentDialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
@@ -224,7 +214,6 @@ public class AddWordToFlashcardDialog extends DialogFragment {
                 Log.d(TAG, "Selected Flashcard: " + selectedFlashcard.getName() + " (ID: " + selectedFlashcard.getId() + ")");
             } else {
                 selectedFlashcard = null;
-                // Disable nút "Thêm" nếu lựa chọn không hợp lệ (ít khi xảy ra)
                 Dialog currentDialog = getDialog();
                 if (currentDialog instanceof AlertDialog) {
                     ((AlertDialog) currentDialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
@@ -233,15 +222,14 @@ public class AddWordToFlashcardDialog extends DialogFragment {
         });
     }
 
-    // --- Hàm cập nhật UI cho trạng thái loading ---
     private void showLoadingState(boolean isLoading) {
         if (loadingIndicator != null) {
             loadingIndicator.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         }
         if (textInputLayout != null) {
-            textInputLayout.setEnabled(!isLoading); // Disable dropdown khi loading
+            textInputLayout.setEnabled(!isLoading);
             if(isLoading) {
-                autoCompleteTextView.setText("Đang tải...", false);
+                autoCompleteTextView.setText("Loading...", false);
             }
         }
     }
@@ -260,18 +248,12 @@ public class AddWordToFlashcardDialog extends DialogFragment {
     }
 
 
-    // --- CẦN IMPLEMENT: Hàm lấy User ID hiện tại ---
     private Long getCurrentUserId() {
-        // Lấy ID từ SharedPreferences, ViewModel, Argument của Activity/Fragment cha...
-        // Ví dụ:
-        // SharedPreferences prefs = requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-        // return prefs.getLong("user_id", -1L); // Trả về -1 nếu không tìm thấy
-        return 27L; // *** THAY BẰNG LOGIC THỰC TẾ ***
+        return 27L;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        listener = null; // Tránh memory leak
     }
 }

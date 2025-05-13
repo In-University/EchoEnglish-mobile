@@ -20,12 +20,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable; // Thêm import Nullable
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-// Thêm các import của ExoPlayer
+import com.example.echoenglish_mobile.view.activity.flashcard.AddVocabularyActivity;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse;
 import com.example.echoenglish_mobile.view.dialog.AddWordToFlashcardDialog;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -57,7 +56,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PronunciationAssessmentActivity extends AppCompatActivity implements AddWordToFlashcardDialog.OnFlashcardSelectedListener {
+public class PronunciationAssessmentActivity extends AppCompatActivity {
 
     // Constants
     public static final String EXTRA_WORD = "TARGET_WORD_OBJECT";
@@ -235,9 +234,10 @@ public class PronunciationAssessmentActivity extends AppCompatActivity implement
         });
 
         btnBookmark.setOnClickListener(v -> {
-            AddWordToFlashcardDialog dialog = AddWordToFlashcardDialog.newInstance(currentWord.getWord());
-            dialog.show(getSupportFragmentManager(), "AddWordToFlashcardDialogTag");
-            Toast.makeText(this, "Bookmark clicked (logic not implemented)", Toast.LENGTH_SHORT).show();
+//            AddWordToFlashcardDialog dialog = AddWordToFlashcardDialog.newInstance(currentWord.getWord());
+//            dialog.show(getSupportFragmentManager(), "AddWordToFlashcardDialogTag");
+            Intent intent = new Intent(this, AddVocabularyActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -447,10 +447,5 @@ public class PronunciationAssessmentActivity extends AppCompatActivity implement
                 Toast.makeText(PronunciationAssessmentActivity.this, "API error: Check connection", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    @Override
-    public void onFlashcardSelectedForWord(String word, FlashcardBasicResponse selectedFlashcard) {
-        Toast.makeText(this, "Đang thêm '" + word + "' vào bộ '" + selectedFlashcard.getName() + "'...", Toast.LENGTH_LONG).show();
     }
 }
