@@ -3,15 +3,12 @@ package com.example.echoenglish_mobile.view.activity.dashboard;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,44 +20,41 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.PopupMenu; // Import PopupMenu
+import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.echoenglish_mobile.R;
-import com.example.echoenglish_mobile.adapter.DashboardAdapter;
-import com.example.echoenglish_mobile.model.ListDomain;
-import com.example.echoenglish_mobile.model.Word;
-import com.example.echoenglish_mobile.network.ForbiddenHandler;
-import com.example.echoenglish_mobile.util.MyApp;
-import com.example.echoenglish_mobile.util.SharedPrefManager;
-import com.example.echoenglish_mobile.model.User;
-import com.example.echoenglish_mobile.view.activity.HomeActivity;
-import com.example.echoenglish_mobile.view.activity.analyze_result.AnalyzeResultActivity;
-import com.example.echoenglish_mobile.view.activity.auth.MainActivity;
-import com.example.echoenglish_mobile.view.activity.chatbot.ConversationCategoriesActivity;
-import com.example.echoenglish_mobile.view.activity.dictionary.DictionaryWordDetailActivity;
-import com.example.echoenglish_mobile.view.activity.dictionary.SearchFragment;
-import com.example.echoenglish_mobile.view.activity.document_hub.MainDocumentHubActivity;
-import com.example.echoenglish_mobile.view.activity.flashcard.MainFlashcardActivity;
-import com.example.echoenglish_mobile.view.activity.flashcard.SpacedRepetitionActivity;
-import com.example.echoenglish_mobile.view.activity.grammar.GrammarActivity;
-import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.UploadSpeechActivity;
-import com.example.echoenglish_mobile.view.activity.quiz.MainQuizActivity;
-import com.example.echoenglish_mobile.view.activity.translate_text.TranslateTextActivity;
-import com.example.echoenglish_mobile.view.activity.webview.WebGameActivity;
-
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
+import com.example.echoenglish_mobile.R;
+import com.example.echoenglish_mobile.adapter.DashboardAdapter; // Assuming you have this
+import com.example.echoenglish_mobile.model.ListDomain; // Assuming you have this
+import com.example.echoenglish_mobile.model.Word; // Assuming you have this
+import com.example.echoenglish_mobile.network.ForbiddenHandler; // Assuming you have this
+import com.example.echoenglish_mobile.util.MyApp; // Assuming you have this
+import com.example.echoenglish_mobile.util.SharedPrefManager; // Assuming you have this
+import com.example.echoenglish_mobile.model.User; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.HomeActivity; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.analyze_result.AnalyzeResultActivity; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.auth.MainActivity; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.chatbot.ConversationCategoriesActivity; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.dictionary.DictionaryWordDetailActivity; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.dictionary.SearchFragment; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.document_hub.MainDocumentHubActivity; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.flashcard.MainFlashcardActivity; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.flashcard.SpacedRepetitionActivity; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.grammar.GrammarActivity; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.UploadSpeechActivity; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.quiz.MainQuizActivity; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.translate_text.TranslateTextActivity; // Assuming you have this
+import com.example.echoenglish_mobile.view.activity.webview.WebGameActivity; // Assuming you have this
 import com.example.echoenglish_mobile.view.activity.writing_feedback.UploadNewWritingActivity;
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,65 +62,52 @@ import java.util.List;
 public class DashboardActivity extends AppCompatActivity implements SearchFragment.SearchListener, View.OnClickListener {
 
     private static final String TAG = "DashboardActivity";
+    private static final long CLICK_DEBOUNCE_DELAY_MS = 500; // Delay to prevent rapid clicks
 
     private FrameLayout suggestionsOverlayContainer;
 
-    private ImageView ivProfile; // Already exists
+    private ImageView ivProfile;
     private ViewPager2 viewPagerBanners;
 
-    // Cho tự động cuộn
     private Handler sliderHandler = new Handler(Looper.getMainLooper());
     private Runnable sliderRunnable;
 
     private CardView flashcardsCard, translateCard,  grammarCard, quizCard, conversationCard;
     private CardView speechAnalyzeCard, documentHubCard, writingCard, reportCard;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper()); // Use this handler for re-enabling card
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        // --- Tìm container cho danh sách gợi ý nổi ---
         suggestionsOverlayContainer = findViewById(R.id.suggestions_overlay_container);
 
-        // --- Thêm OnClickListener để xử lý click vào khoảng trống overlay (và khắc phục cảnh báo Lint) ---
         suggestionsOverlayContainer.setOnClickListener(v -> {
             Log.d(TAG, "Overlay container clicked (handled by OnClickListener)");
-            // Tìm Fragment SearchFragment
             SearchFragment searchFragment = (SearchFragment) getSupportFragmentManager().findFragmentById(R.id.search_fragment_container);
-            // Kiểm tra nếu Fragment tồn tại và hiển thị
             if (searchFragment != null && searchFragment.isVisible()) {
-                // Lấy View đang focus (thường là EditText trong Fragment)
                 View focusedView = getCurrentFocus();
                 if (focusedView instanceof EditText) {
-                    // Xóa focus và ẩn bàn phím
                     focusedView.clearFocus();
                     hideKeyboard(focusedView);
                 }
-                // Báo cho Fragment ẩn danh sách gợi ý
                 searchFragment.hideSuggestionsList();
             }
         });
 
-        // --- Đảm bảo container này chặn các sự kiện chạm xuống dưới khi hiển thị (nên giữ) ---
-        // Sử dụng @SuppressLint để bỏ qua cảnh báo Lint cho listener này
         @SuppressLint("ClickableViewAccessibility")
         View.OnTouchListener touchListener = (v, event) -> {
             if (suggestionsOverlayContainer.getVisibility() == View.VISIBLE) {
-                // Trả về true để tiêu thụ sự kiện chạm và ngăn nó truyền xuống View bên dưới.
-                // OnClickListener sẽ xử lý sự kiện click (down + up).
-                return true; // Chặn chạm
+                return true;
             }
-            return false; // Cho phép chạm truyền xuống khi ẩn
+            return false;
         };
         suggestionsOverlayContainer.setOnTouchListener(touchListener);
 
 
-        // --- Thêm SearchFragment vào container cố định ---
-        // Chỉ thêm khi Activity được tạo lần đầu (savedInstanceState == null)
         if (savedInstanceState == null) {
             SearchFragment searchFragment = (SearchFragment) getSupportFragmentManager().findFragmentById(R.id.search_fragment_container);
-            // Kiểm tra nếu chưa có Fragment trong container
             if (searchFragment == null) {
                 searchFragment = new SearchFragment();
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -136,11 +117,8 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         }
 
         initializeViews();
-        // --- Lấy thông tin người dùng và cập nhật View SAU khi initializeViews ---
         loadAndDisplayUserInfo();
-
-        setClickListeners();
-
+        setClickListeners(); // Set listeners AFTER views are initialized
         setupBanners();
     }
 
@@ -157,10 +135,16 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         // Find the ImageView for the profile picture
         ivProfile = findViewById(R.id.ivProfile); // Make sure ivProfile is found here
         viewPagerBanners = findViewById(R.id.viewPagerBanners);
+
+        // Ensure CardViews are clickable even if not enabled (for accessibility focus etc.)
+        // Their click listener will handle the enabled check.
+        // This is often handled by default with selectableItemBackground, but good practice.
     }
 
     private void setClickListeners() {
+        // Check if views are not null before setting listeners
         if (flashcardsCard != null) flashcardsCard.setOnClickListener(this);
+        if (translateCard != null) translateCard.setOnClickListener(this);
         if (grammarCard != null) grammarCard.setOnClickListener(this);
         if (quizCard != null) quizCard.setOnClickListener(this);
         if (speechAnalyzeCard != null) speechAnalyzeCard.setOnClickListener(this);
@@ -174,13 +158,60 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         if (ivProfile != null) ivProfile.setOnClickListener(this);
     }
 
+    // Helper method to enable/disable feature CardViews
+    private void setFeatureCardsEnabled(boolean enabled) {
+        Log.d(TAG, "Setting feature cards enabled state: " + enabled);
+        if (flashcardsCard != null) flashcardsCard.setEnabled(enabled);
+        if (translateCard != null) translateCard.setEnabled(enabled);
+        if (grammarCard != null) grammarCard.setEnabled(enabled);
+        if (quizCard != null) quizCard.setEnabled(enabled);
+        if (speechAnalyzeCard != null) speechAnalyzeCard.setEnabled(enabled);
+        if (documentHubCard != null) documentHubCard.setEnabled(enabled);
+        if (writingCard != null) writingCard.setEnabled(enabled);
+        if (reportCard != null) reportCard.setEnabled(enabled);
+        // Note: Profile image click is handled separately and not included here
+    }
+
+
     @Override
     public void onClick(View v) {
+        // Handle profile click first, it doesn't need card disabling
+        if (v.getId() == R.id.ivProfile) {
+            showProfilePopupMenu(v);
+            return; // Consume click
+        }
+
+        // If any feature card is clicked, disable all feature cards immediately
+        // Check if the clicked view is one of the feature cards
+        if (v instanceof CardView && v.isEnabled()) { // Check if it's a CardView and currently enabled
+            // Check if it's one of our known feature cards by ID
+            int clickedId = v.getId();
+            if (clickedId == R.id.flashcardsCard || clickedId == R.id.translateCard ||
+                    clickedId == R.id.grammarCard || clickedId == R.id.quizCard ||
+                    clickedId == R.id.speechAnalyzeCard || clickedId == R.id.documentHubCard ||
+                    clickedId == R.id.writingCard || clickedId == R.id.reportCard) {
+
+                setFeatureCardsEnabled(false); // Disable all feature cards
+
+                // Schedule re-enabling after a short delay
+                mainHandler.postDelayed(() -> {
+                    setFeatureCardsEnabled(true);
+                }, CLICK_DEBOUNCE_DELAY_MS);
+            }
+        } else {
+            // If the view is not a CardView or is disabled, do nothing more for the click
+            // This prevents clicks on disabled cards or other non-feature views
+            return;
+        }
+
+
         int id = v.getId();
         Intent intent = null;
 
         if (id == R.id.flashcardsCard) {
             intent = new Intent(DashboardActivity.this, SpacedRepetitionActivity.class);
+        } else if (id == R.id.translateCard) {
+            intent = new Intent(DashboardActivity.this, TranslateTextActivity.class);
         } else if (id == R.id.grammarCard) {
             intent = new Intent(DashboardActivity.this, GrammarActivity.class);
         } else if (id == R.id.quizCard) {
@@ -188,6 +219,9 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         } else if (id == R.id.speechAnalyzeCard) {
             if (!isUserLoggedIn()) {
                 ForbiddenHandler.handleForbidden();
+                // Important: If we return here, the scheduled re-enable might not be needed,
+                // but it's harmless. Or you could cancel it if necessary.
+                // For simplicity, let it run.
                 return;
             }
             intent = new Intent(DashboardActivity.this, UploadSpeechActivity.class);
@@ -217,6 +251,14 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
 
         if (intent != null) {
             startActivity(intent);
+            // The cards will be re-enabled by the postDelayed handler OR in onResume
+        } else {
+            // If no intent was determined (e.g., login required but not logged in),
+            // the cards were disabled, but no new activity is starting.
+            // Re-enable them immediately here.
+            setFeatureCardsEnabled(true);
+            // Also remove the scheduled re-enable if it was set
+            mainHandler.removeCallbacks(null); // Remove all callbacks posted by mainHandler
         }
     }
 
@@ -234,8 +276,6 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
 
         if (bannerUrls.isEmpty()) {
             if (viewPagerBanners != null) viewPagerBanners.setVisibility(View.GONE);
-            // Xóa dòng ẩn TabLayout
-            // if (tabLayoutBannerIndicator != null) tabLayoutBannerIndicator.setVisibility(View.GONE);
             return;
         }
 
@@ -243,21 +283,8 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         if (viewPagerBanners != null) {
             viewPagerBanners.setAdapter(bannerAdapter);
 
-            // Thiết lập hiệu ứng chuyển trang (vẫn giữ lại nếu muốn)
             viewPagerBanners.setPageTransformer(new ZoomOutPageTransformer());
 
-            // Xóa toàn bộ phần code liên kết TabLayoutMediator
-            /*
-            if (tabLayoutBannerIndicator != null) {
-                new TabLayoutMediator(tabLayoutBannerIndicator, viewPagerBanners,
-                        (tab, position) -> {
-                            // Không cần đặt text cho tab, chỉ cần indicator dot
-                        }
-                ).attach();
-            }
-            */
-
-            // Cài đặt tự động cuộn (vẫn giữ lại nếu muốn)
             sliderRunnable = () -> {
                 if (viewPagerBanners.getCurrentItem() == bannerUrls.size() - 1) {
                     viewPagerBanners.setCurrentItem(0);
@@ -266,42 +293,26 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
                 }
             };
 
-            // Thêm Listener để dừng auto-scroll khi người dùng vuốt (vẫn giữ lại nếu muốn)
             viewPagerBanners.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
                 @Override
                 public void onPageScrollStateChanged(int state) {
                     if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
                         stopAutoScroll();
                     } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
-                        // Có thể thêm delay nhỏ ở đây nếu cần, ví dụ 500ms
-                        sliderHandler.postDelayed(sliderRunnable, 3000); // Bắt đầu lại sau 3 giây delay
+                        sliderHandler.postDelayed(sliderRunnable, 3000);
                     }
-                }
-
-                @Override
-                public void onPageSelected(int position) {
-                    // Có thể không cần làm gì ở đây nếu không có indicator
-                    // Super class implementation is empty, so safe to leave blank or remove override if not needed
-                }
-
-                @Override
-                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                    // Super class implementation is empty, so safe to leave blank or remove override if not needed
                 }
             });
 
-            // Bắt đầu auto-scroll ban đầu (vẫn giữ lại nếu muốn)
             startAutoScroll();
         }
     }
 
-    // Hàm bắt đầu tự động cuộn
     private void startAutoScroll() {
         stopAutoScroll();
         sliderHandler.postDelayed(sliderRunnable, 3000);
     }
 
-    // Hàm dừng tự động cuộn
     private void stopAutoScroll() {
         sliderHandler.removeCallbacks(sliderRunnable);
     }
@@ -309,105 +320,74 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
     @Override
     protected void onPause() {
         super.onPause();
-        // Dừng tự động cuộn khi Activity không còn hiển thị
         stopAutoScroll();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Bắt đầu lại tự động cuộn khi Activity hiển thị lại
-        // Chỉ bắt đầu nếu có banner
+        // Re-enable feature cards when returning to the dashboard
+        setFeatureCardsEnabled(true);
+        // Restart auto-scroll if banners exist
         if (viewPagerBanners != null && viewPagerBanners.getAdapter() != null && viewPagerBanners.getAdapter().getItemCount() > 0) {
             startAutoScroll();
         }
     }
 
-
-    // --- Hàm mới để lấy thông tin người dùng và hiển thị (bao gồm ảnh) ---
     private void loadAndDisplayUserInfo() {
-        // Lấy thông tin người dùng từ SharedPrefManager
         User user = SharedPrefManager.getInstance(this).getUserInfo();
 
-        // Kiểm tra nếu có thông tin người dùng
         if (user != null) {
-            // --- Cập nhật ImageView ảnh đại diện ---
             String avatarUrl = user.getAvatar();
             if (!TextUtils.isEmpty(avatarUrl)) {
-                // Sử dụng Glide để tải ảnh từ URL và ÁP DỤNG circleCropTransform
                 Glide.with(this)
                         .load(avatarUrl)
-                        .placeholder(R.drawable.image_profile) // Placeholder image while loading
-                        .error(R.drawable.image_profile) // Image to show if loading fails
-                        // .apply(RequestOptions.circleCropTransform()) // Optional: Apply circle crop transformation if not using CircleImageView
+                        .placeholder(R.drawable.image_profile)
+                        .error(R.drawable.image_profile)
                         .into(ivProfile);
             } else {
-                // Set default image if no avatar URL or URL is empty
                 ivProfile.setImageResource(R.drawable.image_profile);
             }
         } else {
-            // Set default image if user is not logged in or info is not available
             ivProfile.setImageResource(R.drawable.image_profile);
         }
     }
 
-    // --- New method to show the profile popup menu ---
     private void showProfilePopupMenu(View anchorView) {
         PopupMenu popup = new PopupMenu(this, anchorView);
-        // Inflate the menu from the XML file
         popup.getMenuInflater().inflate(R.menu.profile_menu, popup.getMenu());
 
-        // Set a listener to handle menu item clicks
         popup.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.menu_settings) {
-                // Handle Settings click
                 Toast.makeText(DashboardActivity.this, "Chức năng cài đặt chưa khả dụng", Toast.LENGTH_SHORT).show();
-                // TODO: Navigate to Settings Activity if you have one
-                return true; // Indicate that the click was handled
+                return true;
             } else if (id == R.id.menu_logout) {
-                // Handle Logout click
-                performLogout(); // Call your existing logout method
-                return true; // Indicate that the click was handled
+                performLogout();
+                return true;
             } else if (id == R.id.menu_exit) {
-                // Handle Exit click
-                finish(); // Close the current activity
-                // If you want to close the entire application, you might need additional flags
-                // or navigate back to the root (e.g., HomeActivity if it's the root)
-                // but 'finish()' is the standard way to exit the current screen.
-                return true; // Indicate that the click was handled
+                finish();
+                return true;
             }
-            return false; // Return false if the item ID was not handled
+            return false;
         });
 
-        // Show the popup menu
         popup.show();
     }
 
-
-    // --- Implement phương thức từ SearchFragment.SearchListener ---
-
-    // Fragment gọi hàm này khi có danh sách gợi ý cần hiển thị
     @Override
     public void showSuggestionsOverlay(RecyclerView recyclerViewSuggestions, int x, int y, int width) {
         if (suggestionsOverlayContainer == null || recyclerViewSuggestions == null) return;
 
-        // Xóa tất cả các View con hiện tại
         suggestionsOverlayContainer.removeAllViews();
 
-        // Thiết lập LayoutParams cho RecyclerView
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                width, // Chiều rộng bằng chiều rộng của search bar
-                ViewGroup.LayoutParams.WRAP_CONTENT // Chiều cao wrap_content
+                width,
+                ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        // Đặt vị trí (margin top và margin left)
         params.leftMargin = x;
         params.topMargin = y;
-        // Có thể thêm Gravity nếu cần căn chỉnh khác
-        // params.gravity = Gravity.TOP | Gravity.START;
 
-
-        // Đảm bảo RecyclerView được thêm vào overlay
         if (recyclerViewSuggestions.getParent() != null) {
             ((ViewGroup) recyclerViewSuggestions.getParent()).removeView(recyclerViewSuggestions);
         }
@@ -415,40 +395,33 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         Log.d(TAG, "Suggestions RecyclerView added to overlay at x=" + x + ", y=" + y + ", width=" + width);
 
 
-        // Hiển thị container overlay nếu chưa hiển thị
         if (suggestionsOverlayContainer.getVisibility() != View.VISIBLE) {
             suggestionsOverlayContainer.setVisibility(View.VISIBLE);
             Log.d(TAG, "Suggestions overlay container set to VISIBLE");
         }
     }
 
-    // Fragment gọi hàm này khi danh sách cần ẩn
     @Override
     public void hideSuggestionsOverlay() {
         if (suggestionsOverlayContainer != null && suggestionsOverlayContainer.getVisibility() == View.VISIBLE) {
-            // Xóa tất cả View con
             suggestionsOverlayContainer.removeAllViews();
-            // Ẩn container overlay
             suggestionsOverlayContainer.setVisibility(View.GONE);
             Log.d(TAG, "Suggestions overlay hidden");
         }
     }
 
-    // Fragment gọi hàm này khi có chi tiết từ
     @Override
     public void onWordDetailRequested(Word wordData) {
         Log.d(TAG, "Received word detail request from SearchFragment: " + wordData.getWord());
         navigateToDetail(wordData);
     }
 
-    // --- Hàm để chuyển sang màn hình chi tiết từ ---
     private void navigateToDetail(Word wordData) {
         Intent intent = new Intent(this, DictionaryWordDetailActivity.class);
         intent.putExtra("word_data", wordData);
         startActivity(intent);
     }
 
-    // --- Hàm xử lý logout (Already exists) ---
     private void performLogout() {
         SharedPrefManager.getInstance(this).clear();
         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
@@ -458,7 +431,6 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         startActivity(intent);
     }
 
-    // --- Implement logic ẩn bàn phím/list khi chạm ngoài ---
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
@@ -469,8 +441,6 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
                 if (overlayContainer != null && overlayContainer.getVisibility() == View.VISIBLE) {
                     Rect overlayRect = new Rect();
                     overlayContainer.getGlobalVisibleRect(overlayRect);
-
-                    // Nếu điểm chạm nằm ngoài Rect của overlay container
                     if (!overlayRect.contains((int) ev.getRawX(), (int) ev.getRawY())) {
                         focusedView.clearFocus();
                         hideKeyboard(focusedView);
@@ -479,7 +449,6 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
                             searchFragment.hideSuggestionsList();
                         }
                     } else {
-                        // Nếu điểm chạm nằm trong overlay container
                         boolean touchedChild = false;
                         if (overlayContainer instanceof ViewGroup) {
                             ViewGroup viewGroup = (ViewGroup) overlayContainer;
@@ -495,10 +464,7 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
                             }
                         }
 
-                        // Nếu chạm không nằm trên bất kỳ View con nào (chạm vào khoảng trống của overlay)
                         if (!touchedChild) {
-                            // This block is reached when touching the overlay but not a child (like the RecyclerView)
-                            // We might still want to dismiss the keyboard/suggestions here
                             focusedView.clearFocus();
                             hideKeyboard(focusedView);
                             SearchFragment searchFragment = (SearchFragment) getSupportFragmentManager().findFragmentById(R.id.search_fragment_container);
@@ -506,10 +472,8 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
                                 searchFragment.hideSuggestionsList();
                             }
                         }
-                        // If touchedChild is true, the touch is on the RecyclerView item, let it handle the event naturally.
                     }
                 } else {
-                    // Nếu overlay không hiển thị, xử lý chạm ngoài EditText bất kỳ
                     Rect focusedRect = new Rect();
                     focusedView.getGlobalVisibleRect(focusedRect);
                     if (!focusedRect.contains((int)ev.getRawX(), (int)ev.getRawY())){
@@ -522,7 +486,6 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         return super.dispatchTouchEvent(ev);
     }
 
-    // Hàm tiện ích để ẩn bàn phím
     private void hideKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null && view != null) {
