@@ -1,6 +1,11 @@
 package com.example.echoenglish_mobile.view.activity.flashcard;
 
+import android.content.DialogInterface; // Import DialogInterface
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog; // Import AlertDialog
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -23,9 +29,11 @@ import com.bumptech.glide.Glide;
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
-import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.LearningRecordRequest; // Assuming this DTO exists
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.LearningRecordRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
+import com.example.echoenglish_mobile.view.dialog.LoadingDialogFragment; // Import LoadingDialogFragment
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.button.MaterialButton; // Import MaterialButton
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,50 +50,55 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
     private static final String TAG = "Game2Activity";
 
     private static final long CURRENT_USER_ID = 27L; // Example user ID
+    private static final String LOADING_DIALOG_TAG = "Game2LoadingDialog"; // Tag for loading dialog
 
-    // New View references
-    private LinearLayout loadingContainer; // Or ConstraintLayout if you used CL
-    private ConstraintLayout gameContent; // Or LinearLayout if you wrapped in LL
+    // --- View References ---
+    // loadingContainer and gameContent views from XML are no longer used directly for visibility
+    // private LinearLayout loadingContainer;
+    private ConstraintLayout gameContent; // Still reference the container layout
 
-    private TextView textGameProgress;
-    private ImageButton buttonPlaySound;
-    private GridLayout gridAnswers;
+    private TextView textGame2Progress;
+    private ImageButton buttonGame2PlaySound; // Corrected name
+    private TextView textViewListenInstruction; // Corrected name
+    private GridLayout gridGame2Answers; // Corrected name
+    private MaterialButton buttonGame2Skip; // Corrected name, added button
 
+
+    // --- Game Data ---
     private List<VocabularyResponse> vocabularyList;
     private int currentQuestionIndex = 0;
     private int score = 0;
     private VocabularyResponse currentCorrectVocab;
     private List<VocabularyResponse> currentOptions = new ArrayList<>();
 
+    // --- Audio ---
     private TextToSpeech tts;
     private boolean ttsInitialized = false;
+    private SoundPool soundPool; // SoundPool for sound effects
+    private int soundCorrect; // ID for correct sound
+    private int soundIncorrect; // ID for incorrect sound
 
+    // --- API ---
     private ApiService apiService;
+    private int loadingApiCount = 0; // Counter for API calls
+
+    // Handler for delays
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game2);
-        setTitle("Game: Nghe & Chọn Ảnh");
+        setTitle("Game: Listen & Match Image"); // Translated title
 
-        // Initialize loading and game content containers
-        loadingContainer = findViewById(R.id.loadingContainer); // Find the loading layout
-        gameContent = findViewById(R.id.gameContent); // Find the game content layout
-
-        // Initially show loading, hide game content
-        loadingContainer.setVisibility(View.VISIBLE);
-        gameContent.setVisibility(View.INVISIBLE);
-
-
-        // Initialize other game views (these are inside gameContent)
-        textGameProgress = gameContent.findViewById(R.id.textGame2Progress); // Use gameContent to find
-        buttonPlaySound = gameContent.findViewById(R.id.buttonGame2PlaySound); // Use gameContent to find
-        gridAnswers = gameContent.findViewById(R.id.gridGame2Answers); // Use gameContent to find
-
-
-        // Khởi tạo TextToSpeech (Listener will handle visibility)
-        tts = new TextToSpeech(this, this);
-        buttonPlaySound.setEnabled(false); // Disable sound button initially until TTS is ready
+        // Ánh xạ View (từ gameContent nếu cần)
+        gameContent = findViewById(R.id.gameContent); // Still get the container
+        textGame2Progress = findViewById(R.id.textGame2Progress);
+        buttonGame2PlaySound = findViewById(R.id.buttonGame2PlaySound); // Corrected name
+        textViewListenInstruction = findViewById(R.id.textViewListenInstruction); // Corrected name
+        gridGame2Answers = findViewById(R.id.gridGame2Answers); // Corrected name
+        buttonGame2Skip = findViewById(R.id.buttonGame2Skip); // Added skip button reference
 
 
         // Khởi tạo ApiService
@@ -102,99 +115,134 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
         // Check vocab list size early, but don't load game yet
         if (vocabularyList == null || vocabularyList.size() < 4) {
             Log.e(TAG, "Not enough vocabularies received for game (need at least 4).");
-            // Show error and finish immediately, no need to wait for TTS
-            Toast.makeText(this, "Không đủ từ vựng để chơi game này.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Not enough vocabularies for this game.", Toast.LENGTH_LONG).show(); // Translated
             finish();
             return; // Exit onCreate
         }
 
         Collections.shuffle(vocabularyList); // Xáo trộn danh sách từ vựng
 
-        // Set up listeners (can do this even when game content is invisible)
-        buttonPlaySound.setOnClickListener(v -> speakWord());
+        // Hiển thị loading dialog ngay lập tức để chờ TTS và SoundPool
+        startApiCall("Preparing audio and game..."); // Translated loading message
 
-        // DO NOT call loadQuestion() here. It will be called in onInit().
+        // Khởi tạo TextToSpeech
+        tts = new TextToSpeech(this, this);
+        buttonGame2PlaySound.setEnabled(false); // Disable sound button initially
+
+        // Khởi tạo SoundPool và tải âm thanh
+        loadSounds();
+
+        // Vô hiệu hóa các controls game ban đầu (có thể gọi enable sau khi game sẵn sàng)
+        setGameControlsEnabled(false);
+
+
+        // Set up listeners
+        buttonGame2PlaySound.setOnClickListener(v -> speakWord());
+        buttonGame2Skip.setOnClickListener(v -> { // Add listener for Skip button
+            setGameControlsEnabled(false); // Disable controls immediately
+            if (currentQuestionIndex < vocabularyList.size()) {
+                long vocabId = vocabularyList.get(currentQuestionIndex).getId();
+                // Record as forgotten when skipping
+                recordLearningProgress(vocabId, false);
+            }
+            goToNextQuestion(); // Move to next question
+        });
+
+
+        // loadQuestion() will be called in onInit() after TTS is ready
     }
+
+
+    // Khởi tạo SoundPool và tải âm thanh
+    private void loadSounds() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
+            soundPool = new SoundPool.Builder()
+                    .setMaxStreams(1) // Allow only one sound effect at a time
+                    .setAudioAttributes(audioAttributes)
+                    .build();
+        } else {
+            soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+        }
+
+        // Tải âm thanh
+        soundCorrect = soundPool.load(this, R.raw.correct_answer, 1); // Replace with your sound file IDs
+        soundIncorrect = soundPool.load(this, R.raw.wrong_answer, 1);
+
+        Log.d(TAG, "SoundPool initialized and loading sounds. Correct ID: " + soundCorrect + ", Incorrect ID: " + soundIncorrect);
+        // No need to call finishApiCall here, it's called after TTS init
+    }
+
 
     // Xử lý sau khi TTS được khởi tạo
     @Override
     public void onInit(int status) {
-        // Run on the main thread because UI updates should be there
         runOnUiThread(() -> {
             if (status == TextToSpeech.SUCCESS) {
                 int result = tts.setLanguage(Locale.US);
                 if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Log.e(TAG, "TTS Language not supported");
-                    Toast.makeText(this, "Ngôn ngữ TTS (tiếng Anh US) không được hỗ trợ.", Toast.LENGTH_LONG).show(); // Changed to LONG
-                    // Handle the case where TTS is ready but language isn't
-                    // Maybe show game but disable sound features, or exit
-                    handleTTSInitializationFailure("Ngôn ngữ không được hỗ trợ.");
+                    Toast.makeText(this, "TTS language (US English) not supported.", Toast.LENGTH_LONG).show(); // Translated
+                    handleTTSInitializationFailure("Language not supported.");
                 } else {
                     ttsInitialized = true;
-                    buttonPlaySound.setEnabled(true); // Enable sound button
+                    buttonGame2PlaySound.setEnabled(true); // Enable sound button
+                    Log.d(TAG, "TTS Initialized successfully.");
 
-                    // TTS is ready, hide loading and show game content
-                    loadingContainer.setVisibility(View.GONE);
-                    gameContent.setVisibility(View.VISIBLE);
-
-                    // Now load the first question and trigger speech
-                    loadQuestion(); // Load the first question and auto-speak
+                    // TTS ready, hide loading and show game content (by enabling controls)
+                    finishApiCall();
+                    loadQuestion(); // Load first question and trigger auto-speak
+                    setGameControlsEnabled(true); // Enable game controls
 
                 }
             } else {
                 Log.e(TAG, "TTS Initialization failed with status: " + status);
-                Toast.makeText(this, "Khởi tạo công cụ TTS thất bại.", Toast.LENGTH_LONG).show(); // Changed to LONG
-                handleTTSInitializationFailure("Khởi tạo TTS thất bại.");
+                Toast.makeText(this, "TTS initialization failed.", Toast.LENGTH_LONG).show(); // Translated
+                handleTTSInitializationFailure("Initialization failed.");
+                finishApiCall(); // Hide loading dialog even on failure
             }
         });
     }
 
     // Handle what happens when TTS initialization fails
     private void handleTTSInitializationFailure(String message) {
-        // Still hide loading, but maybe show an error screen instead of the game
-        loadingContainer.setVisibility(View.GONE);
-        // Option 1: Show a simple error message and finish
-        TextView errorText = new TextView(this);
-        errorText.setText("Không thể sử dụng âm thanh. Vui lòng kiểm tra cài đặt TTS trên thiết bị.\n" + message);
-        errorText.setGravity(android.view.Gravity.CENTER);
-        errorText.setPadding(16, 16, 16, 16);
-        // Replace gameContent with errorText or add errorText on top
-        setContentView(errorText); // Simple way to replace the content
-        // You might also want to finish() after a short delay
-        new Handler(Looper.getMainLooper()).postDelayed(this::finish, 5000); // Auto-close after 5 seconds
-
-
-        // Option 2: Show game but disable all audio features
-        // This requires more UI logic to hide/disable buttons related to sound
-        // gameContent.setVisibility(View.VISIBLE); // Still show UI
-        // buttonPlaySound.setVisibility(View.GONE); // Hide sound button
-        // Consider if the game is playable without sound
-
-        // For this example, Option 1 (showing error and finishing) is simpler.
+        // Still show the game content but disable sound features
+        buttonGame2PlaySound.setEnabled(false); // Ensure disabled
+        // Optionally hide the button
+        // buttonGame2PlaySound.setVisibility(View.GONE);
+        Log.e(TAG, "TTS functionality disabled due to failure: " + message);
+        Toast.makeText(this, "Vocabulary audio function unavailable.", Toast.LENGTH_LONG).show(); // Translated
+        // Game is still playable without sound
     }
 
 
-    // ... (Rest of loadQuestion, speakWord, checkAnswer, etc. methods remain mostly the same) ...
+    // ... (Rest of loadQuestion, speakWord, checkAnswer, highlightCorrectAnswer, etc. methods) ...
 
-    // Hiển thị câu hỏi và các lựa chọn - unchanged, except now it's called from onInit
+    // Hiển thị câu hỏi và các lựa chọn
     private void loadQuestion() {
+        // Re-enable controls at the start of a new question
+        setGameControlsEnabled(true);
+
         if (currentQuestionIndex >= vocabularyList.size()) {
             endGame();
             return;
         }
 
         currentCorrectVocab = vocabularyList.get(currentQuestionIndex);
-        currentOptions.clear(); // Xóa các lựa chọn cũ
-        gridAnswers.removeAllViews(); // Xóa các view cũ trong grid
+        currentOptions.clear();
+        gridGame2Answers.removeAllViews(); // Corrected name
 
-        // Cập nhật progress text
-        textGameProgress.setText(String.format(Locale.getDefault(), "Câu %d / %d",
+        // Update progress text
+        textGame2Progress.setText(String.format(Locale.getDefault(), "Question %d / %d", // Translated
                 currentQuestionIndex + 1, vocabularyList.size()));
 
-        // Chuẩn bị 4 lựa chọn (1 đúng, 3 sai)
-        currentOptions.add(currentCorrectVocab); // Thêm đáp án đúng
+        // Prepare 4 options (1 correct, 3 wrong)
+        currentOptions.add(currentCorrectVocab); // Add the correct answer
 
-        // Lấy 3 đáp án sai ngẫu nhiên từ phần còn lại của danh sách
+        // Get 3 random wrong options from the rest of the list
         List<VocabularyResponse> wrongOptionsPool = new ArrayList<>(vocabularyList);
 
         // Remove the current correct vocabulary safely.
@@ -231,8 +279,8 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
 
         if (currentOptions.size() < 4) {
             Log.e(TAG, "Could not generate 4 unique options! Needed " + 4 + ", got " + currentOptions.size());
-            Toast.makeText(this, "Lỗi tạo đáp án. Không đủ từ vựng duy nhất.", Toast.LENGTH_SHORT).show();
-            finish();
+            Toast.makeText(this, "Error generating options. Not enough unique vocabularies.", Toast.LENGTH_SHORT).show(); // Translated
+            finish(); // Cannot proceed with the game
             return;
         }
 
@@ -240,7 +288,7 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
 
         LayoutInflater inflater = LayoutInflater.from(this);
         for (VocabularyResponse option : currentOptions) {
-            MaterialCardView cardView = (MaterialCardView) inflater.inflate(R.layout.item_game2_answer, gridAnswers, false);
+            MaterialCardView cardView = (MaterialCardView) inflater.inflate(R.layout.item_game2_answer, gridGame2Answers, false); // Corrected grid name
 
             ImageView imageView = cardView.findViewById(R.id.imageGame2Answer);
             TextView textView = cardView.findViewById(R.id.textGame2AnswerDefinition);
@@ -257,7 +305,7 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
             cardView.setOnClickListener(v -> {
                 VocabularyResponse selected = (VocabularyResponse) v.getTag();
                 if (selected != null) {
-                    checkAnswer(selected, (CardView) v);
+                    checkAnswer(selected, (CardView) v); // Pass selected option and card
                 } else {
                     Log.e(TAG, "Failed to retrieve VocabularyResponse from tag!");
                 }
@@ -274,40 +322,40 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
                     getResources().getDimensionPixelSize(R.dimen.grid_item_margin));
             cardView.setLayoutParams(params);
 
-            gridAnswers.addView(cardView);
+            gridGame2Answers.addView(cardView); // Corrected grid name
         }
 
-        // Tự động phát âm thanh khi câu hỏi được tải
-        speakWord();
-        buttonPlaySound.setEnabled(ttsInitialized);
+        // Word pronunciation is now only triggered by button click
+        // speakWord(); // NO LONGER CALLED AUTOMATICALLY
     }
 
-
-    // Phát âm thanh từ tiếng Anh - unchanged logic
+    // Phát âm thanh từ tiếng Anh
     private void speakWord() {
         if (ttsInitialized && currentCorrectVocab != null) {
             String wordToSpeak = currentCorrectVocab.getWord();
             if (wordToSpeak != null && !wordToSpeak.isEmpty()) {
+                tts.stop(); // Stop any ongoing speech
                 tts.speak(wordToSpeak, TextToSpeech.QUEUE_FLUSH, null, "Speak_" + currentCorrectVocab.getId());
+            } else {
+                Log.w(TAG, "speakWord: currentCorrectVocab or its word is null/empty.");
             }
         } else if (!ttsInitialized) {
-            // This toast should ideally not be shown often with the new flow
-            // because speakWord is called after ttsInitialized = true
-            Log.w(TAG, "speakWord called before TTS initialized."); // Use Log.w instead of toast here?
-            // Or remove the else if block if you are sure it won't be called
+            Log.w(TAG, "speakWord called but TTS not initialized.");
+            // Error message already handled in onInit/handleTTSInitializationFailure
         }
     }
 
+
     private void highlightCorrectAnswer() {
-        for (int i = 0; i < gridAnswers.getChildCount(); i++) {
-            View child = gridAnswers.getChildAt(i);
+        for (int i = 0; i < gridGame2Answers.getChildCount(); i++) { // Corrected grid name
+            View child = gridGame2Answers.getChildAt(i); // Corrected grid name
             if (child instanceof MaterialCardView) {
                 MaterialCardView cardView = (MaterialCardView) child;
-                VocabularyResponse option = (VocabularyResponse) cardView.getTag(); // Get option from tag
-                if (option != null && option.getId().equals(currentCorrectVocab.getId())) {
-                    cardView.setStrokeWidth(getResources().getDimensionPixelSize(R.dimen.card_stroke_width)); // Use a dimen resource
+                VocabularyResponse option = (VocabularyResponse) cardView.getTag();
+                if (option != null && currentCorrectVocab != null && option.getId() != null && option.getId().equals(currentCorrectVocab.getId())) {
+                    cardView.setStrokeWidth(getResources().getDimensionPixelSize(R.dimen.card_stroke_width));
                     cardView.setStrokeColor(ContextCompat.getColor(this, R.color.highlight_blue));
-                    break; // Found the correct one
+                    break;
                 }
             }
         }
@@ -316,139 +364,190 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
     // Kiểm tra đáp án người dùng chọn
     private void checkAnswer(VocabularyResponse selectedOption, CardView selectedCardView) {
         disableAnswerButtons();
-        buttonPlaySound.setEnabled(false);
+        buttonGame2PlaySound.setEnabled(false); // Disable sound button during check
 
-        boolean isCorrect = selectedOption.getId().equals(currentCorrectVocab.getId());
+        boolean isCorrect = selectedOption != null && currentCorrectVocab != null &&
+                selectedOption.getId() != null && currentCorrectVocab.getId() != null &&
+                selectedOption.getId().equals(currentCorrectVocab.getId());
 
-        // Lấy vocab ID của câu hỏi hiện tại (đáp án đúng)
-        long currentVocabId = currentCorrectVocab.getId();
+        // Play sound feedback
+        if (soundPool != null) {
+            if (isCorrect) {
+                if (soundCorrect != 0) soundPool.play(soundCorrect, 1, 1, 0, 0, 1);
+            } else {
+                if (soundIncorrect != 0) soundPool.play(soundIncorrect, 1, 1, 0, 0, 1);
+            }
+        }
 
+        long currentVocabId = currentCorrectVocab != null && currentCorrectVocab.getId() != null ? currentCorrectVocab.getId() : -1L;
 
         if (isCorrect) {
             selectedCardView.setCardBackgroundColor(ContextCompat.getColor(this, R.color.correct_green));
             score++;
-            Toast.makeText(this, "Chính xác!", Toast.LENGTH_SHORT).show();
-            // Ghi lại là nhớ (isRemembered = true)
-            recordLearningProgress(currentVocabId, true);
+            Toast.makeText(this, "Correct!", Toast.LENGTH_SHORT).show(); // Translated
+            if (currentVocabId != -1L) recordLearningProgress(currentVocabId, true);
 
         } else {
             selectedCardView.setCardBackgroundColor(ContextCompat.getColor(this, R.color.incorrect_red));
-            Toast.makeText(this, "Sai rồi!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Incorrect!", Toast.LENGTH_SHORT).show(); // Translated
             highlightCorrectAnswer();
-            // Ghi lại là quên (isRemembered = false)
-            recordLearningProgress(currentVocabId, false);
+            if (currentVocabId != -1L) recordLearningProgress(currentVocabId, false);
         }
 
-        // Chờ một chút rồi chuyển câu
-        new Handler(Looper.getMainLooper()).postDelayed(this::goToNextQuestion, 1500);
-    }
-
-    // --- Modify recordLearningProgress to accept isRemembered ---
-    private void recordLearningProgress(long vocabularyId, boolean isRemembered) {
-        if (apiService == null) {
-            Log.e(TAG, "ApiService is not initialized.");
-            return;
-        }
-
-        LearningRecordRequest request = new LearningRecordRequest();
-        request.setUserId(CURRENT_USER_ID);
-        request.setVocabularyId(vocabularyId);
-        request.setIsRemembered(isRemembered); // ** GỬI TRẠNG THÁI NHỚ/QUÊN **
-
-        apiService.recordLearning(request).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Log.i(TAG, "Ghi nhận học tập thành công cho vocab ID: " + vocabularyId + ", isRemembered: " + isRemembered);
-                } else {
-                    Log.w(TAG, "Ghi nhận học tập thất bại cho vocab ID: " + vocabularyId + ": " + response.code() + " - " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Log.e(TAG, "Lỗi mạng khi ghi nhận học tập cho vocab ID: " + vocabularyId, t);
-            }
-        });
+        // Wait a bit then go to the next question
+        mainHandler.postDelayed(this::goToNextQuestion, 1500); // Wait 1.5 seconds (can adjust)
     }
 
     // Helper to disable all card buttons
     private void disableAnswerButtons() {
-        for (int i = 0; i < gridAnswers.getChildCount(); i++) {
-            View child = gridAnswers.getChildAt(i);
-            child.setClickable(false); // Disable click
-            // Optional: Change alpha or appearance to indicate disabled state
+        for (int i = 0; i < gridGame2Answers.getChildCount(); i++) { // Corrected grid name
+            View child = gridGame2Answers.getChildAt(i); // Corrected grid name
+            child.setClickable(false);
+            // Optional: Change alpha or appearance
         }
     }
 
+    // Helper to enable/disable game controls (like buttons, but not answer cards here)
+    private void setGameControlsEnabled(boolean enabled) {
+        // Enable/disable buttons explicitly
+        buttonGame2Skip.setEnabled(enabled);
+        // Play sound button depends on TTS state AND overall enabled state
+        buttonGame2PlaySound.setEnabled(enabled && ttsInitialized);
 
-
+        // Card clicks are enabled/disabled by checkAnswer/disableAnswerButtons
+        // This function primarily controls the buttons outside the grid.
+        Log.d(TAG, "Game controls enabled: " + enabled);
+    }
 
 
     // Chuyển câu hỏi tiếp theo
     private void goToNextQuestion() {
         currentQuestionIndex++;
         // Kích hoạt lại nút loa và các nút trả lời cho câu hỏi mới
-        buttonPlaySound.setEnabled(ttsInitialized);
-        loadQuestion(); // Tải câu hỏi mới (sẽ tự kích hoạt lại nút skip và các card)
+        // buttonGame2PlaySound.setEnabled(ttsInitialized); // Handled by setGameControlsEnabled in loadQuestion
+        // enableAnswerButtons(); // Re-enable cards when loading new question
+        loadQuestion(); // Load the new question (handles enabling controls)
     }
 
-    // Kết thúc game
+    // End the game
     private void endGame() {
         Log.d(TAG, "Game Ended. Score: " + score + "/" + vocabularyList.size());
         Intent intent = new Intent(this, ResultActivity.class);
         intent.putExtra(ResultActivity.EXTRA_SCORE, score);
         intent.putExtra(ResultActivity.EXTRA_TOTAL_QUESTIONS, vocabularyList.size());
-        intent.putExtra(ResultActivity.EXTRA_GAME_TYPE, "Game 2: Nghe & Chọn");
-        // You might want to pass the vocabulary list back or just finish
+        intent.putExtra(ResultActivity.EXTRA_GAME_TYPE, "Game 2: Listen & Match"); // Translated
         startActivity(intent);
         finish(); // Close this activity
     }
 
-    // --- New method to record learning progress ---
-    private void recordLearningProgress(long vocabularyId) {
+    // Method to record learning progress using API call and loading counter
+    private void recordLearningProgress(long vocabularyId, boolean isRemembered) {
         if (apiService == null) {
-            Log.e(TAG, "ApiService is not initialized.");
-            // Handle this error, maybe retry initialization or skip recording
+            Log.e(TAG, "ApiService is not initialized. Cannot record learning progress.");
             return;
         }
 
+        // Start API loading indicator
+        startApiCall("Saving progress..."); // Translated loading message
+
         LearningRecordRequest request = new LearningRecordRequest();
-        // TODO: Get actual user ID, not a hardcoded value
         request.setUserId(CURRENT_USER_ID);
         request.setVocabularyId(vocabularyId);
+        request.setIsRemembered(isRemembered);
 
         apiService.recordLearning(request).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
+                finishApiCall(); // Hide dialog when API call finishes
+
                 if (response.isSuccessful()) {
-                    Log.i(TAG, "Ghi nhớ thành công vocab ID: " + vocabularyId);
-                    // Optional: Show a small success message if desired
+                    Log.i(TAG, "Learning recorded successfully for vocab ID: " + vocabularyId + ", isRemembered: " + isRemembered); // Translated
                 } else {
-                    Log.w(TAG, "Ghi nhớ thất bại: " + response.code() + " - " + response.message());
-                    // Optional: Show a message to the user, or retry
-                    // Toast.makeText(Game2Activity.this, "Lỗi ghi nhớ.", Toast.LENGTH_SHORT).show();
+                    String errorBody = "";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorBody = response.errorBody().string();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error reading error body", e);
+                    }
+                    Log.w(TAG, "Failed to record learning for vocab ID: " + vocabularyId + ": " + response.code() + " - " + response.message() + " Body: " + errorBody); // Translated
+                    // Optional: Toast.makeText(Game2Activity.this, "Failed to record progress.", Toast.LENGTH_SHORT).show(); // Translated
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Log.e(TAG, "Lỗi khi ghi nhớ", t);
-                // Optional: Show a message to the user, or retry
-                // Toast.makeText(Game2Activity.this, "Lỗi mạng khi ghi nhớ.", Toast.LENGTH_SHORT).show();
+                finishApiCall(); // Hide dialog when API call finishes
+                Log.e(TAG, "Network error recording learning for vocab ID: " + vocabularyId, t); // Translated
+                // Optional: Toast.makeText(Game2Activity.this, "Network error saving progress.", Toast.LENGTH_SHORT).show(); // Translated
             }
         });
     }
-    // ----------------------------------------------
 
-
-@Override
-protected void onDestroy() {
-    if (tts != null) {
-        tts.stop();
-        tts.shutdown();
-        Log.d(TAG, "TTS Shutdown.");
+    // --- Loading Logic using DialogFragment ---
+    private synchronized void startApiCall() {
+        startApiCall(null); // Default message
     }
-    super.onDestroy();
-}
+
+    private synchronized void startApiCall(String message) {
+        loadingApiCount++;
+        if (loadingApiCount == 1) {
+            String displayMessage = (message != null && !message.isEmpty()) ? message : "Loading..."; // Translated default message
+            LoadingDialogFragment.showLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG, displayMessage);
+        }
+    }
+
+    private synchronized void finishApiCall() {
+        loadingApiCount--;
+        if (loadingApiCount <= 0) {
+            loadingApiCount = 0;
+            LoadingDialogFragment.hideLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG);
+        }
+    }
+
+    // --- Override onBackPressed() ---
+    @Override
+    public void onBackPressed() {
+        // Show confirmation dialog if game is in progress
+        if (vocabularyList != null && currentQuestionIndex < vocabularyList.size()) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Quit Game?") // English Title
+                    .setMessage("Are you sure you want to leave the game? Your progress for this round will not be saved.") // English Message
+                    .setPositiveButton("Leave", (dialog, which) -> { // English Positive Button
+                        // User clicked Yes, finish the activity
+                        Game2Activity.super.onBackPressed(); // Call the default back press behavior
+                    })
+                    .setNegativeButton("Stay", (dialog, which) -> { // English Negative Button
+                        // User clicked No, just dismiss the dialog
+                        dialog.dismiss();
+                    })
+                    .show();
+        } else {
+            // Game is not in progress (e.g., loading failed or finished), just use default behavior
+            super.onBackPressed();
+        }
+    }
+    // --- End Override onBackPressed() ---
+
+
+    @Override
+    protected void onDestroy() {
+        mainHandler.removeCallbacksAndMessages(null);
+        if (tts != null) {
+            tts.stop();
+            tts.shutdown();
+            Log.d(TAG, "TTS Shutdown.");
+        }
+        if (soundPool != null) {
+            soundPool.release(); // Release SoundPool resources
+            soundPool = null;
+            Log.d(TAG, "SoundPool Released.");
+        }
+        // Ensure loading dialog is dismissed if activity is destroyed while loading
+        if (loadingApiCount > 0) {
+            LoadingDialogFragment.hideLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG);
+        }
+        super.onDestroy();
+    }
 }
