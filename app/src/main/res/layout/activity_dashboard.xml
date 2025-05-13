@@ -123,6 +123,7 @@
                 android:columnOrderPreserved="false">
                 <androidx.cardview.widget.CardView
                     android:id="@+id/flashcardsCard"
+                    android:foreground="?attr/selectableItemBackground"
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"
@@ -133,6 +134,7 @@
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/translateCard"
+                    android:foreground="?attr/selectableItemBackground"
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"
@@ -143,6 +145,7 @@
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/grammarCard"
+                    android:foreground="?attr/selectableItemBackground"
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"
@@ -153,6 +156,7 @@
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/quizCard"
+                    android:foreground="?attr/selectableItemBackground"
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"
@@ -163,6 +167,7 @@
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/speechAnalyzeCard"
+                    android:foreground="?attr/selectableItemBackground"
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"
@@ -173,6 +178,7 @@
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/documentHubCard"
+                    android:foreground="?attr/selectableItemBackground"
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"
@@ -182,6 +188,7 @@
                 </androidx.cardview.widget.CardView>
                 <androidx.cardview.widget.CardView
                     android:id="@+id/writingCard"
+                    android:foreground="?attr/selectableItemBackground"
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"
@@ -191,6 +198,7 @@
                 </androidx.cardview.widget.CardView>
                 <androidx.cardview.widget.CardView
                     android:id="@+id/reportCard"
+                    android:foreground="?attr/selectableItemBackground"
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"

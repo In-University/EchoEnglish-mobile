@@ -1,26 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Change root to ConstraintLayout to position header and content -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="#FFF"> <!-- Changed background to subtle off-white -->
+    android:background="#FFF">
 
+    <!-- Header Layout -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        <ImageView
+            android:id="@+id/backButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_xml_arrow_back_ios_24px"
+            android:contentDescription="Back"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:tint="@color/black" />
+
+
+        <TextView
+            android:id="@+id/headerTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            android:text="Translate Text"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textColor="@android:color/black"
+            app:layout_constraintTop_toTopOf="@+id/backButton"
+            app:layout_constraintBottom_toBottomOf="@+id/backButton"
+            app:layout_constraintStart_toEndOf="@+id/backButton"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Scrollable Content Area -->
+    <ScrollView
+        android:id="@+id/contentScrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:paddingHorizontal="16dp"
+    app:layout_constraintTop_toBottomOf="@id/headerLayout"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent">
+
+    <!-- Original ConstraintLayout content now inside the ScrollView -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"> 
+        android:paddingVertical="16dp"> <!-- Apply vertical padding here -->
+
         <TextView
             android:id="@+id/labelSource"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Source Text:"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <EditText
             android:id="@+id/editTextSource"
@@ -79,11 +136,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-
                 android:text="Vietnamese -> English"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp" />
         </RadioGroup>
+
+        <!-- Removed ProgressBar from here -->
 
         <Button
             android:id="@+id/buttonTranslate"
@@ -123,17 +181,6 @@
             app:layout_constraintStart_toEndOf="@id/buttonTranslate"
             app:layout_constraintTop_toTopOf="@+id/buttonTranslate" />
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/buttonTranslate" />
-
         <TextView
             android:id="@+id/labelResult"
             android:layout_width="wrap_content"
@@ -143,8 +190,8 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
-            app:layout_constraintTop_toBottomOf="@id/progressBar"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/buttonTranslate"
+        app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/textViewResult"
@@ -168,16 +215,33 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
             android:padding="8dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_xml_content_copy_24px"
-            android:background="@drawable/background_button_copy"
-            android:contentDescription="Copy translated text"
-            app:layout_constraintTop_toBottomOf="@+id/textViewResult"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:tint="@color/black" />
+        android:background="@drawable/background_button_copy"
+        android:contentDescription="Copy translated text"
+        app:layout_constraintTop_toBottomOf="@+id/textViewResult"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:ignore="VectorDrawableCompat" /> <!-- Add ignore if using pre-vector drawable -->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </ScrollView>
+
+    <!-- Keep ProgressBar, but position it centrally over the content -->
+<ProgressBar
+android:id="@+id/progressBar"
+style="?android:attr/progressBarStyle"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:visibility="gone"
+app:layout_constraintTop_toTopOf="parent"
+app:layout_constraintBottom_toBottomOf="parent"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintEnd_toEndOf="parent"
+android:elevation="8dp" /> <!-- Give it some elevation to appear above content -->
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>

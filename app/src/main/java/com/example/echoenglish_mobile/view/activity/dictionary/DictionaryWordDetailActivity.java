@@ -1,5 +1,7 @@
 package com.example.echoenglish_mobile.view.activity.dictionary;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -7,32 +9,36 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView; // Use ImageView instead of ImageButton for the back button
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.echoenglish_mobile.R;
+import com.example.echoenglish_mobile.adapter.MeaningAdapter;
 import com.example.echoenglish_mobile.model.Meaning;
 import com.example.echoenglish_mobile.model.Synonym;
 import com.example.echoenglish_mobile.model.Word;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
+import com.example.echoenglish_mobile.view.activity.dashboard.DashboardActivity;
 import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.PronunciationAssessmentActivity;
+import com.example.echoenglish_mobile.view.dialog.LoadingDialogFragment; // Assuming you have this class
+
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.flexbox.FlexboxLayout;
-import com.example.echoenglish_mobile.adapter.MeaningAdapter;
+
 
 import java.util.List;
-import android.content.Context;
-import android.content.Intent;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -47,7 +53,68 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
     private ImageView btnPlayUkAudio, btnPlayUsAudio;
     private Button btnWordPronunAnalyze;
 
+    // CHANGE: Declare as ImageView, as the crash indicates it's being found as such
+    private ImageView btnBackHeader; // Reference for the back button
+
+    private NestedScrollView contentScrollView; // Reference for the scroll view
+    // ProgressBar loadingProgressBar; // Not needed if using DialogFragment for loading
+
+
     private static final String TAG = "WordDetailActivity";
+    private static final String LOADING_DIALOG_TAG = "LoadingDialog"; // Tag for the loading dialog
+
+    // Method to show/hide loading using DialogFragment
+    private int loadingApiCount = 0; // Đếm số lượng API đang chạy
+
+    private synchronized void startApiCall() {
+        loadingApiCount++;
+        if (loadingApiCount == 1) { // Only show dialog on the first active call
+            showLoading(true);
+        }
+    }
+
+    private synchronized void finishApiCall() {
+        loadingApiCount--;
+        if (loadingApiCount <= 0) {
+            loadingApiCount = 0; // Just in case it goes negative somehow
+            showLoading(false);
+        }
+    }
+
+    // Adapted showLoading method for this activity's views
+    private void showLoading(boolean isLoading) {
+        // Ensure views are initialized before accessing them
+        if (contentScrollView == null || btnBackHeader == null || btnWordPronunAnalyze == null || btnPlayUkAudio == null || btnPlayUsAudio == null) {
+            // Views not yet initialized, do nothing or log a warning
+            Log.w(TAG, "showLoading called before views are fully initialized.");
+            return;
+        }
+
+
+        if (isLoading) {
+            // Show the loading dialog
+            LoadingDialogFragment.showLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG, "Loading word details..."); // Pass optional message
+            // Hide content
+            contentScrollView.setVisibility(View.INVISIBLE);
+            // Disable interactive elements
+            btnBackHeader.setEnabled(false);
+            btnWordPronunAnalyze.setEnabled(false);
+            btnPlayUkAudio.setEnabled(false);
+            btnPlayUsAudio.setEnabled(false);
+
+        } else {
+            // Hide the loading dialog
+            LoadingDialogFragment.hideLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG);
+            // Show content
+            contentScrollView.setVisibility(View.VISIBLE);
+            // Re-enable interactive elements
+            btnBackHeader.setEnabled(true);
+            btnWordPronunAnalyze.setEnabled(true); // Re-enable unconditionally
+            btnPlayUkAudio.setEnabled(true); // Re-enable, audio availability handled by listener
+            btnPlayUsAudio.setEnabled(true); // Re-enable, audio availability handled by listener
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +131,24 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
         btnPlayUkAudio = findViewById(R.id.btnPlayUkAudio);
         btnPlayUsAudio = findViewById(R.id.btnPlayUsAudio);
         btnWordPronunAnalyze = findViewById(R.id.btnWordPronunAnalyze);
+
+        // Initialize Header and Scroll Views
+        // CHANGE: Assign to ImageView variable
+        btnBackHeader = findViewById(R.id.btn_back_header);
+        contentScrollView = findViewById(R.id.contentScrollView);
+        // loadingProgressBar = findViewById(R.id.loadingProgressBar); // Not needed
+
+        // --- Back Button Listener ---
+        // setOnClickListener works on ImageView
+        btnBackHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DictionaryWordDetailActivity.this, DashboardActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Xóa toàn bộ stack cũ
+                startActivity(intent);
+            }
+        });
+
         Word word = (Word) getIntent().getSerializableExtra("word_data");
 
         if (word != null) {
@@ -116,9 +201,9 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
 
     // Hàm tìm kiếm và hiển thị từ (Tương tự như trong DictionaryActivity)
     private void searchAndDisplayWord(String keyword) {
-        // Có thể hiển thị một ProgressBar ở đây
         Log.d(TAG, "Searching for synonym: " + keyword);
-        Toast.makeText(this, "Searching for: " + keyword, Toast.LENGTH_SHORT).show(); // Thông báo đang tìm
+        // Removed Toast here to rely on the loading dialog
+        // Toast.makeText(this, "Searching for: " + keyword, Toast.LENGTH_SHORT).show(); // Thông báo đang tìm
 
         ApiService apiService = ApiClient.getApiService(); // Lấy instance ApiService
         Call<Word> call = apiService.getWordDetails(keyword); // Gọi API
@@ -126,10 +211,15 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
         // Context để sử dụng trong Callback
         Context context = this;
 
+        // --- Start Loading ---
+        startApiCall();
+
         call.enqueue(new Callback<Word>() {
             @Override
             public void onResponse(@NonNull Call<Word> call, @NonNull Response<Word> response) {
-                // Ẩn ProgressBar ở đây
+                // --- Finish Loading ---
+                finishApiCall();
+
                 if (response.isSuccessful() && response.body() != null) {
                     Word foundWord = response.body();
                     Log.d(TAG, "Synonym found: " + foundWord.getWord());
@@ -157,7 +247,9 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<Word> call, @NonNull Throwable t) {
-                // Ẩn ProgressBar ở đây
+                // --- Finish Loading ---
+                finishApiCall();
+
                 Log.e(TAG, "API call failed for synonym: " + keyword, t);
                 Toast.makeText(context, "Lỗi kết nối khi tìm '" + keyword + "'", Toast.LENGTH_SHORT).show();
             }
@@ -227,9 +319,8 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
         // Basic URL check
         if (url != null && !url.isEmpty() && (url.startsWith("http://") || url.startsWith("https://"))) {
             try {
-                MediaItem mediaItem = MediaItem.fromUri(url);
                 player.stop(); // Stop previous playback
-                player.setMediaItem(mediaItem);
+                player.setMediaItem(MediaItem.fromUri(url));
                 player.prepare();
                 player.play();
                 Log.d(TAG, "Playing audio from URL: " + url);
