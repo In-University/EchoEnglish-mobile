@@ -7,6 +7,7 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -40,6 +41,7 @@ public class MainDocumentHubActivity extends AppCompatActivity implements NewsAd
     private LinearLayoutManager layoutManager;
     private ProgressBar progressBar;
     private ApiService apiService;
+    ImageView btnBack;
 
     private boolean isLoading = false;
     private boolean isLastPage = false;
@@ -62,9 +64,11 @@ public class MainDocumentHubActivity extends AppCompatActivity implements NewsAd
         LinearLayout youtubeImportButton = findViewById(R.id.youtubeImportButton);
         newsRecyclerView = findViewById(R.id.newsRecyclerView);
         progressBar = findViewById(R.id.progressBar);
+        btnBack = findViewById(R.id.btnBack);
 
         browseWebButton.setOnClickListener(v -> navigateToBrowserActivity());
         youtubeImportButton.setOnClickListener(v -> showYoutubeImportPopup());
+        btnBack.setOnClickListener(v -> finish());
     }
 
     private void setupRecyclerView() {

@@ -15,6 +15,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -52,6 +53,7 @@ public class UploadSpeechActivity extends AppCompatActivity {
     private LinearLayout selectedAttachmentState;
     private TextView txtSelectedFileName;
     private ImageButton btnRemoveAttachment;
+    ImageView btnBack;
     private Button btnUpload;
     private ProgressBar progressBar;
 
@@ -89,6 +91,7 @@ public class UploadSpeechActivity extends AppCompatActivity {
         txtSelectedFileName = findViewById(R.id.txtSelectedFileName);
         btnRemoveAttachment = findViewById(R.id.btnRemoveAttachment);
         btnUpload = findViewById(R.id.btnUpload);
+        btnBack = findViewById(R.id.btnBack);
         progressBar = findViewById(R.id.progressBar);
 
         setupButtonClickListeners();
@@ -97,7 +100,7 @@ public class UploadSpeechActivity extends AppCompatActivity {
 
     private void setupButtonClickListeners() {
         btnSelectAttachment.setOnClickListener(v -> openAudioPicker());
-
+        btnBack.setOnClickListener(v -> finish());
         btnRemoveAttachment.setOnClickListener(v -> clearSelectedAudio());
 
         btnUpload.setOnClickListener(v -> attemptUpload());

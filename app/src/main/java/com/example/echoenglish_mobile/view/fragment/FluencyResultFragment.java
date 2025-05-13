@@ -136,6 +136,36 @@ public class FluencyResultFragment extends Fragment {
 //        return speedScore * 0.4 + fillerPenalty * 0.3 + duplicatePenalty * 0.3;
         return speedScore * 0.6 + fillerPenalty * 0.3;
     }
+    public static double calculateFluencyScore(SentenceAnalysisResult result) {
+        if (result == null || result.getSummary() == null) return 0.0;
+
+        float totalDuration = (float) result.getSummary().getTotal_duration();
+        int wordCount = result.getSummary().getWord_count();
+        int filterWordCount = result.getSummary().getFilter_word_count();
+
+        if (totalDuration <= 0 || wordCount < 0) return 0.0;
+
+        // Tính tốc độ nói (words per minute)
+        double speed = (double) wordCount / totalDuration * 60;
+
+        // Tính điểm tốc độ
+        double speedScore;
+        if (speed < 80 || speed > 180) {
+            speedScore = 40;
+        } else if (speed >= 100 && speed <= 160) {
+            speedScore = 100;
+        } else {
+            speedScore = 60 + (100 - Math.abs(130 - speed)) * 0.4;
+        }
+
+        // Tính điểm phạt filler words
+        double totalWords = wordCount + filterWordCount;
+        double fillerRatio = totalWords == 0 ? 0 : (double) filterWordCount / totalWords;
+        double fillerPenalty = 100 - Math.min(fillerRatio * 200, 100);
+
+        // Tổng điểm (trọng số)
+        return speedScore * 0.6 + fillerPenalty * 0.3;
+    }
 
 
     private String getScoreLevel(float score) {

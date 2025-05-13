@@ -198,7 +198,15 @@
                         <TextView style="@style/FunctionTextStyle" android:text="Report" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/conversationCard"
+                    style="@style/ModernFunctionCardStyle">
+                    <LinearLayout style="@style/CardInnerLayoutStyle">
+                        <ImageView style="@style/FunctionIconStyle"
+                            android:src="@drawable/ic_attachment" />
+                        <TextView style="@style/FunctionTextStyle" android:text="Conversation" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
             </GridLayout>
 
 

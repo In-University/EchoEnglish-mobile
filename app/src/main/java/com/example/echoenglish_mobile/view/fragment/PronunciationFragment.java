@@ -73,7 +73,7 @@ public class PronunciationFragment extends Fragment {
         recyclerViewPhonemeChart.setAdapter(adapter);
         addPhonemeTextView();
     }
-    public double calculateAverageSimilarity(SentenceAnalysisResult result) {
+    public static double calculateAverageSimilarity(SentenceAnalysisResult result) {
         if (result == null || result.getChunks() == null || result.getChunks().isEmpty()) {
             return 0.0;
         }

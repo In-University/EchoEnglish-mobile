@@ -78,7 +78,7 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
     private Handler sliderHandler = new Handler(Looper.getMainLooper());
     private Runnable sliderRunnable;
 
-    private CardView flashcardsCard, translateCard,  grammarCard, quizCard;
+    private CardView flashcardsCard, translateCard,  grammarCard, quizCard, conversationCard;
     private CardView speechAnalyzeCard, documentHubCard, writingCard, reportCard;
 
     @Override
@@ -153,6 +153,7 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         documentHubCard = findViewById(R.id.documentHubCard);
         reportCard = findViewById(R.id.reportCard);
         writingCard = findViewById(R.id.writingCard);
+        conversationCard = findViewById(R.id.conversationCard);
         // Find the ImageView for the profile picture
         ivProfile = findViewById(R.id.ivProfile); // Make sure ivProfile is found here
         viewPagerBanners = findViewById(R.id.viewPagerBanners);
@@ -167,6 +168,7 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         if (writingCard != null) writingCard.setOnClickListener(this);
         if (reportCard != null) reportCard.setOnClickListener(this);
         if (translateCard != null) translateCard.setOnClickListener(this);
+        if (conversationCard != null) conversationCard.setOnClickListener(this);
 
         // Add click listener for the profile image
         if (ivProfile != null) ivProfile.setOnClickListener(this);
@@ -205,6 +207,8 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
             intent = new Intent(DashboardActivity.this, AnalyzeResultActivity.class);
         } else if (id == R.id.translateCard) {
             intent = new Intent(DashboardActivity.this, TranslateTextActivity.class);
+        } else if (id == R.id.conversationCard) {
+            intent = new Intent(DashboardActivity.this, ConversationCategoriesActivity.class);
         } else if (id == R.id.ivProfile) { // Handle click on profile avatar
             showProfilePopupMenu(v); // Call the method to show the popup
             return; // Consume the click event
