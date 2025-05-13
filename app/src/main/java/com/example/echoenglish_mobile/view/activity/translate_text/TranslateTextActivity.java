@@ -21,10 +21,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar; // Keep ProgressBar reference
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.ScrollView; // Import ScrollView
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.ClipData;
@@ -64,70 +64,59 @@ import retrofit2.Response;
 public class TranslateTextActivity extends AppCompatActivity {
 
     private static final String TAG = "TranslateTextActivity";
-    private static final String LOADING_DIALOG_TAG = "LoadingDialog"; // Tag for the dialog fragment
+    private static final String LOADING_DIALOG_TAG = "LoadingDialog";
 
-    // --- Views ---
     private EditText editTextSource;
     private RadioGroup radioGroupDirection;
     private RadioButton radioEngToVie;
     private RadioButton radioVieToEng;
     private Button buttonTranslate;
     private Button buttonCaptureImage;
-    private ProgressBar progressBar; // Keep reference for manual control if needed, or remove if dialog is sufficient
+    private ProgressBar progressBar;
     private TextView textViewResult;
     private ImageButton buttonCopyResult;
-    private ImageView backButton; // Header back button
-    private TextView headerTitle; // Header title
-    private ScrollView contentScrollView; // ScrollView wrapping the main content
+    private ImageView backButton;
+    private TextView headerTitle;
+    private ScrollView contentScrollView;
 
-    // --- Logic Components ---
     private ApiService apiService;
     private TextRecognizer textRecognizer;
     private Uri cameraImageUri;
 
-    // --- ActivityResultLaunchers ---
     private ActivityResultLauncher<String> requestCameraPermissionLauncher;
     private ActivityResultLauncher<Intent> takePictureLauncher;
     private ActivityResultLauncher<CropImageContractOptions> cropImageLauncher;
 
-    // --- Loading Counter ---
-    private int loadingApiCount = 0; // Counter for active asynchronous operations
+    private int loadingApiCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_translate_text);
 
-        // --- Initialize Views ---
-        // Header views
         backButton = findViewById(R.id.backButton);
-        headerTitle = findViewById(R.id.headerTitle); // Optional: Set title here if not fixed in XML
-        contentScrollView = findViewById(R.id.contentScrollView); // Get the ScrollView
+        headerTitle = findViewById(R.id.headerTitle);
+        contentScrollView = findViewById(R.id.contentScrollView);
 
-        // Content views
         editTextSource = findViewById(R.id.editTextSource);
         radioGroupDirection = findViewById(R.id.radioGroupDirection);
         radioEngToVie = findViewById(R.id.radioEngToVie);
         radioVieToEng = findViewById(R.id.radioVieToEng);
         buttonTranslate = findViewById(R.id.buttonTranslate);
         buttonCaptureImage = findViewById(R.id.buttonCaptureImage);
-        progressBar = findViewById(R.id.progressBar); // Keep this reference, but its visibility is now managed by showLoading
+        progressBar = findViewById(R.id.progressBar);
         textViewResult = findViewById(R.id.textViewResult);
         buttonCopyResult = findViewById(R.id.buttonCopyResult);
 
-        // --- Initialization ---
         apiService = ApiClient.getApiService();
         textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
         initializeLaunchers();
 
-        // Optional: Set title dynamically
         headerTitle.setText("Translate Text");
 
 
-        // --- Set Listeners ---
-        // Header Back Button
         backButton.setOnClickListener(v -> {
-            onBackPressed(); // Navigate back
+            onBackPressed();
         });
 
         buttonTranslate.setOnClickListener(v -> {
@@ -140,7 +129,6 @@ public class TranslateTextActivity extends AppCompatActivity {
         });
         buttonCaptureImage.setOnClickListener(v -> checkCameraPermissionAndOpenCamera());
 
-        // Add listener for the copy button
         buttonCopyResult.setOnClickListener(v -> {
             copyTextToClipboard(textViewResult.getText().toString());
         });
@@ -173,14 +161,13 @@ public class TranslateTextActivity extends AppCompatActivity {
                     } else {
                         Log.d(TAG, "Camera returned Cancelled or Error result: " + result.getResultCode());
                         if (cameraImageUri != null) {
-                            // Clean up the temp file if capture was cancelled/failed
                             try {
                                 getContentResolver().delete(cameraImageUri, null, null);
                                 Log.d(TAG, "Deleted temp image file after cancellation/failure.");
                             } catch (Exception e) {
                                 Log.e(TAG, "Failed to delete temp image file.", e);
                             }
-                            cameraImageUri = null; // Reset URI
+                            cameraImageUri = null;
                         }
                         Toast.makeText(this, "Photo capture cancelled", Toast.LENGTH_SHORT).show();
                     }
@@ -193,7 +180,6 @@ public class TranslateTextActivity extends AppCompatActivity {
     }
 
     private void onCropImageResult(@NonNull CropImageView.CropResult result) {
-        // Clean up the original temp camera file after cropping is done (success or failure)
         if (cameraImageUri != null) {
             try {
                 getContentResolver().delete(cameraImageUri, null, null);
@@ -201,7 +187,7 @@ public class TranslateTextActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.e(TAG, "Failed to delete original temp image file after cropping.", e);
             }
-            cameraImageUri = null; // Reset URI
+            cameraImageUri = null;
         }
 
         if (result.isSuccessful()) {
@@ -211,16 +197,14 @@ public class TranslateTextActivity extends AppCompatActivity {
             if (croppedUri != null) {
                 try {
                     InputImage inputImage = InputImage.fromFilePath(TranslateTextActivity.this, croppedUri);
-                    processImageWithMlKit(inputImage); // Start ML Kit processing -> call startApiCall
+                    processImageWithMlKit(inputImage);
                 } catch (IOException e) {
                     Log.e(TAG, "Failed to create InputImage from cropped URI", e);
                     Toast.makeText(TranslateTextActivity.this, "Error reading cropped image", Toast.LENGTH_SHORT).show();
-                    // No need to call finishApiCall here, processImageWithMlKit will handle it
                 }
             } else {
                 Log.e(TAG, "Crop was successful but getUriContent() returned null!");
                 Toast.makeText(TranslateTextActivity.this, "Error getting cropped image URI", Toast.LENGTH_SHORT).show();
-                // No async task started, no need to call finishApiCall
             }
         } else {
             Exception error = result.getError();
@@ -230,7 +214,6 @@ public class TranslateTextActivity extends AppCompatActivity {
                 errorMessage += ": " + error.getMessage();
             }
             Toast.makeText(TranslateTextActivity.this, errorMessage, Toast.LENGTH_LONG).show();
-            // No async task started, no need to call finishApiCall
         }
     }
 
@@ -260,13 +243,12 @@ public class TranslateTextActivity extends AppCompatActivity {
             } else {
                 Log.e(TAG, "No camera application found.");
                 Toast.makeText(this, "No Camera app found", Toast.LENGTH_SHORT).show();
-                // Clean up the temp file if camera app not found
                 try {
                     getContentResolver().delete(cameraImageUri, null, null);
                 } catch (Exception e) {
                     Log.e(TAG, "Failed to delete temp image file.", e);
                 }
-                cameraImageUri = null; // Reset URI
+                cameraImageUri = null;
             }
         } else {
             Log.e(TAG, "Failed to create image URI for camera.");
@@ -289,11 +271,9 @@ public class TranslateTextActivity extends AppCompatActivity {
         } catch (ActivityNotFoundException e) {
             Log.e(TAG, "CropImageActivity not found (Check Manifest declaration?)", e);
             Toast.makeText(this, "Error: Crop activity not found.", Toast.LENGTH_LONG).show();
-            // No async task started, no need to call finishApiCall
         } catch (Exception e) {
             Log.e(TAG, "Error launching crop activity", e);
             Toast.makeText(this, "Error opening crop screen.", Toast.LENGTH_SHORT).show();
-            // No async task started, no need to call finishApiCall
         }
     }
 
@@ -303,7 +283,6 @@ public class TranslateTextActivity extends AppCompatActivity {
         try {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
             String imageFileName = "JPEG_" + timeStamp + "_";
-            // Use getExternalFilesDir for files that are meant for this app only and can be deleted on uninstall
             File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
             if (storageDir == null) {
                 Log.e(TAG, "getExternalFilesDir(Environment.DIRECTORY_PICTURES) returned null.");
@@ -311,7 +290,7 @@ public class TranslateTextActivity extends AppCompatActivity {
             }
             File imageFile = File.createTempFile(imageFileName, ".jpg", storageDir);
 
-            String authority = "com.example.echoenglish_mobile.provider"; // <<< VERIFY THIS AUTHORITY IN YOUR MANIFEST
+            String authority = "com.example.echoenglish_mobile.provider";
             contentUri = FileProvider.getUriForFile(this, authority, imageFile);
             Log.i(TAG, "Created temp image file: " + imageFile.getAbsolutePath() + ", Uri: " + contentUri);
 
@@ -325,24 +304,19 @@ public class TranslateTextActivity extends AppCompatActivity {
         return contentUri;
     }
 
-    // processImageWithMlKit() - Now wraps ML Kit call in start/finish
     private void processImageWithMlKit(InputImage image) {
         Log.d(TAG, "Processing CROPPED image with ML Kit Text Recognition.");
-        startApiCall(); // Start loading counter for ML Kit
-        textViewResult.setText(""); // Clear old result
+        startApiCall();
+        textViewResult.setText("");
 
         textRecognizer.process(image)
                 .addOnSuccessListener(visionText -> {
-                    finishApiCall(); // Decrement loading counter on success
+                    finishApiCall();
                     String extractedText = visionText.getText().trim();
                     Log.i(TAG, "ML Kit Text Recognition Success (from cropped). Extracted Text: \n" + extractedText);
 
                     if (!extractedText.isEmpty()) {
                         editTextSource.setText(extractedText);
-                        // Decide if you want to auto-translate after OCR
-                        // If yes: callTranslateApi(extractedText);
-                        // If no: let the user click translate button
-                        // For this example, let's not auto-translate, just fill the text field.
                         Toast.makeText(this, "Text extracted. Press 'Translate Text'", Toast.LENGTH_SHORT).show();
                     } else {
                         Log.i(TAG, "ML Kit found no text in the cropped image.");
@@ -351,18 +325,17 @@ public class TranslateTextActivity extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> {
-                    finishApiCall(); // Decrement loading counter on failure
+                    finishApiCall();
                     Log.e(TAG, "ML Kit Text Recognition Failed (from cropped)", e);
                     editTextSource.setText("");
                     Toast.makeText(TranslateTextActivity.this, "Error scanning text from selected area: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 
-    // callTranslateApi() - Now wraps Retrofit call in start/finish
     private void callTranslateApi(String originalText) {
         Log.d(TAG, "Calling translate API for text: " + originalText);
-        startApiCall(); // Start loading counter for API call
-        textViewResult.setText("Translating..."); // Update UI state
+        startApiCall();
+        textViewResult.setText("Translating...");
 
         String prompt;
         String sourceLang, targetLang;
@@ -384,7 +357,7 @@ public class TranslateTextActivity extends AppCompatActivity {
         apiService.translateText(request).enqueue(new Callback<TranslateResponse>() {
             @Override
             public void onResponse(@NonNull Call<TranslateResponse> call, @NonNull Response<TranslateResponse> response) {
-                finishApiCall(); // Decrement loading counter on response
+                finishApiCall();
                 if (response.isSuccessful() && response.body() != null && response.body().getText() != null) {
                     String translatedText = response.body().getText().trim();
                     textViewResult.setText(translatedText);
@@ -404,7 +377,7 @@ public class TranslateTextActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<TranslateResponse> call, @NonNull Throwable t) {
-                finishApiCall(); // Decrement loading counter on failure
+                finishApiCall();
                 String networkErrorMessage = "Connection or processing error: " + t.getMessage();
                 textViewResult.setText(networkErrorMessage);
                 Log.e(TAG, "API Call Failure", t);
@@ -414,7 +387,7 @@ public class TranslateTextActivity extends AppCompatActivity {
     }
 
     private void copyTextToClipboard(String text) {
-        if (text == null || text.trim().isEmpty() || textViewResult.getText().toString().equals("Translating...")) { // Don't copy loading text
+        if (text == null || text.trim().isEmpty() || textViewResult.getText().toString().equals("Translating...")) {
             Toast.makeText(this, "Nothing to copy", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -427,11 +400,9 @@ public class TranslateTextActivity extends AppCompatActivity {
     }
 
 
-    // --- Loading Logic using the provided pattern ---
-
     private synchronized void startApiCall() {
         loadingApiCount++;
-        if (loadingApiCount == 1) { // Only show dialog and disable UI on the first active call
+        if (loadingApiCount == 1) {
             showLoading(true);
         }
         Log.d(TAG, "startApiCall - current count: " + loadingApiCount);
@@ -440,67 +411,50 @@ public class TranslateTextActivity extends AppCompatActivity {
     private synchronized void finishApiCall() {
         loadingApiCount--;
         if (loadingApiCount <= 0) {
-            loadingApiCount = 0; // Ensure it doesn't go negative
-            showLoading(false); // Hide dialog and enable UI when all calls finish
+            loadingApiCount = 0;
+            showLoading(false);
         }
         Log.d(TAG, "finishApiCall - current count: " + loadingApiCount);
     }
 
-    // Modified showLoading to use DialogFragment and control this activity's UI
     private void showLoading(boolean isLoading) {
         Log.d(TAG, "showLoading: " + isLoading);
         if (isLoading) {
-            // Show the loading dialog
-            // Use try-catch in case activity state is saved/restored awkwardly
             try {
-                LoadingDialogFragment.showLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG, "Processing..."); // Pass optional message
+                LoadingDialogFragment.showLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG, "Processing...");
             } catch (IllegalStateException e) {
                 Log.e(TAG, "Couldn't show dialog, state problem", e);
             }
 
-            // Optionally show the ProgressBar as well (or remove it from XML entirely)
-            // progressBar.setVisibility(View.VISIBLE);
-
-            // Hide content by making the ScrollView invisible
             contentScrollView.setVisibility(View.INVISIBLE);
 
-            // Disable interactive elements
             editTextSource.setEnabled(false);
             buttonTranslate.setEnabled(false);
             buttonCaptureImage.setEnabled(false);
             buttonCopyResult.setEnabled(false);
-            backButton.setEnabled(false); // Disable back button while loading
+            backButton.setEnabled(false);
             for (int i = 0; i < radioGroupDirection.getChildCount(); i++) {
                 View child = radioGroupDirection.getChildAt(i);
                 if (child instanceof RadioButton) child.setEnabled(false);
             }
         } else {
-            // Hide the loading dialog
             try {
                 LoadingDialogFragment.hideLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG);
             } catch (IllegalStateException e) {
                 Log.e(TAG, "Couldn't hide dialog, state problem", e);
             }
 
-
-            // Optionally hide the ProgressBar
-            // progressBar.setVisibility(View.GONE);
-
-            // Show content
             contentScrollView.setVisibility(View.VISIBLE);
 
-            // Re-enable interactive elements
             editTextSource.setEnabled(true);
             buttonTranslate.setEnabled(true);
             buttonCaptureImage.setEnabled(true);
             buttonCopyResult.setEnabled(true);
-            backButton.setEnabled(true); // Re-enable back button
+            backButton.setEnabled(true);
             for (int i = 0; i < radioGroupDirection.getChildCount(); i++) {
                 View child = radioGroupDirection.getChildAt(i);
                 if (child instanceof RadioButton) child.setEnabled(true);
             }
-            // Re-enable copy button only if there is text to copy
-            // buttonCopyResult.setEnabled(!textViewResult.getText().toString().trim().isEmpty()); // Optional check
         }
     }
 
@@ -509,11 +463,9 @@ public class TranslateTextActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "TranslateTextActivity onDestroy called.");
-        // Ensure dialog is dismissed to prevent leaks if activity is destroyed while loading
         try {
             LoadingDialogFragment.hideLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG);
         } catch (IllegalStateException e) {
-            // Ignore, state is already messed up or dialog wasn't showing
         }
     }
 }

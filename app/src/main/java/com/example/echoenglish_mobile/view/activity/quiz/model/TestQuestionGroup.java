@@ -11,17 +11,12 @@ public class TestQuestionGroup {
     @SerializedName("groupIndex")
     private Integer groupIndex;
 
-    // We usually don't need the parent 'part' object back in the Group details
-    // @SerializedName("part")
-    // private TestPart part;
-
     @SerializedName("questions")
     private List<TestQuestion> questions;
 
     @SerializedName("contents")
     private List<TestQuestionContent> contents;
 
-    // Getters and Setters
     public Integer getGroupId() {
         return groupId;
     }
@@ -54,7 +49,4 @@ public class TestQuestionGroup {
         this.contents = contents;
     }
 
-    // Getter/Setter for 'part' if included
-    // public TestPart getPart() { return part; }
-    // public void setPart(TestPart part) { this.part = part; }
 }

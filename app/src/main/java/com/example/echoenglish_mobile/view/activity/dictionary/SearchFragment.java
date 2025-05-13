@@ -27,13 +27,13 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar; // Vẫn giữ import ProgressBar nếu Adapter dùng, nhưng sẽ xóa biến thành viên
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult; // Import ActivityResult
-import androidx.activity.result.ActivityResultCallback; // Import ActivityResultCallback
-import androidx.activity.result.ActivityResultLauncher; // Import ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts; // Import ActivityResultContracts
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -71,12 +71,12 @@ public class SearchFragment extends Fragment {
     private static final String PREFS_NAME = "DictionaryPrefs";
     private static final String KEY_SEARCH_HISTORY = "searchHistory";
     private static final int MAX_HISTORY_SIZE = 20;
-    // private static final int REQUEST_CODE_SPEECH_INPUT = 100; // Không cần request code với Activity Result API
+
 
     private TextInputLayout searchInputLayout;
     private TextInputEditText etSearch;
 
-    private RecyclerView recyclerViewSuggestionsOverlay; // RecyclerView được tạo bằng code và thêm vào overlay
+    private RecyclerView recyclerViewSuggestionsOverlay;
 
     private WordSuggestionAdapter suggestionAdapter;
     private List<Word> currentDisplayedList;
@@ -89,13 +89,12 @@ public class SearchFragment extends Fragment {
 
     private SharedPreferences sharedPreferences;
 
-    // Khai báo ActivityResultLauncher cho nhập giọng nói
     private ActivityResultLauncher<Intent> speechRecognitionLauncher;
 
 
     public interface SearchListener {
         void onWordDetailRequested(Word wordData);
-        // Cập nhật lại signature của showSuggestionsOverlay (không còn ProgressBar)
+
         void showSuggestionsOverlay(RecyclerView recyclerViewSuggestions, int x, int y, int width);
         void hideSuggestionsOverlay();
     }
@@ -117,7 +116,6 @@ public class SearchFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        // Inflate layout chỉ chứa search bar
         return inflater.inflate(R.layout.fragment_search, container, false);
     }
 
@@ -131,7 +129,6 @@ public class SearchFragment extends Fragment {
         etSearch = view.findViewById(R.id.etSearch);
 
 
-        // Tạo adapter ở đây
         currentDisplayedList = new ArrayList<>();
         suggestionAdapter = new WordSuggestionAdapter(requireContext(), currentDisplayedList, new WordSuggestionAdapter.OnSuggestionClickListener() {
             @Override
@@ -142,7 +139,7 @@ public class SearchFragment extends Fragment {
                 } else {
                     Log.w(TAG, "Clicked item has empty word string");
                 }
-                hideSuggestionsList(); // Ẩn danh sách sau khi click vào item
+                hideSuggestionsList();
             }
 
             @Override
@@ -156,25 +153,24 @@ public class SearchFragment extends Fragment {
                 Log.d(TAG, "Arrow clicked for: " + wordText);
                 etSearch.setText(wordText);
                 etSearch.setSelection(wordText.length());
-                hideKeyboard(etSearch); // Ẩn bàn phím sau khi điền text
-                hideSuggestionsList(); // Ẩn danh sách sau khi dùng mũi tên
+                hideKeyboard(etSearch);
+                hideSuggestionsList();
             }
         });
 
-        // --- Đăng ký ActivityResultLauncher cho nhập giọng nói ---
+
         speechRecognitionLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
                     public void onActivityResult(ActivityResult result) {
-                        // Logic xử lý kết quả nhập giọng nói
                         handleSpeechRecognitionResult(result);
                     }
                 }
         );
 
 
-        // Cài đặt Listeners cho EditText (Giữ nguyên)
+
         etSearch.setOnFocusChangeListener((v, hasFocus) -> {
             long currentTime = SystemClock.elapsedRealtime();
             if (currentTime - lastFocusChangeTime < 200) {
@@ -189,16 +185,15 @@ public class SearchFragment extends Fragment {
                     showSearchHistory();
                 } else if (currentText.length() >= MIN_QUERY_LENGTH) {
                     Log.d(TAG, "Refocus with text: " + currentText + ". Fetching suggestions.");
-                    hideSuggestionsList(); // Ẩn list cũ ngay lập tức
+                    hideSuggestionsList();
                     suggestionAdapter.updateData(null);
                     fetchSuggestionsFromApi(currentText);
                 } else {
-                    hideSuggestionsList(); // Ẩn list khi text quá ngắn
+                    hideSuggestionsList();
                 }
             } else {
                 Log.d(TAG, "EditText lost focus");
                 cancelPendingTasks();
-                // Khi mất focus, ẩn list (DispatchTouchEvent ở Activity sẽ giúp)
             }
             updateEndIcon(TextUtils.isEmpty(etSearch.getText()));
         });
@@ -215,11 +210,11 @@ public class SearchFragment extends Fragment {
                 if (query.length() >= MIN_QUERY_LENGTH) {
                     searchRunnable = () -> fetchSuggestionsFromApi(query);
                     searchHandler.postDelayed(searchRunnable, SEARCH_DELAY_MS);
-                    hideSuggestionsList(); // Ẩn list cũ
+                    hideSuggestionsList();
                 } else if (query.isEmpty() && etSearch.hasFocus()) {
                     showSearchHistory();
                 } else {
-                    hideSuggestionsList(); // Ẩn list khi text quá ngắn/rỗng
+                    hideSuggestionsList();
                 }
             }
 
@@ -239,8 +234,8 @@ public class SearchFragment extends Fragment {
                 } else {
                     Toast.makeText(requireContext(), "Vui lòng nhập từ để tìm kiếm", Toast.LENGTH_SHORT).show();
                 }
-                hideKeyboard(etSearch); // Ẩn bàn phím sau khi search
-                hideSuggestionsList(); // Ẩn list sau khi search
+                hideKeyboard(etSearch);
+                hideSuggestionsList();
                 return true;
             }
             return false;
@@ -253,13 +248,12 @@ public class SearchFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         listener = null;
-        hideSuggestionsList(); // Đảm bảo ẩn list khi Fragment bị detach
+        hideSuggestionsList();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Đảm bảo xóa RecyclerViewSuggestions khỏi overlay khi View bị hủy
         if (recyclerViewSuggestionsOverlay != null && recyclerViewSuggestionsOverlay.getParent() != null) {
             ((ViewGroup) recyclerViewSuggestionsOverlay.getParent()).removeView(recyclerViewSuggestionsOverlay);
             recyclerViewSuggestionsOverlay = null;
@@ -272,16 +266,7 @@ public class SearchFragment extends Fragment {
         cancelPendingTasks();
     }
 
-    // Xóa phương thức onActivityResult cũ
-    /*
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // ... code cũ ...
-    }
-     */
 
-    // --- Hàm mới để xử lý kết quả từ ActivityResultLauncher ---
     private void handleSpeechRecognitionResult(ActivityResult result) {
         if (result.getResultCode() == requireActivity().RESULT_OK && result.getData() != null) {
             ArrayList<String> recognizedTextList = result.getData().getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
@@ -303,97 +288,45 @@ public class SearchFragment extends Fragment {
     }
 
 
-    // --- Hàm để hiển thị danh sách gợi ý (tạo/thêm vào overlay) ---
+
     private void showSuggestionsList() {
-        // Create RecyclerView if it doesn't exist
         if (recyclerViewSuggestionsOverlay == null) {
             recyclerViewSuggestionsOverlay = new RecyclerView(requireContext());
             recyclerViewSuggestionsOverlay.setLayoutManager(new LinearLayoutManager(requireContext()));
             recyclerViewSuggestionsOverlay.setAdapter(suggestionAdapter);
 
-            // --- Apply Rounded Corners and Background ---
-            // Use the drawable resource for background color and shape
+
             recyclerViewSuggestionsOverlay.setBackgroundResource(R.drawable.rounded_corners_drawable);
 
-            // Clip the content to the rounded outline (requires API 21+)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                 recyclerViewSuggestionsOverlay.setClipToOutline(true);
             } else {
-                // For older APIs, you might need padding or rely on item views for clipping
-                // Add some padding to ensure items don't draw into the corner radius area
                 float scale = requireContext().getResources().getDisplayMetrics().density;
-                int paddingPx = (int) (4 * scale + 0.5f); // Example: 4dp padding
+                int paddingPx = (int) (4 * scale + 0.5f);
                 recyclerViewSuggestionsOverlay.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
             }
 
 
-            // Optional: Add padding/margin if needed (removed redundant background color setting)
-            // float scale = requireContext().getResources().getDisplayMetrics().density;
-            // int paddingPx = (int) (4 * scale + 0.5f); // 4dp padding
-            // recyclerViewSuggestionsOverlay.setPadding(0, paddingPx, 0, paddingPx);
 
-
-            // Add click listener to overlay to hide list when touching empty space (optional, handled by Activity)
-            // recyclerViewSuggestionsOverlay.setOnTouchListener((v, event) -> {
-            //     // Do nothing here, let item touch events pass through
-            //     return false;
-            // });
         }
 
-        // Get the position of the bottom of the searchInputLayout on screen
         int[] location = new int[2];
         searchInputLayout.getLocationOnScreen(location);
-        // Pass the coordinates of the bottom-left corner of the searchInputLayout
         int searchBarBottomY = location[1] + searchInputLayout.getHeight()-30;
         int searchBarLeftX = location[0];
         int searchBarWidth = searchInputLayout.getWidth();
 
-        // Notify the Activity managing the overlay to display the RecyclerView
         if (listener != null) {
             listener.showSuggestionsOverlay(recyclerViewSuggestionsOverlay, searchBarLeftX, searchBarBottomY, searchBarWidth);
             Log.d(TAG, "Notifying Activity to show overlay at x=" + searchBarLeftX + ", y=" + searchBarBottomY + ", width=" + searchBarWidth);
         }
     }
-//    private void showSuggestionsList() {
-//        // Tạo RecyclerView nếu chưa có
-//        if (recyclerViewSuggestionsOverlay == null) {
-//            recyclerViewSuggestionsOverlay = new RecyclerView(requireContext());
-//            recyclerViewSuggestionsOverlay.setLayoutManager(new LinearLayoutManager(requireContext()));
-//            recyclerViewSuggestionsOverlay.setAdapter(suggestionAdapter);
-//            // Sử dụng màu trắng từ Android resource
-//            recyclerViewSuggestionsOverlay.setBackgroundColor(Color.parseColor("#FFF"));
-//            float scale = requireContext().getResources().getDisplayMetrics().density;
-//            // Có thể thêm padding/margin nếu cần
-//            int paddingPx = (int) (4 * scale + 0.5f); // 4dp padding
-//            recyclerViewSuggestionsOverlay.setPadding(0, paddingPx, 0, paddingPx);
-//
-//            // Thêm click listener cho overlay để ẩn list khi chạm vào khoảng trống (tùy chọn)
-//            // recyclerViewSuggestionsOverlay.setOnTouchListener((v, event) -> {
-//            //     // Không làm gì ở đây, cho sự kiện chạm item đi qua
-//            //     return false;
-//            // });
-//        }
-//
-//        // Lấy vị trí của đáy searchInputLayout trên màn hình
-//        int[] location = new int[2];
-//        searchInputLayout.getLocationOnScreen(location);
-//        int searchBarBottomY = location[1] + searchInputLayout.getHeight() / 2;
-//        int searchBarLeftX = location[0];
-//        int searchBarWidth = searchInputLayout.getWidth();
-//
-//        // Báo cho Activity quản lý overlay hiển thị RecyclerView (không còn ProgressBar)
-//        if (listener != null) {
-//            listener.showSuggestionsOverlay(recyclerViewSuggestionsOverlay, searchBarLeftX, searchBarBottomY, searchBarWidth);
-//        }
-//    }
 
-    // --- Hàm để ẩn danh sách gợi ý (xóa khỏi overlay) ---
-    // Đổi access modifier từ private thành public
+
     public void hideSuggestionsList() {
         if (listener != null) {
-            listener.hideSuggestionsOverlay(); // Báo cho Activity ẩn overlay
+            listener.hideSuggestionsOverlay();
         }
-        // Xóa data trong adapter
         if (suggestionAdapter != null) {
             suggestionAdapter.updateData(null);
         }
@@ -402,9 +335,8 @@ public class SearchFragment extends Fragment {
 
     private void handleSearchAction(String query) {
         cancelPendingTasks();
-        hideSuggestionsList(); // Ẩn list
+        hideSuggestionsList();
         hideKeyboard(etSearch);
-        // Không cần hiển thị ProgressBar ở đây
         saveWordStringToHistory(query);
         fetchWordDetailsAndNavigate(query);
     }
@@ -415,7 +347,6 @@ public class SearchFragment extends Fragment {
 
         if (isEmpty) {
             searchInputLayout.setEndIconDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_xml_mic_24px));
-            // Sử dụng launcher.launch() thay vì startActivityForResult
             searchInputLayout.setEndIconOnClickListener(v -> startVoiceInput());
             Log.d(TAG, "updateEndIcon: Setting Voice Icon");
         } else {
@@ -423,7 +354,7 @@ public class SearchFragment extends Fragment {
             searchInputLayout.setEndIconOnClickListener(v -> {
                 etSearch.setText("");
                 hideKeyboard(etSearch);
-                hideSuggestionsList(); // Ẩn list khi xóa text
+                hideSuggestionsList();
                 if (etSearch.hasFocus()) {
                     showSearchHistory();
                 }
@@ -438,7 +369,6 @@ public class SearchFragment extends Fragment {
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak the word you want to search...");
         try {
-            // Sử dụng launcher.launch()
             speechRecognitionLauncher.launch(intent);
         } catch (ActivityNotFoundException e) {
             Log.e(TAG, "Speech recognition not supported", e);
@@ -460,10 +390,10 @@ public class SearchFragment extends Fragment {
                     .collect(Collectors.toList());
 
             suggestionAdapter.updateData(currentDisplayedList);
-            showSuggestionsList(); // Hiển thị list lịch sử
+            showSuggestionsList();
         } else {
             Log.d(TAG, "No search history found.");
-            hideSuggestionsList(); // Ẩn list
+            hideSuggestionsList();
         }
     }
 
@@ -473,7 +403,7 @@ public class SearchFragment extends Fragment {
         Call<List<Word>> suggestionCall = apiService.getWordSuggestions(query);
         currentApiCall = suggestionCall;
 
-        hideSuggestionsList(); // Ẩn list cũ
+        hideSuggestionsList();
 
         suggestionCall.enqueue(new Callback<List<Word>>() {
             @Override
@@ -485,13 +415,13 @@ public class SearchFragment extends Fragment {
                     Log.d(TAG, "Suggestions received: " + currentDisplayedList.size());
                     if (!currentDisplayedList.isEmpty()) {
                         suggestionAdapter.updateData(currentDisplayedList);
-                        showSuggestionsList(); // Hiển thị list gợi ý
+                        showSuggestionsList();
                     } else {
-                        hideSuggestionsList(); // Ẩn list nếu không có gợi ý
+                        hideSuggestionsList();
                     }
                 } else {
                     Log.w(TAG, "API suggestion response error: " + response.code());
-                    hideSuggestionsList(); // Ẩn list khi có lỗi
+                    hideSuggestionsList();
                 }
             }
 
@@ -502,8 +432,8 @@ public class SearchFragment extends Fragment {
                     Log.d(TAG, "Suggestion API call was cancelled.");
                 } else {
                     Log.e(TAG, "Suggestion API call failed: ", t);
-                    Toast.makeText(requireContext(), "Lỗi mạng, không thể lấy gợi ý", Toast.LENGTH_SHORT).show(); // Thông báo lỗi gợi ý
-                    hideSuggestionsList(); // Ẩn list khi lỗi mạng
+                    Toast.makeText(requireContext(), "Lỗi mạng, không thể lấy gợi ý", Toast.LENGTH_SHORT).show();
+                    hideSuggestionsList();
                 }
                 currentApiCall = null;
             }
@@ -584,7 +514,6 @@ public class SearchFragment extends Fragment {
             editor.putStringSet(KEY_SEARCH_HISTORY, historySet);
             editor.apply();
             Log.d(TAG, "Successfully deleted '" + wordKey + "'.");
-            // Sau khi xóa lịch sử, làm mới list
             if (etSearch.getText().toString().trim().isEmpty() && etSearch.hasFocus()) {
                 showSearchHistory();
             } else {

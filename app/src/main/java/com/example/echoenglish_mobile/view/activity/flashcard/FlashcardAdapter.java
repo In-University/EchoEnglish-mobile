@@ -27,7 +27,6 @@ public class FlashcardAdapter extends RecyclerView.Adapter<FlashcardAdapter.Flas
     private OnFlashcardDeleteClickListener deleteListener;
     private OnFlashcardEditClickListener editListener;
 
-    // Interfaces
     public interface OnFlashcardClickListener {
         void onFlashcardClick(FlashcardBasicResponse flashcard);
     }
@@ -78,14 +77,12 @@ public class FlashcardAdapter extends RecyclerView.Adapter<FlashcardAdapter.Flas
             holder.imageView.setImageResource(R.drawable.ic_placeholder_image);
         }
 
-        // Click item để xem chi tiết
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onFlashcardClick(flashcard);
             }
         });
 
-        // Click nút xoá
         if (holder.buttonDelete != null) {
             holder.buttonDelete.setVisibility(deleteListener != null ? View.VISIBLE : View.GONE);
             holder.buttonDelete.setOnClickListener(v -> {
@@ -95,7 +92,6 @@ public class FlashcardAdapter extends RecyclerView.Adapter<FlashcardAdapter.Flas
             });
         }
 
-        // Click nút sửa
         if (holder.buttonEdit != null) {
             holder.buttonEdit.setVisibility(editListener != null ? View.VISIBLE : View.GONE);
             holder.buttonEdit.setOnClickListener(v -> {

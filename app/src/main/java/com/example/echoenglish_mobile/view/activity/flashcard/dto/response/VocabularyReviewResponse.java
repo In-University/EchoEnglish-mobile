@@ -1,15 +1,11 @@
 package com.example.echoenglish_mobile.view.activity.flashcard.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class VocabularyReviewResponse implements Serializable {
-    // Vocabulary Details (similar to VocabularyResponse)
     private Long id;
     private String word;
     private String definition;
@@ -18,10 +14,10 @@ public class VocabularyReviewResponse implements Serializable {
     private String type;
     private String imageUrl;
 
-    // Learning History Details (relevant for review)
-    private Long learningHistoryId; // The ID of the history record itself
-    private int rememberCount;     // How many times remembered
-    private LocalDateTime learnedAt;   // When it was last learned/forgotten
+
+    private Long learningHistoryId;
+    private int rememberCount;
+    private LocalDateTime learnedAt;
 
     public VocabularyReviewResponse() {
     }

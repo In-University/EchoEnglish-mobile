@@ -10,8 +10,11 @@ public class TranslateRequest {
         this.message = message;
     }
 
-    // Getter (có thể không cần setter)
     public String getMessage() {
         return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

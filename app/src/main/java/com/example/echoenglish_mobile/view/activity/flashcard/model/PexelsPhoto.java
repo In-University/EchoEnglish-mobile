@@ -31,7 +31,6 @@ public class PexelsPhoto implements Serializable {
 
     public PexelsPhoto() {}
 
-    // Getters
     public int getId() { return id; }
     public int getWidth() { return width; }
     public int getHeight() { return height; }

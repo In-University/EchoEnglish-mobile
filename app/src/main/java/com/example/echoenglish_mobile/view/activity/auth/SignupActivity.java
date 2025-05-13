@@ -30,7 +30,7 @@ public class SignupActivity extends AppCompatActivity {
     private EditText etName, etEmail, etPassword, etRepeatPassword;
     private Button btnSignup;
     private ApiService apiService;
-    private static final String TAG = "SignupActivity"; // Log tag
+    private static final String TAG = "SignupActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +61,6 @@ public class SignupActivity extends AppCompatActivity {
         boolean cancel = false;
         View focusView = null;
 
-        // Validation checks
         if (TextUtils.isEmpty(name)) { etName.setError(getString(R.string.error_field_required)); focusView = etName; cancel = true; }
         if (TextUtils.isEmpty(email)) { etEmail.setError(getString(R.string.error_field_required)); if(focusView == null) focusView = etEmail; cancel = true;
         } else if (!isEmailValid(email)) { etEmail.setError(getString(R.string.error_invalid_email)); if(focusView == null) focusView = etEmail; cancel = true; }
@@ -78,17 +77,15 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private boolean isEmailValid(String email) { return Patterns.EMAIL_ADDRESS.matcher(email).matches(); }
-    private boolean isPasswordValid(String password) { return password.length() >= 6; } // Example: min 6 chars
+    private boolean isPasswordValid(String password) { return password.length() >= 6; }
 
     private void performSignup(String name, String email, String password) {
-        // TODO: Show Progress Indicator
         User newUser = new User(name, email, password, false);
 
         apiService.registerUser(newUser).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                // TODO: Hide Progress Indicator
-                if (response.isSuccessful() && response.body() != null) { // HTTP 200 OK
+                if (response.isSuccessful() && response.body() != null) {
                     try {
                         String successMessage = response.body().string();
                         Toast.makeText(SignupActivity.this, successMessage, Toast.LENGTH_LONG).show();
@@ -97,13 +94,12 @@ public class SignupActivity extends AppCompatActivity {
                         startActivity(intent);
                     } catch (IOException e) {
                         Log.e(TAG, "Error reading success response body", e);
-                        Toast.makeText(SignupActivity.this, "Registration successful, proceed to verify.", Toast.LENGTH_LONG).show(); // Fallback
+                        Toast.makeText(SignupActivity.this, "Registration successful, proceed to verify.", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(SignupActivity.this, OtpVerificationActivity.class);
                         intent.putExtra("USER_EMAIL", email);
                         startActivity(intent);
                     }
                 } else {
-                    // Handle errors (e.g., 409 Conflict, 500 Internal Server Error)
                     String errorMessage = parseError(response);
                     Log.w(TAG, "Signup failed: " + errorMessage);
                     Toast.makeText(SignupActivity.this, errorMessage, Toast.LENGTH_LONG).show();
@@ -112,21 +108,18 @@ public class SignupActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                // TODO: Hide Progress Indicator
                 Log.e(TAG, "API call failed", t);
                 Toast.makeText(SignupActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // Helper to parse error messages consistently
     private String parseError(Response<?> response) {
         String message = "An error occurred.";
         if (response.errorBody() != null) {
             try {
                 message = response.errorBody().string();
-                // Optionally parse if error is JSON: new JSONObject(errorStr).getString("message");
-            } catch (Exception e) { // Catch IOException or JSONException
+            } catch (Exception e) {
                 Log.e(TAG, "Error reading/parsing error body", e);
                 message = "Error: " + response.code() + " " + response.message();
             }

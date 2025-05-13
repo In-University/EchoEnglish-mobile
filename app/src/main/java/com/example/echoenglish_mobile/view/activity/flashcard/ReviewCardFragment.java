@@ -44,19 +44,17 @@ public class ReviewCardFragment extends Fragment {
 
     private boolean isFront = true;
 
-    // Animators for flipping
     private ObjectAnimator flipRightIn;
     private ObjectAnimator flipRightOut;
     private ObjectAnimator flipLeftIn;
     private ObjectAnimator flipLeftOut;
 
-    private final Handler handler = new Handler(Looper.getMainLooper()); // Handler for postDelayed
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
 
     public static ReviewCardFragment newInstance(VocabularyReviewResponse vocabulary) {
         ReviewCardFragment fragment = new ReviewCardFragment();
         Bundle args = new Bundle();
-        // VocabularyReviewResponse must be Serializable
         args.putSerializable(ARG_VOCABULARY, vocabulary);
         fragment.setArguments(args);
         return fragment;
@@ -68,32 +66,26 @@ public class ReviewCardFragment extends Fragment {
         if (getArguments() != null) {
             vocabulary = (VocabularyReviewResponse) getArguments().getSerializable(ARG_VOCABULARY);
         }
-        // Load flip animations here
         loadFlipAnimations();
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the card layout
         View view = inflater.inflate(R.layout.item_review_card, container, false);
 
-        // Find views from the inflated layout
         cardReviewFront = view.findViewById(R.id.cardReviewFront);
         cardReviewBack = view.findViewById(R.id.cardReviewBack);
 
-        // Find views on the FRONT card (within cardReviewFront)
         imageReviewVocabulary = cardReviewFront.findViewById(R.id.imageReviewVocabulary);
         textReviewWord = cardReviewFront.findViewById(R.id.textReviewWord);
         textReviewPhonetic = cardReviewFront.findViewById(R.id.textReviewPhonetic);
         textReviewMemoryLevel = cardReviewFront.findViewById(R.id.textReviewMemoryLevel);
         textReviewFlashcardInfo = cardReviewFront.findViewById(R.id.textReviewFlashcardInfo);
 
-        // Find views on the BACK card (within cardReviewBack)
         textReviewDefinition = cardReviewBack.findViewById(R.id.textReviewDefinition);
         textReviewExample = cardReviewBack.findViewById(R.id.textReviewExample);
 
-        // Set tap listener on the cards
         cardReviewFront.setOnClickListener(v -> flipCard());
         cardReviewBack.setOnClickListener(v -> flipCard());
 
@@ -104,41 +96,34 @@ public class ReviewCardFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Set camera distance on the root view of the item
         float scale = getResources().getDisplayMetrics().density;
         float cameraDist = getResources().getDisplayMetrics().density * getResources().getDimension(R.dimen.camera_distance);
         view.setCameraDistance(cameraDist);
 
-        // Display data after view is created
         displayVocabulary();
 
-        // Set initial state (front visible, back hidden and rotated)
         isFront = true;
         cardReviewFront.setVisibility(View.VISIBLE);
         cardReviewFront.setRotationY(0);
         cardReviewBack.setVisibility(View.GONE);
-        cardReviewBack.setRotationY(180); // Ensure back is rotated for 'flip in' animation
+        cardReviewBack.setRotationY(180);
     }
 
     private void displayVocabulary() {
         if (vocabulary == null) {
             Log.e(TAG, "Vocabulary data is null!");
-            // Display error state on the card
             textReviewWord.setText("Error loading word");
             textReviewDefinition.setText("Data unavailable.");
-            // Hide other views
             imageReviewVocabulary.setVisibility(View.GONE);
             textReviewPhonetic.setVisibility(View.GONE);
             textReviewExample.setVisibility(View.GONE);
             textReviewMemoryLevel.setVisibility(View.GONE);
             if (textReviewFlashcardInfo != null) textReviewFlashcardInfo.setVisibility(View.GONE);
-            // Make cards not clickable
             cardReviewFront.setClickable(false);
             cardReviewBack.setClickable(false);
             return;
         }
 
-        // Update UI for the FRONT card
         textReviewWord.setText(vocabulary.getWord());
         if (vocabulary.getPhonetic() != null && !vocabulary.getPhonetic().isEmpty()) {
             textReviewPhonetic.setText(vocabulary.getPhonetic());
@@ -159,20 +144,16 @@ public class ReviewCardFragment extends Fragment {
         } else {
             imageReviewVocabulary.setVisibility(View.GONE);
             if (getContext() != null) {
-                Glide.with(getContext()).clear(imageReviewVocabulary); // Clear previous image
+                Glide.with(getContext()).clear(imageReviewVocabulary);
             }
         }
 
         textReviewMemoryLevel.setText(String.format(Locale.getDefault(), "Memory Level: Level %d", vocabulary.getRememberCount()));
 
-        // Ensure this view is always hidden if not used
         if (textReviewFlashcardInfo != null) {
-            // Assuming VocabularyReviewResponse does NOT have getFlashcardName
             textReviewFlashcardInfo.setVisibility(View.GONE);
         }
 
-
-        // Update UI for the BACK card
         textReviewDefinition.setText(vocabulary.getDefinition());
         if (vocabulary.getExample() != null && !vocabulary.getExample().isEmpty()) {
             textReviewExample.setText(vocabulary.getExample());
@@ -181,7 +162,6 @@ public class ReviewCardFragment extends Fragment {
             textReviewExample.setVisibility(View.GONE);
         }
 
-        // Ensure cards are clickable if data is valid
         cardReviewFront.setClickable(true);
         cardReviewBack.setClickable(true);
     }
@@ -192,49 +172,38 @@ public class ReviewCardFragment extends Fragment {
             return;
         }
         try {
-            // Load the specific ObjectAnimators from res/animator
-            // Requires @animator/card_flip_right_out, @animator/card_flip_right_in, etc.
-            // Requires @integer/card_flip_time_full resource used within the animator XMLs
             flipRightOut = (ObjectAnimator) AnimatorInflater.loadAnimator(getContext(), R.animator.card_flip_right_out);
             flipRightIn = (ObjectAnimator) AnimatorInflater.loadAnimator(getContext(), R.animator.card_flip_right_in);
             flipLeftOut = (ObjectAnimator) AnimatorInflater.loadAnimator(getContext(), R.animator.card_flip_left_out);
             flipLeftIn = (ObjectAnimator) AnimatorInflater.loadAnimator(getContext(), R.animator.card_flip_left_in);
         } catch (Exception e) {
             Log.e(TAG, "Failed to load flip animations", e);
-            // Disable flip if animations fail to load
             disableFlip();
         }
     }
 
     private void flipCard() {
-        // Ensure animations are loaded and cards are clickable
         if (flipRightIn == null || flipRightOut == null || flipLeftIn == null || flipLeftOut == null) {
             Log.w(TAG, "Flip attempted but animations not loaded.");
-            disableFlip(); // Ensure flip stays disabled
+            disableFlip();
             return;
         }
 
-        // Disable clicks on cards during animation
         cardReviewFront.setClickable(false);
         cardReviewBack.setClickable(false);
 
         final View viewToFlipOut = isFront ? cardReviewFront : cardReviewBack;
         final View viewToFlipIn = isFront ? cardReviewBack : cardReviewFront;
 
-        // Determine which animations to use based on current state
         ObjectAnimator animatorOut;
         ObjectAnimator animatorIn;
 
         if (isFront) {
-            // Flipping from Front to Back (e.g., Right flip perspective)
-            animatorOut = flipRightOut; // Front flips OUT right (0 -> -180)
-            animatorIn = flipRightIn;   // Back flips IN right (180 -> 0)
+            animatorOut = flipRightOut;
+            animatorIn = flipRightIn;
         } else {
-            // Flipping from Back to Front (e.g., Right flip perspective)
-            // Back flips OUT right (180 -> 0) - uses right_in animation logic
-            // Front flips IN right (-180 -> 0) - uses left_in animation logic
-            animatorOut = flipRightIn; // Re-using animation with 180->0
-            animatorIn = flipLeftIn;   // Re-using animation with -180->0
+            animatorOut = flipRightIn;
+            animatorIn = flipLeftIn;
         }
 
         animatorOut.setTarget(viewToFlipOut);
@@ -243,27 +212,23 @@ public class ReviewCardFragment extends Fragment {
         animatorOut.start();
         animatorIn.start();
 
-        // Change visibility and state after the animation duration
-        // Requires @integer/card_flip_time_full resource
         int duration = getResources().getInteger(R.integer.card_flip_time_full);
 
         handler.postDelayed(() -> {
-            if (isFront) { // If we just flipped Front -> Back
+            if (isFront) {
                 cardReviewFront.setVisibility(View.GONE);
                 cardReviewBack.setVisibility(View.VISIBLE);
-            } else { // If we just flipped Back -> Front
+            } else {
                 cardReviewBack.setVisibility(View.GONE);
                 cardReviewFront.setVisibility(View.VISIBLE);
             }
-            isFront = !isFront; // Toggle state
-            // Re-enable clicks on cards after animation finishes
+            isFront = !isFront;
             cardReviewFront.setClickable(true);
             cardReviewBack.setClickable(true);
-        }, duration); // Delay matches animation duration
+        }, duration);
     }
 
 
-    // Helper to disable flip if animations didn't load
     private void disableFlip() {
         if (cardReviewFront != null) cardReviewFront.setClickable(false);
         if (cardReviewBack != null) cardReviewBack.setClickable(false);
@@ -273,7 +238,6 @@ public class ReviewCardFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Remove any pending PostDelayed callbacks
         handler.removeCallbacksAndMessages(null);
     }
 }

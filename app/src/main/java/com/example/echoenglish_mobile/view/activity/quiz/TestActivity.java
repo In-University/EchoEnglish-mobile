@@ -1,16 +1,16 @@
-package com.example.echoenglish_mobile.view.activity.quiz; // Thay package phù hợp
+package com.example.echoenglish_mobile.view.activity.quiz;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.CountDownTimer; // Import CountDownTimer
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Html;
 import android.util.Log;
-import android.view.Gravity; // Import Gravity
-import android.view.LayoutInflater; // Import LayoutInflater
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -27,8 +27,6 @@ import androidx.core.content.ContextCompat;
 import com.bumptech.glide.Glide;
 import com.example.echoenglish_mobile.R;
 
-// SỬA LẠI IMPORT MODEL VỀ ĐÚNG PACKAGE CỦA BẠN
-// Bỏ các import không cần thiết (request/response/history)
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
 import com.example.echoenglish_mobile.view.activity.flashcard.ResultActivity;
@@ -37,7 +35,7 @@ import com.example.echoenglish_mobile.view.activity.quiz.model.TestPart;
 import com.example.echoenglish_mobile.view.activity.quiz.model.TestQuestion;
 import com.example.echoenglish_mobile.view.activity.quiz.model.TestQuestionContent;
 import com.example.echoenglish_mobile.view.activity.quiz.model.TestQuestionGroup;
-import com.google.android.material.bottomsheet.BottomSheetDialog; // Import BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 
@@ -56,7 +54,6 @@ import retrofit2.Response;
 
 public class TestActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
 
-    // Views
     private TextView tvQuestionIndicator, tvQuestionTextPart5;
     private LinearProgressIndicator progressIndicator;
     private ImageView imgQuestionPart1;
@@ -66,35 +63,30 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     private TextView tvAudioCurrentTime, tvAudioTotalTime;
     private Button btnChoiceA, btnChoiceB, btnChoiceC, btnChoiceD;
     private Button btnNext, btnBack, btnShowExplanation;
-    // private CardView cardExplanation; // Bỏ CardView explanation
-    private ProgressBar loadingProgressBar; // Cần thêm vào layout nếu muốn dùng
-    private TextView tvTimer; // TextView hiển thị timer tổng
+    private ProgressBar loadingProgressBar;
+    private TextView tvTimer;
 
-    // Data & State
     private ApiService apiService;
     private TestPart currentTestPart;
     private List<TestQuestionGroup> questionGroups;
     private List<TestQuestion> allQuestions = new ArrayList<>();
     private int currentQuestionIndex = 0;
     private int partNumber;
-    private Integer currentTestId; // Lấy từ Intent
-    private Integer currentPartId = null; // Lấy từ currentTestPart
-    private int totalQuestionsInPart = 0; // Tổng số câu hỏi trong part này
+    private Integer currentTestId;
+    private Integer currentPartId = null;
+    private int totalQuestionsInPart = 0;
 
-    // Answer Tracking
-    private Map<Integer, Integer> userAnswers = new HashMap<>(); // <QuestionID, ChoiceID>
-    private Map<Integer, Boolean> answerCorrectness = new HashMap<>(); // <QuestionID, IsCorrect>
+    private Map<Integer, Integer> userAnswers = new HashMap<>();
+    private Map<Integer, Boolean> answerCorrectness = new HashMap<>();
 
-    // Media Player
     private MediaPlayer mediaPlayer;
     private final Handler audioHandler = new Handler(Looper.getMainLooper());
     private boolean isAudioPrepared = false;
     private boolean autoPlayedOnce = false;
 
-    // Timer cho cả bài thi
-    private CountDownTimer totalTestTimer; // Timer tổng
-    private long totalTimeMillis = 0; // Tổng thời gian (ms)
-    private long millisRemaining = 0; // <-- THÊM BIẾN NÀY
+    private CountDownTimer totalTestTimer;
+    private long totalTimeMillis = 0;
+    private long millisRemaining = 0;
 
     private static final String TAG = "TestActivity";
 
@@ -115,7 +107,6 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         fetchTestData();
     }
 
-    // --- Timer Logic cho Toàn Bài Thi ---
     private void calculateAndStartTotalTimer() {
         if (totalQuestionsInPart <= 0) { Log.w(TAG, "Cannot start timer, no questions."); return; }
         totalTimeMillis = (long) totalQuestionsInPart * 60 * 1000;
@@ -144,17 +135,13 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         btnNext = findViewById(R.id.btn_next);
         btnBack = findViewById(R.id.btn_back);
         btnShowExplanation = findViewById(R.id.btn_show_explanation);
-        // cardExplanation = findViewById(R.id.card_explanation); // Bỏ dòng này
-        // tvExplanationDetail = findViewById(R.id.tv_explanation_detail); // Bỏ dòng này
         tvTimer = findViewById(R.id.timer_textview);
 
-        // Audio Player Views
         btnAudioPlayPause = audioPlayerView.findViewById(R.id.audio_btn_play_pause);
         audioSeekBar = audioPlayerView.findViewById(R.id.audio_seekbar_progress);
         tvAudioCurrentTime = audioPlayerView.findViewById(R.id.audio_txt_current_time);
         tvAudioTotalTime = audioPlayerView.findViewById(R.id.audio_txt_total_time);
 
-        // loadingProgressBar = findViewById(R.id.loading_progress_bar); // Uncomment nếu có
     }
 
     private void setupListeners() {
@@ -183,7 +170,6 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                     currentPartId = currentTestPart.getPartId();
                     Log.d(TAG, "Successfully fetched TestPart, partId: " + currentPartId);
 
-                    // Kiểm tra/cập nhật testId nếu cần
                     if (currentTestPart.getTest() != null && currentTestPart.getTest().getTestId() != null) {
                         Integer fetchedTestId = currentTestPart.getTest().getTestId();
                         if (!currentTestId.equals(fetchedTestId)) {
@@ -233,7 +219,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                 allQuestions.addAll(group.getQuestions());
             }
         }
-        totalQuestionsInPart = allQuestions.size(); // Cập nhật tổng số câu ở đây
+        totalQuestionsInPart = allQuestions.size();
         Log.d(TAG, "Prepared data. Questions: " + totalQuestionsInPart);
         if (progressIndicator != null) {
             progressIndicator.setMax(totalQuestionsInPart);
@@ -249,7 +235,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
 
         resetUIForNewQuestion();
 
-        tvQuestionIndicator.setText(String.format(Locale.getDefault(), "Question %d/%d", index + 1, totalQuestionsInPart)); // Dùng totalQuestionsInPart
+        tvQuestionIndicator.setText(String.format(Locale.getDefault(), "Question %d/%d", index + 1, totalQuestionsInPart));
         progressIndicator.setProgressCompat(index + 1, true);
 
         if (partNumber == 1) loadPart1UI(question);
@@ -262,8 +248,6 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
 
     private void resetUIForNewQuestion(){
         resetChoiceButtonStates();
-        // cardExplanation.setVisibility(View.GONE); // Bỏ dòng này
-        // tvExplanationDetail.setText(""); // Bỏ dòng này
         stopAudio();
         isAudioPrepared = false;
         autoPlayedOnce = false;
@@ -352,7 +336,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         TestQuestion currentQuestion = allQuestions.get(currentQuestionIndex);
         if (currentQuestion == null || currentQuestion.getQuestionId() == null) return;
         int currentQuestionId = currentQuestion.getQuestionId();
-        if (userAnswers.containsKey(currentQuestionId)) return; // Đã trả lời
+        if (userAnswers.containsKey(currentQuestionId)) return;
 
         int selectedChoiceId = (Integer) selectedButton.getTag();
         TestChoice selectedChoice = findChoiceById(currentQuestion, selectedChoiceId);
@@ -412,41 +396,34 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     private void handleNext() { if (currentQuestionIndex < allQuestions.size() - 1) { loadQuestion(currentQuestionIndex + 1); } else { finishTest(); } }
     private void handleBack() { if (currentQuestionIndex > 0) { loadQuestion(currentQuestionIndex - 1); } }
 
-    // Sửa lại handleShowExplanation để dùng BottomSheet
     private void handleShowExplanation() {
         if (currentQuestionIndex < 0 || currentQuestionIndex >= allQuestions.size()) return;
         TestQuestion currentQuestion = allQuestions.get(currentQuestionIndex);
         if (currentQuestion == null) return;
 
-        // 1. Chuẩn bị nội dung Explanation
         StringBuilder explanationContent = new StringBuilder();
-        String title = "Explanation / Transcript"; // Title mặc định
+        String title = "Explanation / Transcript";
 
-        if (partNumber == 1) { // Part 1: Hiển thị giải thích của từng choice
+        if (partNumber == 1) {
             title = "Transcripts / Options";
             if (currentQuestion.getChoices() != null && !currentQuestion.getChoices().isEmpty()) {
                 List<TestChoice> choices; if (currentQuestion.getChoices() instanceof List) { choices = (List<TestChoice>) currentQuestion.getChoices(); } else { choices = new ArrayList<>(currentQuestion.getChoices()); } try { choices.sort(Comparator.comparing(TestChoice::getChoiceLabel, Comparator.nullsLast(Comparator.naturalOrder()))); } catch (Exception e) {}
                 for (TestChoice choice : choices) { if (choice != null && choice.getChoiceLabel() != null && choice.getChoiceExplanation() != null) { boolean isThisCorrect = choice.getChoiceLabel().equalsIgnoreCase(currentQuestion.getCorrectAnswerLabel()); if (isThisCorrect) explanationContent.append("<b><font color='#4CAF50'>"); explanationContent.append(choice.getChoiceLabel()).append(". "); explanationContent.append(choice.getChoiceExplanation()); if (isThisCorrect) explanationContent.append("</font></b>"); explanationContent.append("<br/><br/>"); } }
                 if (currentQuestion.getExplanation() != null && !currentQuestion.getExplanation().trim().isEmpty()) { explanationContent.append("<hr><b>More Info:</b><br/>").append(currentQuestion.getExplanation()); }
             } else { explanationContent.append("Choice details not available."); }
-        } else { // Part 5 (và các part khác): Hiển thị explanation của Question
+        } else {
             String explanation = currentQuestion.getExplanation(); if (explanation != null && !explanation.trim().isEmpty()) { explanationContent.append(explanation); } else { explanationContent.append("No detailed explanation available."); }
         }
 
-        // 2. Tạo và hiển thị BottomSheetDialog
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
-        // Inflate layout mới (root là null)
         View bottomSheetView = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_explanation, null);
 
-        // Tìm các View bên trong bottomSheetView
         TextView tvTitle = bottomSheetView.findViewById(R.id.tv_bottom_sheet_title);
         TextView tvDetail = bottomSheetView.findViewById(R.id.tv_bottom_sheet_explanation_detail);
         Button btnClose = bottomSheetView.findViewById(R.id.btn_close_bottom_sheet);
 
-        // Set Title
         if (tvTitle != null) tvTitle.setText(title);
 
-        // Set nội dung Explanation
         if (tvDetail != null) {
             if (explanationContent.length() > 0) {
                 try { tvDetail.setText(Html.fromHtml(explanationContent.toString(), Html.FROM_HTML_MODE_COMPACT)); }
@@ -454,7 +431,6 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
             } else { tvDetail.setText("Explanation not available."); }
         }
 
-        // Set sự kiện cho nút Close
         if (btnClose != null) btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
 
         bottomSheetDialog.setContentView(bottomSheetView);
@@ -467,7 +443,6 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         stopTotalTestTimer();
         Log.d(TAG, "Finishing test locally.");
         int correctCount = 0; for(Boolean c : answerCorrectness.values()) { if(Boolean.TRUE.equals(c)) correctCount++; }
-        // int totalQuestionsInPart đã gán ở prepareTestData
         Log.d(TAG, "Local score: " + correctCount + "/" + totalQuestionsInPart);
         Intent intent = new Intent(TestActivity.this, ResultActivity.class);
         intent.putExtra(ResultActivity.EXTRA_SCORE, correctCount);
@@ -480,12 +455,12 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void startTotalTestTimer(long duration) {
-        stopTotalTestTimer(); // Dừng timer cũ nếu đang chạy
+        stopTotalTestTimer();
         Log.d(TAG, "Starting total timer for " + duration + " ms");
         totalTestTimer = new CountDownTimer(duration, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                millisRemaining = millisUntilFinished; // <-- LƯU THỜI GIAN CÒN LẠI Ở ĐÂY
+                millisRemaining = millisUntilFinished;
                 String timeFormatted = String.format(Locale.getDefault(), "%02d:%02d",
                         TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished),
                         TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))
@@ -493,9 +468,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                 if (millisUntilFinished <= 60 * 1000) {
                     tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, R.color.red_incorrect));
                 } else {
-                    // Có thể thay đổi màu cho đẹp hơn, ví dụ màu của theme
-                    tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, android.R.color.tab_indicator_text)); // Màu xanh mặc định
-                    // Hoặc dùng màu theme: tvTimer.setTextColor(getColor(R.color.blue)); // Nếu bạn định nghĩa màu xanh riêng
+                    tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, android.R.color.tab_indicator_text));
                 }
                 tvTimer.setText(timeFormatted);
             }
@@ -505,7 +478,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                 tvTimer.setText("00:00");
                 tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, R.color.red_incorrect));
                 Log.d(TAG, "Total test time finished!");
-                millisRemaining = 0; // Đảm bảo reset về 0 khi hết giờ
+                millisRemaining = 0;
                 handleTotalTimeUp();
             }
         }.start();
@@ -516,11 +489,10 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     private void handleTotalTimeUp() {
         Toast.makeText(this, "Time's up! Submitting...", Toast.LENGTH_LONG).show();
         btnNext.setEnabled(false); btnBack.setEnabled(false); btnShowExplanation.setEnabled(false); lockChoices();
-        finishTest(); // Tự động nộp bài
+        finishTest();
     }
 
 
-    // --- Audio Player Logic ---
     private void prepareAudio(String url) {
         stopAudio(); mediaPlayer = new MediaPlayer(); try { mediaPlayer.setDataSource(url); mediaPlayer.setOnPreparedListener(this); mediaPlayer.setOnCompletionListener(this); mediaPlayer.setOnErrorListener((mp, what, extra) -> { Log.e(TAG, "MP Error: " + what + "," + extra + " URL: " + url); Toast.makeText(this, "Audio Error", Toast.LENGTH_SHORT).show(); btnAudioPlayPause.setImageResource(R.drawable.ic_xml_play_arrow_24px); audioSeekBar.setEnabled(false); return true; }); mediaPlayer.prepareAsync(); btnAudioPlayPause.setImageResource(R.drawable.ic_xml_hourglass_top_24px); audioSeekBar.setEnabled(false); } catch (Exception e) { Log.e(TAG, "DataSource Error: " + url, e); Toast.makeText(this, "Cannot load audio", Toast.LENGTH_SHORT).show(); audioPlayerView.setVisibility(View.GONE); }
     }
@@ -537,7 +509,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     private void toggleAudioPlayback() { if (!isAudioPrepared && mediaPlayer != null) return; if (mediaPlayer != null && isAudioPrepared) { if (mediaPlayer.isPlaying()) pauseAudio(); else { try { if (!mediaPlayer.isPlaying() && mediaPlayer.getCurrentPosition() >= mediaPlayer.getDuration() - 100) { mediaPlayer.seekTo(0); tvAudioCurrentTime.setText("0:00"); audioSeekBar.setProgress(0); } } catch (IllegalStateException e) { Log.e(TAG, "Seek 0 error", e); } playAudio(); } } else if (partNumber == 1){ if (!allQuestions.isEmpty() && currentQuestionIndex < allQuestions.size()) { TestQuestion q = allQuestions.get(currentQuestionIndex); TestQuestionGroup g = findGroupForQuestion(q); if (g != null && g.getContents() != null) { for (TestQuestionContent c : g.getContents()) { if ("AUDIO".equalsIgnoreCase(c.getContentType())) { prepareAudio(c.getContentData()); break; } } } } } }
     private String formatTime(int ms) { if (ms < 0) ms = 0; long min = TimeUnit.MILLISECONDS.toMinutes(ms); long sec = TimeUnit.MILLISECONDS.toSeconds(ms) - TimeUnit.MINUTES.toSeconds(min); return String.format(Locale.getDefault(), "%01d:%02d", min, sec); }
     private void finishWithError(String message) { Log.e(TAG, "Error: " + message); runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show()); finish(); }
-    private void showLoading(boolean show) { Log.d(TAG, "Loading: " + show); /* TODO: Implement ProgressBar visibility */ }
+    private void showLoading(boolean show) { Log.d(TAG, "Loading: " + show); }
 
     @Override
     protected void onDestroy() {
@@ -545,36 +517,28 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     public void onBackPressed() {
-        // Khi bấm back, dừng timer hiện tại trước khi hiển thị dialog
         stopTotalTestTimer();
 
         new AlertDialog.Builder(this)
                 .setTitle("Exit Test?")
-                // Sửa lại thông báo cho chính xác hơn
                 .setMessage("Are you sure you want to exit?")
                 .setPositiveButton("Exit", (dialog, which) -> {
-                    // Xử lý khi chọn Exit
-                    stopAudio(); // Dừng audio
-                    super.onBackPressed(); // Quay lại hoặc thoát activity
+                    stopAudio();
+                    super.onBackPressed();
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {
-                    // Xử lý khi chọn Cancel
-                    // Khởi động lại timer với thời gian còn lại
-                    if (millisRemaining > 0) { // Chỉ khởi động lại nếu còn thời gian
+                    if (millisRemaining > 0) {
                         startTotalTestTimer(millisRemaining);
                     } else {
-                        // Nếu millisRemaining == 0 (đã hết giờ trước khi dialog bật lên)
-                        // thì không cần làm gì cả, timer đã finish
-                        tvTimer.setText("00:00"); // Đảm bảo hiển thị 00:00
+                        tvTimer.setText("00:00");
                         tvTimer.setTextColor(ContextCompat.getColor(TestActivity.this, R.color.red_incorrect));
                     }
-                    dialog.dismiss(); // Đóng dialog
+                    dialog.dismiss();
                 })
-                .setCancelable(false) // Người dùng phải chọn 1 trong 2 nút
+                .setCancelable(false)
                 .show();
     }
 
-    // --- Click Listener ---
     @Override
     public void onClick(View v) {
         int id = v.getId();

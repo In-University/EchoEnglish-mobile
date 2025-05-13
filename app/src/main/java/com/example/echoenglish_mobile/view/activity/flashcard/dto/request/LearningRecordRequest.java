@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class LearningRecordRequest {
-    private Long userId; // Sẽ được kiểm tra khớp với user đang login
+    private Long userId;
 
     private Long vocabularyId; // ID của từ vựng đã học
 

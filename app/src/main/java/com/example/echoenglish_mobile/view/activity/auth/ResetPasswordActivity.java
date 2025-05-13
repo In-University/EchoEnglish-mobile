@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-// import android.widget.TextView; // Keep if needed
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,7 +13,6 @@ import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.model.ResetPasswordRequest;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
-
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -25,7 +23,6 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
     private EditText etOtpCode, etNewPassword, etConfirmNewPassword;
     private Button btnResetPassword;
-    // private TextView tvInfo;
     private ApiService apiService;
     private String userEmail;
     private static final String TAG = "ResetPasswordActivity";
@@ -39,7 +36,6 @@ public class ResetPasswordActivity extends AppCompatActivity {
         etNewPassword = findViewById(R.id.etNewPassword);
         etConfirmNewPassword = findViewById(R.id.etConfirmNewPassword);
         btnResetPassword = findViewById(R.id.btnResetPassword);
-        // tvInfo = findViewById(R.id.tvResetPasswordInfo);
         apiService = ApiClient.getApiService();
 
         userEmail = getIntent().getStringExtra("USER_EMAIL");
@@ -60,7 +56,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
         if (TextUtils.isEmpty(otpCode) || otpCode.length() != 6) { etOtpCode.setError("Valid 6-digit OTP required"); focusView = etOtpCode; cancel = true; }
         if (TextUtils.isEmpty(newPassword) ) { etNewPassword.setError("New password required"); if(focusView == null) focusView = etNewPassword; cancel = true;
-        } else if (newPassword.length() < 6) { etNewPassword.setError("Password must be at least 6 characters"); if(focusView == null) focusView = etNewPassword; cancel = true; } // Match validation
+        } else if (newPassword.length() < 6) { etNewPassword.setError("Password must be at least 6 characters"); if(focusView == null) focusView = etNewPassword; cancel = true; }
         if (TextUtils.isEmpty(confirmPassword)) { etConfirmNewPassword.setError("Confirm password required"); if(focusView == null) focusView = etConfirmNewPassword; cancel = true;
         } else if (!newPassword.equals(confirmPassword)) { etConfirmNewPassword.setError("Passwords do not match"); if(focusView == null) focusView = etConfirmNewPassword; cancel = true; }
 
@@ -72,14 +68,12 @@ public class ResetPasswordActivity extends AppCompatActivity {
     }
 
     private void performPasswordReset(String email, String otpCode, String newPassword) {
-        // TODO: Show Progress Indicator
         ResetPasswordRequest request = new ResetPasswordRequest(email, otpCode, newPassword);
 
         apiService.resetPassword(request).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                // TODO: Hide Progress Indicator
-                if (response.isSuccessful() && response.body() != null) { // HTTP 200 OK
+                if (response.isSuccessful() && response.body() != null) {
                     try {
                         String successMessage = response.body().string();
                         Toast.makeText(ResetPasswordActivity.this, successMessage, Toast.LENGTH_LONG).show();
@@ -95,7 +89,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     }
-                } else { // Handle errors (400 Bad Request for invalid OTP, etc.)
+                } else {
                     String errorMessage = parseError(response);
                     Log.w(TAG, "Reset password failed: " + errorMessage);
                     Toast.makeText(ResetPasswordActivity.this, errorMessage, Toast.LENGTH_LONG).show();
@@ -104,7 +98,6 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call,@NonNull Throwable t) {
-                // TODO: Hide Progress Indicator
                 Log.e(TAG, "API call failed", t);
                 Toast.makeText(ResetPasswordActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }

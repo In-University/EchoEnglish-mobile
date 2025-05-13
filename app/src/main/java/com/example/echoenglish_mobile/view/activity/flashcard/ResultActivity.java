@@ -31,11 +31,11 @@ public class ResultActivity extends AppCompatActivity {
         if (totalQuestions > 0) {
             textScore.setText(String.format(Locale.getDefault(), "Result: %d/%d Correct ", score, totalQuestions));
         } else {
-            textScore.setText("N/A"); // Trường hợp không có câu hỏi
+            textScore.setText("N/A");
         }
 
         buttonFinish.setOnClickListener(v -> {
-            finish(); // Đóng màn hình kết quả, quay lại màn hình trước (FlashcardDetail)
+            finish();
         });
     }
 }

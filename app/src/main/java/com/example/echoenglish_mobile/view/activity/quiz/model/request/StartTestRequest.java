@@ -1,28 +1,37 @@
 package com.example.echoenglish_mobile.view.activity.quiz.model.request;
 
 public class StartTestRequest {
-    // Đổi kiểu dữ liệu từ String thành Long
-    private Long userId;
+    private Long userId; // Adjust type if necessary (e.g., Long)
     private Integer testId;
-    private Integer partId; // Giữ lại partId nếu bạn vẫn cần nó ở client
+    private Integer partId;
 
-    // Cập nhật Constructor
     public StartTestRequest(Long userId, Integer testId, Integer partId) {
         this.userId = userId;
         this.testId = testId;
         this.partId = partId;
     }
 
-    // Getters (Setters optional)
     public Long getUserId() {
         return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public Integer getTestId() {
         return testId;
     }
 
+    public void setTestId(Integer testId) {
+        this.testId = testId;
+    }
+
     public Integer getPartId() {
         return partId;
+    }
+
+    public void setPartId(Integer partId) {
+        this.partId = partId;
     }
 }

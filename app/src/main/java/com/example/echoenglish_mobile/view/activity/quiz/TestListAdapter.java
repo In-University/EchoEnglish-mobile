@@ -50,8 +50,8 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.TestVi
                 if (test.getTestId() != null) {
                     Log.d("TestListAdapter", "Starting TestActivity for testId: " + test.getTestId() + ", partNumber: " + partNumberToStart);
                     Intent intent = new Intent(context, TestActivity.class);
-                    intent.putExtra(Constants.EXTRA_TEST_ID, test.getTestId()); // Gửi testId
-                    intent.putExtra(Constants.EXTRA_PART_NUMBER, partNumberToStart); // Gửi partNumber đã chọn
+                    intent.putExtra(Constants.EXTRA_TEST_ID, test.getTestId());
+                    intent.putExtra(Constants.EXTRA_PART_NUMBER, partNumberToStart);
                     context.startActivity(intent);
                 } else {
                     Log.e("TestListAdapter", "Cannot start test, testId is null for test: " + test.getName());
@@ -66,7 +66,6 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.TestVi
         return testList != null ? testList.size() : 0;
     }
 
-    // Cập nhật dữ liệu cho adapter
     public void updateData(List<Test> newTestList) {
         this.testList = newTestList;
         notifyDataSetChanged();

@@ -24,7 +24,7 @@ import java.util.List;
 
 public class LearnPagerAdapter extends RecyclerView.Adapter<LearnPagerAdapter.LearnCardViewHolder> {
 
-    private static final String TAG = "LearnPagerAdapter"; // Thêm TAG để log
+    private static final String TAG = "LearnPagerAdapter";
     private Context context;
     private List<VocabularyResponse> vocabularyList;
     private List<Boolean> isFlippedList;
@@ -32,7 +32,7 @@ public class LearnPagerAdapter extends RecyclerView.Adapter<LearnPagerAdapter.Le
     public LearnPagerAdapter(Context context, List<VocabularyResponse> vocabularyList) {
         this.context = context;
         this.vocabularyList = vocabularyList != null ? vocabularyList : new ArrayList<>();
-        this.isFlippedList = new ArrayList<>(this.vocabularyList.size());  // theo dõi trạng thái lật của từng thẻ (true = mặt sau, false = mặt trước).
+        this.isFlippedList = new ArrayList<>(this.vocabularyList.size());
         for (int i = 0; i < this.vocabularyList.size(); i++) {
             isFlippedList.add(false);
         }
@@ -47,31 +47,25 @@ public class LearnPagerAdapter extends RecyclerView.Adapter<LearnPagerAdapter.Le
 
     @Override
     public void onBindViewHolder(@NonNull LearnCardViewHolder holder, int position) {
-        // Kiểm tra position hợp lệ ngay từ đầu
         if (position < 0 || position >= vocabularyList.size() || position >= isFlippedList.size()) {
             Log.e(TAG, "Invalid position in onBindViewHolder: " + position + " Vocab Size: " + vocabularyList.size() + " Flipped Size: " + isFlippedList.size());
-            holder.itemView.setVisibility(View.GONE); // Ẩn item lỗi
+            holder.itemView.setVisibility(View.GONE);
             return;
         }
-        // Đảm bảo item hiển thị nếu trước đó bị ẩn
         holder.itemView.setVisibility(View.VISIBLE);
 
         VocabularyResponse vocab = vocabularyList.get(position);
         holder.bind(vocab, context);
 
-        // Reset tag trạng thái animation
-        holder.cardContainer.setTag(false); // Mặc định là không đang chạy animation
+        holder.cardContainer.setTag(false);
 
-        // Đặt trạng thái lật ban đầu một cách an toàn
         boolean isFlipped = isFlippedList.get(position);
         holder.setFlipped(isFlipped);
-
-        // Flip Animation Logic
 
         View.OnClickListener flipClickListener = v -> {
             int currentPosition = holder.getAdapterPosition();
             if (currentPosition != RecyclerView.NO_POSITION && currentPosition < isFlippedList.size()) {
-                Object tag = holder.cardContainer.getTag(); // Vẫn dùng tag của container để tránh click khi đang animation
+                Object tag = holder.cardContainer.getTag();
                 Boolean isAnimating = (tag instanceof Boolean) ? (Boolean) tag : false;
                 if (isAnimating) {
                     return;
@@ -84,33 +78,6 @@ public class LearnPagerAdapter extends RecyclerView.Adapter<LearnPagerAdapter.Le
 
         holder.frontCardView.setOnClickListener(flipClickListener);
         holder.backCardView.setOnClickListener(flipClickListener);
-
-//        holder.cardContainer.setOnClickListener(v -> {
-//            int currentPosition = holder.getAdapterPosition(); // Lấy vị trí mới nhất
-//
-//            // Kiểm tra lại position một lần nữa
-//            if (currentPosition == RecyclerView.NO_POSITION || currentPosition < 0 || currentPosition >= isFlippedList.size()) {
-//                Log.w(TAG, "Invalid or outdated position on click: " + currentPosition);
-//                return; // Thoát nếu position không hợp lệ
-//            }
-//
-//            Object tag = holder.cardContainer.getTag();
-//            Boolean isAnimating = (tag instanceof Boolean) ? (Boolean) tag : false;
-//
-//            if (isAnimating) {
-//                Log.d(TAG, "Animation already running at position " + currentPosition + ", ignoring click.");
-//                return;
-//            }
-//
-//            // Lấy trạng thái lật hiện tại từ list (an toàn hơn lấy từ biến cục bộ)
-//            boolean currentFlippedState = isFlippedList.get(currentPosition);
-//            boolean nextFlippedState = !currentFlippedState; // Trạng thái muốn lật tới
-//
-//            Log.d(TAG, "Click detected at position: " + currentPosition + ". Current Flipped: " + currentFlippedState + ". Flipping to: " + nextFlippedState);
-//
-//            isFlippedList.set(currentPosition, nextFlippedState); // Cập nhật trạng thái logic
-//            flipCard(holder, nextFlippedState); // Bắt đầu animation
-//        });
     }
 
     @Override
@@ -134,14 +101,12 @@ public class LearnPagerAdapter extends RecyclerView.Adapter<LearnPagerAdapter.Le
                 isFlippedList.add(false);
             }
         }
-        // Sử dụng notifyDataSetChanged() tạm thời, nên dùng DiffUtil cho hiệu năng tốt hơn
         notifyDataSetChanged();
         Log.d(TAG, "Data updated. New size: " + vocabularyList.size());
     }
 
 
     private void flipCard(LearnCardViewHolder holder, boolean showBack) {
-        // Đánh dấu đang chạy animation
         holder.cardContainer.setTag(true);
         Log.d(TAG, "flipCard called at position " + holder.getAdapterPosition() + ". ShowBack: " + showBack);
 
@@ -149,11 +114,6 @@ public class LearnPagerAdapter extends RecyclerView.Adapter<LearnPagerAdapter.Le
         Animator outAnimator, inAnimator;
         View frontView = holder.frontCardView;
         View backView = holder.backCardView;
-
-        // Đảm bảo cả hai view đều có thể nhìn thấy được bởi hệ thống animation ban đầu
-        // (Visibility sẽ được quản lý bởi listener sau)
-        // frontView.setVisibility(View.VISIBLE);
-        // backView.setVisibility(View.VISIBLE);
 
 
         if (showBack) {
@@ -166,8 +126,7 @@ public class LearnPagerAdapter extends RecyclerView.Adapter<LearnPagerAdapter.Le
 
         if (outAnimator == null || inAnimator == null) {
             Log.e(TAG, "Failed to load animators!");
-            holder.cardContainer.setTag(false); // Reset tag nếu animator lỗi
-            // Fallback: chỉ đổi visibility không animation
+            holder.cardContainer.setTag(false);
             holder.setFlipped(showBack);
             return;
         }
@@ -182,43 +141,34 @@ public class LearnPagerAdapter extends RecyclerView.Adapter<LearnPagerAdapter.Le
 
         AnimatorListenerAdapter listener = new AnimatorListenerAdapter() {
             private boolean outAnimationEnded = false;
-            private boolean inAnimationEnded = false; // Theo dõi cả hai animation
+            private boolean inAnimationEnded = false;
 
-            // Hàm kiểm tra và thực hiện cleanup khi cả hai animation kết thúc
             private void checkAndCleanup() {
                 if (outAnimationEnded && inAnimationEnded) {
                     Log.d(TAG, "Both animations ended for position " + holder.getAdapterPosition() + ". ShowBack: " + showBack);
 
-                    // Chỉ ẩn view cũ đi SAU KHI cả hai animation hoàn tất
                     if (showBack) {
                         frontView.setVisibility(View.GONE);
                     } else {
                         backView.setVisibility(View.GONE);
                     }
 
-                    // Reset rotation của cả hai view về 0 (rất quan trọng)
                     frontView.setRotationY(0);
                     backView.setRotationY(0);
 
-                    // Reset alpha (đảm bảo không bị trong suốt)
                     frontView.setAlpha(1f);
                     backView.setAlpha(1f);
 
-                    // Đánh dấu kết thúc animation
                     holder.cardContainer.setTag(false);
                 }
             }
 
             @Override
             public void onAnimationStart(Animator animation) {
-                // Khi animation 'in' BẮT ĐẦU, đảm bảo view MỚI là VISIBLE
-                // để người dùng thấy nó quay vào
                 if (animation == inAnimator) {
                     Log.d(TAG, "In-Animation started. Making target view visible.");
                     if (showBack) backView.setVisibility(View.VISIBLE); else frontView.setVisibility(View.VISIBLE);
                 }
-                // Không cần làm gì đặc biệt khi out-animation bắt đầu
-                // vì view đó đã hiển thị sẵn rồi
             }
 
             @Override
@@ -229,29 +179,25 @@ public class LearnPagerAdapter extends RecyclerView.Adapter<LearnPagerAdapter.Le
                 } else if (animation == inAnimator) {
                     inAnimationEnded = true;
                 }
-                checkAndCleanup(); // Kiểm tra xem có cần cleanup chưa
+                checkAndCleanup();
             }
 
             @Override
             public void onAnimationCancel(Animator animation) {
-                // Nếu animation bị hủy giữa chừng, reset trạng thái
                 Log.w(TAG, "Animation cancelled for position " + holder.getAdapterPosition());
-                outAnimationEnded = true; // Coi như đã kết thúc để cleanup
+                outAnimationEnded = true;
                 inAnimationEnded = true;
                 checkAndCleanup();
             }
         };
 
-        // Gắn listener cho cả hai animator để theo dõi kết thúc
         outAnimator.addListener(listener);
         inAnimator.addListener(listener);
 
-        // Bắt đầu animation
         outAnimator.start();
         inAnimator.start();
     }
 
-    // ViewHolder Class
     static class LearnCardViewHolder extends RecyclerView.ViewHolder {
         FrameLayout cardContainer;
         View frontCardView, backCardView;
@@ -274,14 +220,12 @@ public class LearnPagerAdapter extends RecyclerView.Adapter<LearnPagerAdapter.Le
         }
 
         void bind(VocabularyResponse vocab, Context context) {
-            // Bind data mặt trước
             wordText.setText(vocab.getWord());
             phoneticText.setText(vocab.getPhonetic() != null ? vocab.getPhonetic() : "");
             phoneticText.setVisibility(vocab.getPhonetic() != null ? View.VISIBLE : View.GONE);
             typeText.setText(vocab.getType() != null ? ("("+vocab.getType()+")") : "");
             typeText.setVisibility(vocab.getType() != null ? View.VISIBLE : View.GONE);
 
-            // Glide ảnh mặt trước
             if (imageView != null && vocab.getImageUrl() != null && !vocab.getImageUrl().isEmpty()) {
                 Glide.with(context)
                         .load(vocab.getImageUrl())
@@ -290,23 +234,20 @@ public class LearnPagerAdapter extends RecyclerView.Adapter<LearnPagerAdapter.Le
                         .into(imageView);
                 imageView.setVisibility(View.VISIBLE);
             } else if (imageView != null) {
-                imageView.setVisibility(View.GONE); // Ẩn nếu không có ảnh
+                imageView.setVisibility(View.GONE);
             }
 
-            // Bind data mặt sau
             definitionText.setText(vocab.getDefinition());
             exampleText.setText(vocab.getExample() != null ? "Ví dụ: " + vocab.getExample() : "");
             exampleText.setVisibility(vocab.getExample() != null ? View.VISIBLE : View.GONE);
         }
 
         void setFlipped(boolean isFlipped) {
-            // Quan trọng: Reset rotation và alpha TRƯỚC KHI đổi visibility
             frontCardView.setRotationY(0);
             backCardView.setRotationY(0);
             frontCardView.setAlpha(1f);
             backCardView.setAlpha(1f);
 
-            // Đặt visibility
             frontCardView.setVisibility(isFlipped ? View.GONE : View.VISIBLE);
             backCardView.setVisibility(isFlipped ? View.VISIBLE : View.GONE);
             Log.d("SetFlipped", "Position " + getAdapterPosition() + " set to flipped: " + isFlipped);

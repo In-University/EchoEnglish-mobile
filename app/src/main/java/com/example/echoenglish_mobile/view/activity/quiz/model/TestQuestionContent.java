@@ -7,20 +7,14 @@ public class TestQuestionContent {
     private Integer contentId;
 
     @SerializedName("contentType")
-    private String contentType; // e.g., "IMAGE", "AUDIO"
+    private String contentType;
 
     @SerializedName("contentData")
-    private String contentData; // e.g., URL
+    private String contentData;
 
     @SerializedName("contentIndex")
     private Integer contentIndex;
 
-    // We don't need the parent 'group' object back
-    // @SerializedName("group")
-    // private TestQuestionGroup group;
-
-
-    // Getters and Setters
     public Integer getContentId() {
         return contentId;
     }
@@ -53,7 +47,4 @@ public class TestQuestionContent {
         this.contentIndex = contentIndex;
     }
 
-    // Getter/Setter for 'group' if included
-    // public TestQuestionGroup getGroup() { return group; }
-    // public void setGroup(TestQuestionGroup group) { this.group = group; }
 }

@@ -27,22 +27,22 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.example.echoenglish_mobile.R;
-import com.example.echoenglish_mobile.model.Word; // Assuming you have this
-import com.example.echoenglish_mobile.network.ForbiddenHandler; // Assuming you have this
-import com.example.echoenglish_mobile.util.MyApp; // Assuming you have this
-import com.example.echoenglish_mobile.util.SharedPrefManager; // Assuming you have this
-import com.example.echoenglish_mobile.model.User; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.analyze_result.AnalyzeResultActivity; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.auth.MainActivity; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.chatbot.ConversationCategoriesActivity; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.dictionary.DictionaryWordDetailActivity; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.dictionary.SearchFragment; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.document_hub.MainDocumentHubActivity; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.flashcard.SpacedRepetitionActivity; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.grammar.GrammarActivity; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.UploadSpeechActivity; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.quiz.MainQuizActivity; // Assuming you have this
-import com.example.echoenglish_mobile.view.activity.translate_text.TranslateTextActivity; // Assuming you have this
+import com.example.echoenglish_mobile.model.Word;
+import com.example.echoenglish_mobile.network.ForbiddenHandler;
+import com.example.echoenglish_mobile.util.MyApp;
+import com.example.echoenglish_mobile.util.SharedPrefManager;
+import com.example.echoenglish_mobile.model.User;
+import com.example.echoenglish_mobile.view.activity.analyze_result.AnalyzeResultActivity;
+import com.example.echoenglish_mobile.view.activity.auth.MainActivity;
+import com.example.echoenglish_mobile.view.activity.chatbot.ConversationCategoriesActivity;
+import com.example.echoenglish_mobile.view.activity.dictionary.DictionaryWordDetailActivity;
+import com.example.echoenglish_mobile.view.activity.dictionary.SearchFragment;
+import com.example.echoenglish_mobile.view.activity.document_hub.MainDocumentHubActivity;
+import com.example.echoenglish_mobile.view.activity.flashcard.SpacedRepetitionActivity;
+import com.example.echoenglish_mobile.view.activity.grammar.GrammarActivity;
+import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.UploadSpeechActivity;
+import com.example.echoenglish_mobile.view.activity.quiz.MainQuizActivity;
+import com.example.echoenglish_mobile.view.activity.translate_text.TranslateTextActivity;
 import com.example.echoenglish_mobile.view.activity.writing_feedback.UploadNewWritingActivity;
 
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ import java.util.List;
 public class HomeActivity extends AppCompatActivity implements SearchFragment.SearchListener, View.OnClickListener {
 
     private static final String TAG = "DashboardActivity";
-    private static final long CLICK_DEBOUNCE_DELAY_MS = 500; // Delay to prevent rapid clicks
+    private static final long CLICK_DEBOUNCE_DELAY_MS = 500;
 
     private FrameLayout suggestionsOverlayContainer;
 
@@ -63,7 +63,7 @@ public class HomeActivity extends AppCompatActivity implements SearchFragment.Se
 
     private CardView flashcardsCard, translateCard,  grammarCard, quizCard, conversationCard;
     private CardView speechAnalyzeCard, documentHubCard, writingCard, reportCard;
-    private final Handler mainHandler = new Handler(Looper.getMainLooper()); // Use this handler for re-enabling card
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +107,7 @@ public class HomeActivity extends AppCompatActivity implements SearchFragment.Se
 
         initializeViews();
         loadAndDisplayUserInfo();
-        setClickListeners(); // Set listeners AFTER views are initialized
+        setClickListeners();
         setupBanners();
 
 
@@ -124,17 +124,12 @@ public class HomeActivity extends AppCompatActivity implements SearchFragment.Se
         reportCard = findViewById(R.id.reportCard);
         writingCard = findViewById(R.id.writingCard);
         conversationCard = findViewById(R.id.conversationCard);
-        // Find the ImageView for the profile picture
-        ivProfile = findViewById(R.id.ivProfile); // Make sure ivProfile is found here
+        ivProfile = findViewById(R.id.ivProfile);
         viewPagerBanners = findViewById(R.id.viewPagerBanners);
 
-        // Ensure CardViews are clickable even if not enabled (for accessibility focus etc.)
-        // Their click listener will handle the enabled check.
-        // This is often handled by default with selectableItemBackground, but good practice.
     }
 
     private void setClickListeners() {
-        // Check if views are not null before setting listeners
         if (flashcardsCard != null) flashcardsCard.setOnClickListener(this);
         if (translateCard != null) translateCard.setOnClickListener(this);
         if (grammarCard != null) grammarCard.setOnClickListener(this);
@@ -146,11 +141,9 @@ public class HomeActivity extends AppCompatActivity implements SearchFragment.Se
         if (translateCard != null) translateCard.setOnClickListener(this);
         if (conversationCard != null) conversationCard.setOnClickListener(this);
 
-        // Add click listener for the profile image
         if (ivProfile != null) ivProfile.setOnClickListener(this);
     }
 
-    // Helper method to enable/disable feature CardViews
     private void setFeatureCardsEnabled(boolean enabled) {
         Log.d(TAG, "Setting feature cards enabled state: " + enabled);
         if (flashcardsCard != null) flashcardsCard.setEnabled(enabled);
@@ -161,38 +154,30 @@ public class HomeActivity extends AppCompatActivity implements SearchFragment.Se
         if (documentHubCard != null) documentHubCard.setEnabled(enabled);
         if (writingCard != null) writingCard.setEnabled(enabled);
         if (reportCard != null) reportCard.setEnabled(enabled);
-        // Note: Profile image click is handled separately and not included here
     }
 
 
     @Override
     public void onClick(View v) {
-        // Handle profile click first, it doesn't need card disabling
         if (v.getId() == R.id.ivProfile) {
             showProfilePopupMenu(v);
-            return; // Consume click
+            return;
         }
 
-        // If any feature card is clicked, disable all feature cards immediately
-        // Check if the clicked view is one of the feature cards
-        if (v instanceof CardView && v.isEnabled()) { // Check if it's a CardView and currently enabled
-            // Check if it's one of our known feature cards by ID
+        if (v instanceof CardView && v.isEnabled()) {
             int clickedId = v.getId();
             if (clickedId == R.id.flashcardsCard || clickedId == R.id.translateCard ||
                     clickedId == R.id.grammarCard || clickedId == R.id.quizCard ||
                     clickedId == R.id.speechAnalyzeCard || clickedId == R.id.documentHubCard ||
                     clickedId == R.id.writingCard || clickedId == R.id.reportCard) {
 
-                setFeatureCardsEnabled(false); // Disable all feature cards
+                setFeatureCardsEnabled(false);
 
-                // Schedule re-enabling after a short delay
                 mainHandler.postDelayed(() -> {
                     setFeatureCardsEnabled(true);
                 }, CLICK_DEBOUNCE_DELAY_MS);
             }
         } else {
-            // If the view is not a CardView or is disabled, do nothing more for the click
-            // This prevents clicks on disabled cards or other non-feature views
             return;
         }
 
@@ -211,9 +196,6 @@ public class HomeActivity extends AppCompatActivity implements SearchFragment.Se
         } else if (id == R.id.speechAnalyzeCard) {
             if (!isUserLoggedIn()) {
                 ForbiddenHandler.handleForbidden();
-                // Important: If we return here, the scheduled re-enable might not be needed,
-                // but it's harmless. Or you could cancel it if necessary.
-                // For simplicity, let it run.
                 return;
             }
             intent = new Intent(HomeActivity.this, UploadSpeechActivity.class);
@@ -235,22 +217,17 @@ public class HomeActivity extends AppCompatActivity implements SearchFragment.Se
             intent = new Intent(HomeActivity.this, TranslateTextActivity.class);
         } else if (id == R.id.conversationCard) {
             intent = new Intent(HomeActivity.this, ConversationCategoriesActivity.class);
-        } else if (id == R.id.ivProfile) { // Handle click on profile avatar
-            showProfilePopupMenu(v); // Call the method to show the popup
-            return; // Consume the click event
+        } else if (id == R.id.ivProfile) {
+            showProfilePopupMenu(v);
+            return;
         }
 
 
         if (intent != null) {
             startActivity(intent);
-            // The cards will be re-enabled by the postDelayed handler OR in onResume
         } else {
-            // If no intent was determined (e.g., login required but not logged in),
-            // the cards were disabled, but no new activity is starting.
-            // Re-enable them immediately here.
             setFeatureCardsEnabled(true);
-            // Also remove the scheduled re-enable if it was set
-            mainHandler.removeCallbacks(null); // Remove all callbacks posted by mainHandler
+            mainHandler.removeCallbacks(null);
         }
     }
 
@@ -318,9 +295,7 @@ public class HomeActivity extends AppCompatActivity implements SearchFragment.Se
     @Override
     protected void onResume() {
         super.onResume();
-        // Re-enable feature cards when returning to the dashboard
         setFeatureCardsEnabled(true);
-        // Restart auto-scroll if banners exist
         if (viewPagerBanners != null && viewPagerBanners.getAdapter() != null && viewPagerBanners.getAdapter().getItemCount() > 0) {
             startAutoScroll();
         }

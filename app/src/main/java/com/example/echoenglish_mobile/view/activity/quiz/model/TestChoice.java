@@ -16,11 +16,6 @@ public class TestChoice {
     @SerializedName("choiceExplanation")
     private String choiceExplanation;
 
-    // We don't need the parent 'question' object back in the Choice details
-    // @SerializedName("question")
-    // private TestQuestion question;
-
-    // Getters and Setters
     public Integer getChoiceId() {
         return choiceId;
     }
@@ -53,7 +48,4 @@ public class TestChoice {
         this.choiceExplanation = choiceExplanation;
     }
 
-    // Getter/Setter for 'question' if included
-    // public TestQuestion getQuestion() { return question; }
-    // public void setQuestion(TestQuestion question) { this.question = question; }
 }

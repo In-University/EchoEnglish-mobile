@@ -24,7 +24,7 @@ import java.util.List;
 public class GrammarContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<GrammarItem> grammarItems;
-    private Context context; // Keep context for Glide
+    private Context context;
 
     public GrammarContentAdapter(List<GrammarItem> grammarItems) {
         this.grammarItems = grammarItems;
@@ -92,7 +92,7 @@ public class GrammarContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         } else if (item instanceof ContentItem) {
             ContentItem contentItem = (ContentItem) item;
             switch (contentItem.getViewType()) {
-                case GrammarItem.VIEW_TYPE_SUBSECTION_INTRO: // Re-using this layout
+                case GrammarItem.VIEW_TYPE_SUBSECTION_INTRO:
                     ((SubsectionIntroViewHolder) holder).bind(contentItem);
                     break;
                 case GrammarItem.VIEW_TYPE_PARAGRAPH:
@@ -109,15 +109,12 @@ public class GrammarContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     break;
             }
         }
-        // No binding needed for EmptyViewHolder
     }
 
     @Override
     public int getItemCount() {
         return grammarItems.size();
     }
-
-    // --- ViewHolders using findViewById ---
 
     static class GrammarIntroViewHolder extends RecyclerView.ViewHolder {
         private final TextView textViewGrammarIntro;

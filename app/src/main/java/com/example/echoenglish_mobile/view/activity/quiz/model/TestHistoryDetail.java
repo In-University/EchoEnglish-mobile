@@ -6,15 +6,11 @@ public class TestHistoryDetail {
     @SerializedName("id")
     private Long id;
 
-    // Don't usually need parent TestHistory back
-    // @SerializedName("testHistory")
-    // private TestHistory testHistory;
-
     @SerializedName("question")
     private TestQuestion question;
 
     @SerializedName("choice")
-    private TestChoice choice; // The choice the user selected
+    private TestChoice choice;
 
     @SerializedName("isCorrect")
     private Boolean isCorrect;

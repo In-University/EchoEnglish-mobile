@@ -70,7 +70,6 @@ public class GrammarContentFragment extends Fragment {
     private List<GrammarItem> buildDisplayItems(Grammar grammar) {
         List<GrammarItem> items = new ArrayList<>();
 
-        // Add top-level grammar introduction contents
         if (grammar.getContents() != null) {
             List<Content> sortedContents = new ArrayList<>(grammar.getContents());
             Collections.sort(sortedContents, Comparator.comparingInt(Content::getOrderIndex));
@@ -84,38 +83,30 @@ public class GrammarContentFragment extends Fragment {
             }
         }
 
-        // Add subsections and their contents/topics
         if (grammar.getSubsections() != null) {
             for (Subsection subsection : grammar.getSubsections()) {
-                // Add subsection header
                 if (subsection.getName() != null && !subsection.getName().isEmpty()) {
                     items.add(new HeaderItem(subsection.getName(), GrammarItem.VIEW_TYPE_SUBSECTION_HEADER));
                 }
 
-                // Add subsection top-level contents
                 if (subsection.getContents() != null) {
                     List<Content> sortedSubsectionContents = new ArrayList<>(subsection.getContents());
                     Collections.sort(sortedSubsectionContents, Comparator.comparingInt(Content::getOrderIndex));
                     for (Content content : sortedSubsectionContents) {
-                        // Add subsection content as ContentItem
-                        items.add(new ContentItem(content)); // Use ContentItem for all subsection contents
+                        items.add(new ContentItem(content));
                     }
                 }
 
-                // Add topics within subsection and their contents
                 if (subsection.getTopics() != null) {
                     for (Topic topic : subsection.getTopics()) {
-                        // Add topic header
                         if (topic.getName() != null && !topic.getName().isEmpty()) {
                             items.add(new HeaderItem(topic.getName(), GrammarItem.VIEW_TYPE_TOPIC_HEADER));
                         }
 
-                        // Add topic contents
                         if (topic.getContents() != null) {
                             List<Content> sortedTopicContents = new ArrayList<>(topic.getContents());
                             Collections.sort(sortedTopicContents, Comparator.comparingInt(Content::getOrderIndex));
                             for (Content content : sortedTopicContents) {
-                                // Add topic contents as ContentItem
                                 addContentItem(items, content);
                             }
                         }
@@ -127,7 +118,6 @@ public class GrammarContentFragment extends Fragment {
         return items;
     }
 
-    // Helper to add ContentItem if the content type is handled
     private void addContentItem(List<GrammarItem> items, Content content) {
         if (content == null) return;
 
@@ -141,8 +131,6 @@ public class GrammarContentFragment extends Fragment {
                 items.add(new ContentItem(content));
                 break;
             default:
-                // Handle unknown content types if necessary
-                // Log.w("GrammarContentFragment", "Unknown content type: " + contentType);
                 break;
         }
     }

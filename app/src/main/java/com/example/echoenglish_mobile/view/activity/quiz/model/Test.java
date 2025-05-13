@@ -15,7 +15,6 @@ public class Test {
     @SerializedName("name")
     private String name;
 
-    // Getters and Setters
     public Integer getTestId() {
         return testId;
     }

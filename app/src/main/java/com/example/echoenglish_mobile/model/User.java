@@ -5,7 +5,6 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class User implements Serializable {
-    // Không cần id khi gửi request đăng ký
     private Long id;
     private String name;
     private String email;
@@ -15,7 +14,7 @@ public class User implements Serializable {
 
     public User() {}
 
-    public User(String name, String email, String password, Boolean active) { // Đky k cần id
+    public User(String name, String email, String password, Boolean active) { // Đky không cần id
         this.name = name;
         this.email = email;
         this.password = password;

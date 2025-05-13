@@ -13,15 +13,12 @@ public class TestPart {
     @SerializedName("partNumber")
     private Integer partNumber;
 
-    // THÊM TRƯỜNG NÀY - Backend phải trả về thông tin này
-    @SerializedName("test") // Hoặc tên key JSON tương ứng từ backend
-    private Test test; // Bao gồm cả testId, name...
+    @SerializedName("test")
+    private Test test;
 
-    // Giữ lại Set nếu bạn đã đổi ở backend để tránh MultipleBagFetch
     @SerializedName("groups")
-    private Set<TestQuestionGroup> groups; // Hoặc List nếu backend trả về List
+    private Set<TestQuestionGroup> groups;
 
-    // Getters and Setters
     public Integer getPartId() {
         return partId;
     }
@@ -38,7 +35,6 @@ public class TestPart {
         this.partNumber = partNumber;
     }
 
-    // Getter/Setter cho test
     public Test getTest() {
         return test;
     }
@@ -47,11 +43,11 @@ public class TestPart {
         this.test = test;
     }
 
-    public Set<TestQuestionGroup> getGroups() { // Hoặc List
+    public Set<TestQuestionGroup> getGroups() {
         return groups;
     }
 
-    public void setGroups(Set<TestQuestionGroup> groups) { // Hoặc List
+    public void setGroups(Set<TestQuestionGroup> groups) {
         this.groups = groups;
     }
 }

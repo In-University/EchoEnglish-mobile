@@ -1,4 +1,3 @@
-// File: com.example.echoenglish_mobile.adapter.BannerAdapter.java
 package com.example.echoenglish_mobile.view.activity.home;
 
 import android.content.Context;
@@ -25,7 +24,6 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
     @NonNull
     @Override
     public BannerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate layout item_banner_image.xml
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_banner_image, parent, false);
         return new BannerViewHolder(view);
     }
@@ -35,8 +33,8 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
         String imageUrl = imageUrls.get(position);
         Glide.with(context)
                 .load(imageUrl)
-                .placeholder(R.drawable.image_wainting_banner) // Thay placeholder nếu cần
-                .error(R.drawable.ic_xml_launcher_foreground) // Thay error image nếu cần
+                .placeholder(R.drawable.image_wainting_banner)
+                .error(R.drawable.ic_xml_launcher_foreground)
                 .into(holder.imageViewBanner);
     }
 
@@ -50,7 +48,6 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
 
         BannerViewHolder(@NonNull View itemView) {
             super(itemView);
-            // itemView là CardView, tìm ImageView bên trong nó
             imageViewBanner = itemView.findViewById(R.id.imageViewBanner);
         }
     }

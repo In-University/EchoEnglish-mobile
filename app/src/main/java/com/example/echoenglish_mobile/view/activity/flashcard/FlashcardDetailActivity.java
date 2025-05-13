@@ -36,19 +36,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-// Implement the listener interface
 public class FlashcardDetailActivity extends AppCompatActivity implements VocabularyAdapter.OnVocabularyActionsListener {
 
     private static final String ACTIVITY_TAG = "FlashcardDetail";
     public static final String FLASHCARD_ID = "FLASHCARD_ID";
-    // <-- Thêm extra key để truyền flag ngữ cảnh -->
     public static final String EXTRA_IS_PUBLIC = "IS_PUBLIC_SET";
-    // --> Kết thúc thêm extra key <--
     private static final String LOADING_DIALOG_TAG = "FlashcardDetailLoadingDialog";
     private VocabularyAdapter vocabularyAdapter;
 
 
-    // Views
     private ImageView backButton;
     private TextView textScreenTitle;
     private ImageView imageViewDetailHeader;
@@ -61,22 +57,18 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
     private NestedScrollView contentScrollView;
     private View layoutDetailButtons;
 
-    // Logic
     private ApiService apiService;
     private Long flashcardId;
-    // <-- Field lưu trạng thái ngữ cảnh -->
     private boolean isPublicSet = false;
-    // --> Kết thúc field trạng thái <--
     private int loadingApiCount = 0;
 
 
-    // Launcher to get results from Add/Edit Vocabulary
     private final ActivityResultLauncher<Intent> vocabularyActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == RESULT_OK) {
                     Log.d(ACTIVITY_TAG, "Returned from Add/Edit Vocabulary with RESULT_OK. Reloading details...");
-                    loadFlashcardDetails(); // Reload after Add or Edit successful
+                    loadFlashcardDetails();
                 } else {
                     Log.d(ACTIVITY_TAG, "Returned from Add/Edit Vocabulary without RESULT_OK (resultCode=" + result.getResultCode() + ")");
                 }
@@ -90,12 +82,9 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
         findViews();
         apiService = ApiClient.getApiService();
 
-        // Lấy flashcardId và flag ngữ cảnh từ Intent
         flashcardId = getIntent().getLongExtra(FLASHCARD_ID, -1);
 
-        // <-- Lấy flag ngữ cảnh -->
-        isPublicSet = getIntent().getBooleanExtra(EXTRA_IS_PUBLIC, false); // Default là false (bộ thẻ của tôi)
-        // --> Kết thúc lấy flag ngữ cảnh <--
+        isPublicSet = getIntent().getBooleanExtra(EXTRA_IS_PUBLIC, false);
 
         if (flashcardId == -1) {
             handleInvalidFlashcardId();
@@ -104,13 +93,10 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
 
         setupRecyclerView();
         setupSearchView();
-        setupButtonClickListeners(); // Buttons Learn/Game
+        setupButtonClickListeners();
 
-        loadFlashcardDetails(); // Tải dữ liệu chi tiết
+        loadFlashcardDetails();
 
-        // FAB Add Vocabulary chỉ hiển thị cho bộ thẻ của người dùng
-        // Visibility của FAB được set trong updateUI dựa trên categoryId,
-        // nhưng cũng cần ẩn nếu là bộ thẻ công khai
         if (isPublicSet) {
             fabAddVocabulary.setVisibility(View.GONE);
         }
@@ -129,7 +115,6 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
         buttonGame1.setOnClickListener(v -> openGameActivity(Game1Activity.class));
         buttonGame2.setOnClickListener(v -> openGameActivity(Game2Activity.class));
         fabAddVocabulary.setOnClickListener(v -> openAddVocabularyActivity());
-        // FAB listener được set trong onCreate
     }
 
     private void findViews() {
@@ -146,7 +131,6 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
         buttonGame2 = findViewById(R.id.buttonGame2);
         fabAddVocabulary = findViewById(R.id.fabAddVocabularyDetail);
 
-        // Set listener for custom back button
         backButton.setOnClickListener(v -> finish());
     }
 
@@ -158,9 +142,7 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
 
     private void setupRecyclerView() {
         recyclerViewVocabularies.setLayoutManager(new LinearLayoutManager(this));
-        // <-- Khởi tạo adapter và truyền flag ngữ cảnh -->
         vocabularyAdapter = new VocabularyAdapter(this, new ArrayList<>(), this, isPublicSet);
-        // --> Kết thúc truyền flag ngữ cảnh <--
         recyclerViewVocabularies.setAdapter(vocabularyAdapter);
     }
 
@@ -214,13 +196,12 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
         String title = "Flashcard Set";
         List<VocabularyResponse> vocabs = new ArrayList<>();
         String imageUrl = null;
-        boolean isUserDefinedSet = false; // Flag kiểm tra bộ thẻ do người dùng tạo
+        boolean isUserDefinedSet = false;
 
         if (details != null) {
             title = details.getName() != null ? details.getName() : title;
             vocabs = details.getVocabularies() != null ? details.getVocabularies() : new ArrayList<>();
             imageUrl = details.getImageUrl();
-            // Giả định categoryId 1L là của user-defined flashcard
             isUserDefinedSet = details.getCategoryId() != null && details.getCategoryId().equals(1L);
         }
 
@@ -234,22 +215,18 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
 
         vocabularyAdapter.updateData(vocabs);
 
-        // Show/hide "no data" message and RecyclerView based on adapter's full list
         boolean hasVocabs = !vocabularyAdapter.getFullList().isEmpty();
         textViewNoVocabularies.setVisibility(hasVocabs ? View.GONE : View.VISIBLE);
         recyclerViewVocabularies.setVisibility(hasVocabs ? View.VISIBLE : View.GONE);
 
-        // Update button states (Learn/Game) based on adapter's full list
         setButtonEnabled(buttonLearn, hasVocabs);
         setButtonEnabled(buttonGame1, hasVocabs);
         setButtonEnabled(buttonGame2, hasVocabs);
 
-        // Visibility của FAB: Chỉ hiển thị nếu là bộ thẻ do user tự định nghĩa VÀ KHÔNG ở chế độ công khai
-        // (Nếu là bộ thẻ công khai, FAB đã bị ẩn ngay từ onCreate)
         if (!isPublicSet) {
             fabAddVocabulary.setVisibility(isUserDefinedSet ? View.VISIBLE : View.GONE);
         } else {
-            fabAddVocabulary.setVisibility(View.GONE); // Luôn ẩn FAB nếu ở chế độ công khai
+            fabAddVocabulary.setVisibility(View.GONE);
         }
     }
 
@@ -282,28 +259,22 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
         if (isLoading) {
             LoadingDialogFragment.showLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG, "Loading flashcard details...");
 
-            // Hide content elements that might show old data or interfere
             recyclerViewVocabularies.setVisibility(View.GONE);
             textViewNoVocabularies.setVisibility(View.GONE);
             layoutDetailButtons.setVisibility(View.INVISIBLE);
-            fabAddVocabulary.setVisibility(View.INVISIBLE); // Tạm ẩn FAB khi load
+            fabAddVocabulary.setVisibility(View.INVISIBLE);
 
-            // Disable interaction on fixed elements
             backButton.setEnabled(false);
             searchViewVocabulary.setEnabled(false);
 
         } else {
             LoadingDialogFragment.hideLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG);
 
-            // Show content and re-enable interaction
-            // Visibility của recyclerViewVocabularies và textViewNoVocabularies được updateUI xử lý sau khi load
             layoutDetailButtons.setVisibility(View.VISIBLE);
-            // Visibility của FAB được updateUI xử lý
 
             backButton.setEnabled(true);
             searchViewVocabulary.setEnabled(true);
 
-            // Button Learn/Game enabled state is handled by updateUI
         }
     }
 
@@ -324,7 +295,6 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
     }
 
     private void openAddVocabularyActivity() {
-        // Chỉ cho phép mở màn hình thêm nếu KHÔNG phải bộ thẻ công khai
         if (isPublicSet) {
             Log.w(ACTIVITY_TAG, "Attempted to open Add Vocabulary for a public set.");
             Toast.makeText(this, "Cannot add vocabulary to public sets.", Toast.LENGTH_SHORT).show();
@@ -332,17 +302,12 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
         }
         Intent intent = new Intent(this, AddVocabularyActivity.class);
         intent.putExtra(AddVocabularyActivity.EXTRA_PARENT_FLASHCARD_ID, flashcardId);
-        // Không cần truyền EXTRA_IS_PUBLIC sang AddVocabulary vì màn hình Add chỉ liên quan đến bộ thẻ của mình
         vocabularyActivityResultLauncher.launch(intent);
     }
 
 
-    // --- IMPLEMENT METHODS TỪ VocabularyAdapter.OnVocabularyActionsListener ---
-
-    // Xử lý sự kiện xóa từ vựng
     @Override
     public void onVocabularyDeleteClick(VocabularyResponse vocabulary, int originalPosition) {
-        // Chỉ cho phép xóa nếu KHÔNG phải bộ thẻ công khai
         if (isPublicSet) {
             Log.w(ACTIVITY_TAG, "Attempted to delete vocabulary from a public set.");
             Toast.makeText(this, "Cannot delete vocabulary from public sets.", Toast.LENGTH_SHORT).show();
@@ -354,7 +319,6 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
             Log.e(ACTIVITY_TAG, "Vocabulary ID is null, cannot delete.");
             return;
         }
-        // Hiển thị dialog xác nhận xóa
         new AlertDialog.Builder(this)
                 .setTitle("Confirm Delete")
                 .setMessage("Delete vocabulary word '" + vocabulary.getWord() + "'?")
@@ -366,7 +330,6 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
                 .show();
     }
 
-    // Xử lý sự kiện click vào item từ vựng (để EDIT hoặc xem chi tiết ở chế độ công khai)
     @Override
     public void onVocabularyItemClick(VocabularyResponse vocabulary) {
         if (vocabulary == null || vocabulary.getId() == null) {
@@ -375,33 +338,22 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
             return;
         }
 
-        // Nếu là bộ thẻ công khai, chỉ xem chi tiết (nếu có màn hình xem chi tiết từ vựng riêng)
-        // Hiện tại, hành động này sẽ dẫn đến màn hình AddVocabulary ở chế độ Edit (nơi các trường bị disable)
-        // Nếu muốn màn hình xem chi tiết riêng, cần tạo 1 VocabularyDetailActivity mới
         if (isPublicSet) {
             Log.d(ACTIVITY_TAG, "Viewing vocabulary details (Read-Only) for Vocab ID: " + vocabulary.getId() + ", Word: " + vocabulary.getWord());
-            // Option 1: Show a Toast or a simple Dialog with details
             Toast.makeText(this, "Viewing '" + vocabulary.getWord() + "' (Read-Only).", Toast.LENGTH_SHORT).show();
-            // Option 2: Navigate to a dedicated view-only Vocabulary Detail screen (Recommended if details are complex)
-            // Intent viewIntent = new Intent(this, VocabularyDetailViewOnlyActivity.class);
-            // viewIntent.putExtra(VocabularyDetailViewOnlyActivity.EXTRA_VOCABULARY, (Serializable) vocabulary);
-            // startActivity(viewIntent);
 
         } else {
-            // Nếu là bộ thẻ của mình, mở màn hình Sửa
             Log.d(ACTIVITY_TAG, "Starting edit for Vocab ID: " + vocabulary.getId() + ", Word: " + vocabulary.getWord());
             Intent intent = new Intent(this, AddVocabularyActivity.class);
             intent.putExtra(AddVocabularyActivity.EXTRA_EDIT_MODE, true);
             intent.putExtra(AddVocabularyActivity.EXTRA_VOCABULARY_TO_EDIT, (Serializable) vocabulary);
-            intent.putExtra(AddVocabularyActivity.EXTRA_PARENT_FLASHCARD_ID, flashcardId); // Vẫn cần parent ID
+            intent.putExtra(AddVocabularyActivity.EXTRA_PARENT_FLASHCARD_ID, flashcardId);
             vocabularyActivityResultLauncher.launch(intent);
         }
     }
 
 
-    // Gọi API để xóa từ vựng
     private void deleteVocabularyApiCall(Long vocabularyId, int originalPosition) {
-        // Kiểm tra lại ngữ cảnh một lần nữa (an toàn)
         if (isPublicSet) {
             Log.w(ACTIVITY_TAG, "deleteVocabularyApiCall called for public set, but should be prevented by listener.");
             return;
@@ -416,12 +368,11 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
 
                 if (response.isSuccessful()) {
                     Toast.makeText(FlashcardDetailActivity.this, "Vocabulary deleted successfully.", Toast.LENGTH_SHORT).show();
-                    // Reload the whole list after delete is usually safer
                     loadFlashcardDetails();
                 } else {
                     Log.e(ACTIVITY_TAG, "Failed to delete vocabulary: " + response.code());
                     Toast.makeText(FlashcardDetailActivity.this, "Failed to delete: " + response.code(), Toast.LENGTH_SHORT).show();
-                    loadFlashcardDetails(); // Reload on failure
+                    loadFlashcardDetails();
                 }
             }
             @Override
@@ -429,7 +380,7 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
                 finishApiCall();
                 Log.e(ACTIVITY_TAG, "Network error deleting vocabulary", t);
                 Toast.makeText(FlashcardDetailActivity.this, "Network error while deleting.", Toast.LENGTH_SHORT).show();
-                loadFlashcardDetails(); // Reload on network error
+                loadFlashcardDetails();
             }
         });
     }

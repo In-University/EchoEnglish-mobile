@@ -21,14 +21,10 @@ public class TestQuestion {
     @SerializedName("explanation")
     private String explanation;
 
-    // We might not need the parent 'group' object back in the Question details
-    // @SerializedName("group")
-    // private TestQuestionGroup group;
 
     @SerializedName("choices")
     private List<TestChoice> choices;
 
-    // Getters and Setters
     public Integer getQuestionId() {
         return questionId;
     }
@@ -77,7 +73,4 @@ public class TestQuestion {
         this.choices = choices;
     }
 
-    // Getter/Setter for 'group' if included
-    // public TestQuestionGroup getGroup() { return group; }
-    // public void setGroup(TestQuestionGroup group) { this.group = group; }
 }

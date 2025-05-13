@@ -11,16 +11,16 @@ public class TestHistory {
     private Long id;
 
     @SerializedName("user")
-    private User user; // Assumes you have a User model
+    private User user;
 
     @SerializedName("test")
     private Test test;
 
     @SerializedName("startedAt")
-    private String startedAt; // Treat LocalDateTime as String
+    private String startedAt;
 
     @SerializedName("completedAt")
-    private String completedAt; // Treat LocalDateTime as String
+    private String completedAt;
 
     @SerializedName("score")
     private Double score;

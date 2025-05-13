@@ -14,7 +14,7 @@ public class VocabularyUpdateRequest {
     private String type;
     private String imageUrl;
 
-    private Long flashcardId; // *** THÊM TRƯỜNG NÀY ***
+    private Long flashcardId;
 }
 
 

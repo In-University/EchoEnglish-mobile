@@ -234,15 +234,12 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
                     Log.d(ACTIVITY_TAG, "Loaded " + userFlashcards.size() + " flashcards for creator " + creatorId);
                     preselectFlashcard();
 
-                    // Set enabled state based on mode and availability AFTER loading
-                    // In Edit mode, always ENABLE dropdown after loading (user wants to change it)
-                    // In Add mode, enable only if list is not empty
                     boolean hasFlashcards = userFlashcards != null && !userFlashcards.isEmpty();
                     setFlashcardDropdownEnabled(hasFlashcards);
                     if (!hasFlashcards) {
                         textFieldLayoutSelectFlashcard.setError("You don't have any flashcard sets.");
                     } else {
-                        textFieldLayoutSelectFlashcard.setError(null); // Clear error if flashcards are available
+                        textFieldLayoutSelectFlashcard.setError(null);
                     }
 
 
@@ -301,8 +298,6 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
         buttonSubmit.setText("Save Changes");
 
         textFieldLayoutSelectFlashcard.setVisibility(View.VISIBLE);
-        // setFlashcardDropdownEnabled(true) will be called after loadUserFlashcards
-        // Image search views are initially hidden in Edit mode, appear on text change
         recyclerViewImageSuggestions.setVisibility(View.GONE);
         textViewPexelsCredit.setVisibility(View.GONE);
 
@@ -334,7 +329,6 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
                 Log.d(ACTIVITY_TAG, "No existing image URL found.");
             }
 
-            // Preselect flashcard is handled after loadUserFlashcards
         } else {
             Log.e(ACTIVITY_TAG, "editingVocabulary is NULL inside setupEditModeUI! Cannot populate fields.");
             Toast.makeText(this, "Error loading vocabulary data for editing.", Toast.LENGTH_LONG).show();
@@ -347,7 +341,6 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
         buttonSubmit.setText("Add Vocabulary to Set");
 
         textFieldLayoutSelectFlashcard.setVisibility(View.VISIBLE);
-        // setFlashcardDropdownEnabled(true) will be called after loadUserFlashcards
 
         recyclerViewImageSuggestions.setVisibility(View.GONE);
         textViewPexelsCredit.setVisibility(View.GONE);
@@ -364,7 +357,7 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
     private void preselectFlashcard() {
         Long idToSelect = null;
         if (isEditMode && editingVocabulary != null) {
-            idToSelect = parentFlashcardId; // Use the correct getter
+            idToSelect = parentFlashcardId;
             Log.d(ACTIVITY_TAG, "Edit mode preselect target ID: " + idToSelect + " from editingVocabulary");
         } else if (parentFlashcardId != null && parentFlashcardId != -1L) {
             idToSelect = parentFlashcardId;
@@ -387,23 +380,17 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
                 Log.d(ACTIVITY_TAG, "Preselected flashcard: " + preselectedName + " (ID: " + idToSelect + ")");
                 textFieldLayoutSelectFlashcard.setError(null);
 
-                // In Edit mode, the dropdown is enabled by setFormEnabled(true) after loading.
-                // In Add mode, enabled state is set after loadUserFlashcards.
-
             } else {
                 Log.w(ACTIVITY_TAG, "Flashcard ID " + idToSelect + " not found in loaded list (" + (userFlashcards != null ? userFlashcards.size() : 0) + " items) for preselection.");
                 autoCompleteTextViewSelectFlashcard.setText("", false);
                 selectedFlashcardId = null;
-                // Error messages set based on mode and availability in loadUserFlashcards or setFormEnabled
             }
         } else if (!isEditMode && (userFlashcards == null || userFlashcards.isEmpty())) {
             Log.w(ACTIVITY_TAG, "No user flashcards available for selection in Add mode (preselect).");
             selectedFlashcardId = null;
-            // Error and disabled state are set in loadUserFlashcards callback
         } else {
             Log.d(ACTIVITY_TAG, "No preselection needed based on intent or editing vocabulary.");
             selectedFlashcardId = null;
-            // Error message will be shown on submit validation if in Add mode and no selection
         }
     }
 
@@ -495,9 +482,7 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
             return;
         }
 
-        // Get data from fields
-        // In Edit mode, selectedFlashcardId IS the value from the dropdown if user changed it
-        Long targetFlashcardId = selectedFlashcardId; // Use the potentially NEW selected ID
+        Long targetFlashcardId = selectedFlashcardId;
 
         String word = editTextWord.getText().toString().trim();
         String definition = editTextDefinition.getText().toString().trim();
@@ -517,7 +502,6 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
             return;
         }
 
-        // Create Request Body Update
         VocabularyUpdateRequest updateRequest = new VocabularyUpdateRequest();
         updateRequest.setWord(word);
         updateRequest.setDefinition(definition);
@@ -525,8 +509,7 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
         updateRequest.setType(type);
         updateRequest.setExample(example);
         updateRequest.setImageUrl(selectedImageUrl);
-        // PASS THE POTENTIALLY NEWLY SELECTED FLASHCARD ID
-        updateRequest.setFlashcardId(targetFlashcardId); // <-- Use the ID from the dropdown
+        updateRequest.setFlashcardId(targetFlashcardId);
 
         Log.d(ACTIVITY_TAG, "Attempting to update vocabulary ID: " + editingVocabulary.getId() + " | Target Flashcard ID: " + targetFlashcardId +" | Request: " + updateRequest);
         startApiCall();

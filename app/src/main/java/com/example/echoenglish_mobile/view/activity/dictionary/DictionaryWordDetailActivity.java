@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView; // Use ImageView instead of ImageButton for the back button
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +27,7 @@ import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
 import com.example.echoenglish_mobile.view.activity.home.HomeActivity;
 import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.PronunciationAssessmentActivity;
-import com.example.echoenglish_mobile.view.dialog.LoadingDialogFragment; // Assuming you have this class
+import com.example.echoenglish_mobile.view.dialog.LoadingDialogFragment;
 
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
@@ -50,22 +50,19 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
     private ImageView btnPlayUkAudio, btnPlayUsAudio;
     private Button btnWordPronunAnalyze;
 
-    // CHANGE: Declare as ImageView, as the crash indicates it's being found as such
-    private ImageView btnBackHeader; // Reference for the back button
+    private ImageView btnBackHeader;
 
-    private NestedScrollView contentScrollView; // Reference for the scroll view
-    // ProgressBar loadingProgressBar; // Not needed if using DialogFragment for loading
+    private NestedScrollView contentScrollView;
 
 
     private static final String TAG = "WordDetailActivity";
-    private static final String LOADING_DIALOG_TAG = "LoadingDialog"; // Tag for the loading dialog
+    private static final String LOADING_DIALOG_TAG = "LoadingDialog";
 
-    // Method to show/hide loading using DialogFragment
-    private int loadingApiCount = 0; // Đếm số lượng API đang chạy
+    private int loadingApiCount = 0;
 
     private synchronized void startApiCall() {
         loadingApiCount++;
-        if (loadingApiCount == 1) { // Only show dialog on the first active call
+        if (loadingApiCount == 1) {
             showLoading(true);
         }
     }
@@ -73,42 +70,33 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
     private synchronized void finishApiCall() {
         loadingApiCount--;
         if (loadingApiCount <= 0) {
-            loadingApiCount = 0; // Just in case it goes negative somehow
+            loadingApiCount = 0;
             showLoading(false);
         }
     }
 
-    // Adapted showLoading method for this activity's views
     private void showLoading(boolean isLoading) {
-        // Ensure views are initialized before accessing them
         if (contentScrollView == null || btnBackHeader == null || btnWordPronunAnalyze == null || btnPlayUkAudio == null || btnPlayUsAudio == null) {
-            // Views not yet initialized, do nothing or log a warning
             Log.w(TAG, "showLoading called before views are fully initialized.");
             return;
         }
 
 
         if (isLoading) {
-            // Show the loading dialog
-            LoadingDialogFragment.showLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG, "Loading word details..."); // Pass optional message
-            // Hide content
+            LoadingDialogFragment.showLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG, "Loading word details...");
             contentScrollView.setVisibility(View.INVISIBLE);
-            // Disable interactive elements
             btnBackHeader.setEnabled(false);
             btnWordPronunAnalyze.setEnabled(false);
             btnPlayUkAudio.setEnabled(false);
             btnPlayUsAudio.setEnabled(false);
 
         } else {
-            // Hide the loading dialog
             LoadingDialogFragment.hideLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG);
-            // Show content
             contentScrollView.setVisibility(View.VISIBLE);
-            // Re-enable interactive elements
             btnBackHeader.setEnabled(true);
-            btnWordPronunAnalyze.setEnabled(true); // Re-enable unconditionally
-            btnPlayUkAudio.setEnabled(true); // Re-enable, audio availability handled by listener
-            btnPlayUsAudio.setEnabled(true); // Re-enable, audio availability handled by listener
+            btnWordPronunAnalyze.setEnabled(true);
+            btnPlayUkAudio.setEnabled(true);
+            btnPlayUsAudio.setEnabled(true);
         }
     }
 
@@ -118,7 +106,6 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dictionary_word_detail);
 
-        // Initialize Views
         tvWord = findViewById(R.id.tvWord);
         ivImage = findViewById(R.id.ivImage);
         tvUkPronunciation = findViewById(R.id.tvUkPronunciation);
@@ -129,19 +116,14 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
         btnPlayUsAudio = findViewById(R.id.btnPlayUsAudio);
         btnWordPronunAnalyze = findViewById(R.id.btnWordPronunAnalyze);
 
-        // Initialize Header and Scroll Views
-        // CHANGE: Assign to ImageView variable
         btnBackHeader = findViewById(R.id.btn_back_header);
         contentScrollView = findViewById(R.id.contentScrollView);
-        // loadingProgressBar = findViewById(R.id.loadingProgressBar); // Not needed
 
-        // --- Back Button Listener ---
-        // setOnClickListener works on ImageView
         btnBackHeader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(DictionaryWordDetailActivity.this, HomeActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Xóa toàn bộ stack cũ
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             }
         });
@@ -175,66 +157,49 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
         tvUkPronunciation.setText("/"+word.getUkPronunciation()+"/");
         tvUsPronunciation.setText("/"+word.getUsPronunciation()+"/");
 
-        // Load Image using Glide
         Glide.with(this)
                 .load(word.getImageUrl())
-                .placeholder(R.drawable.ic_xml_launcher_background) // Replace with your placeholder
-                .error(R.drawable.ic_xml_launcher_background) // Replace with your error image
+                .placeholder(R.drawable.ic_xml_launcher_background)
+                .error(R.drawable.ic_xml_launcher_background)
                 .into(ivImage);
 
-        // Initialize or Re-initialize ExoPlayer
         if (player == null) {
             player = new ExoPlayer.Builder(this).build();
         }
         btnPlayUkAudio.setOnClickListener(v -> playAudioFromUrl(player, word.getUkAudio()));
         btnPlayUsAudio.setOnClickListener(v -> playAudioFromUrl(player, word.getUsAudio()));
 
-        // Setup RecyclerView for Meanings
         setupMeaningsRecyclerView(word.getMeanings());
 
-        // Display Synonyms (using FlexboxLayout)
         displaySynonyms(word.getSynonyms());
     }
 
-    // Hàm tìm kiếm và hiển thị từ (Tương tự như trong DictionaryActivity)
     private void searchAndDisplayWord(String keyword) {
         Log.d(TAG, "Searching for synonym: " + keyword);
-        // Removed Toast here to rely on the loading dialog
-        // Toast.makeText(this, "Searching for: " + keyword, Toast.LENGTH_SHORT).show(); // Thông báo đang tìm
 
-        ApiService apiService = ApiClient.getApiService(); // Lấy instance ApiService
-        Call<Word> call = apiService.getWordDetails(keyword); // Gọi API
+        ApiService apiService = ApiClient.getApiService();
+        Call<Word> call = apiService.getWordDetails(keyword);
 
-        // Context để sử dụng trong Callback
         Context context = this;
 
-        // --- Start Loading ---
         startApiCall();
 
         call.enqueue(new Callback<Word>() {
             @Override
             public void onResponse(@NonNull Call<Word> call, @NonNull Response<Word> response) {
-                // --- Finish Loading ---
                 finishApiCall();
 
                 if (response.isSuccessful() && response.body() != null) {
                     Word foundWord = response.body();
                     Log.d(TAG, "Synonym found: " + foundWord.getWord());
 
-                    // **Quan trọng:** Tạo Intent MỚI để mở lại chính Activity này
                     Intent intent = new Intent(context, DictionaryWordDetailActivity.class);
-                    intent.putExtra("word_data", foundWord); // Truyền dữ liệu từ TÌM ĐƯỢC
+                    intent.putExtra("word_data", foundWord);
 
-                    // Cờ để quản lý back stack (tùy chọn)
-                    // intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    // FLAG_ACTIVITY_NEW_TASK thường đủ dùng để mở instance mới
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                     context.startActivity(intent);
 
-                    // Nếu bạn *không* muốn activity hiện tại (của từ gốc) đóng lại
-                    // thì không cần gọi finish(). Nếu muốn đóng thì gọi finish().
-                    // finish(); // Đóng activity hiện tại sau khi mở activity mới (tùy chọn)
 
                 } else {
                     Log.w(TAG, "Synonym not found or error: " + response.code());
@@ -244,7 +209,6 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<Word> call, @NonNull Throwable t) {
-                // --- Finish Loading ---
                 finishApiCall();
 
                 Log.e(TAG, "API call failed for synonym: " + keyword, t);
@@ -255,7 +219,6 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
 
 
     private void setupMeaningsRecyclerView(List<Meaning> meanings) {
-        // ... (Giữ nguyên code của bạn)
         if (meanings == null || meanings.isEmpty()) {
             Log.w(TAG, "No meanings found for this word.");
             findViewById(R.id.labelMeanings).setVisibility(View.GONE);
@@ -264,12 +227,11 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
         }
 
         meaningsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        // Kiểm tra adapter đã tồn tại chưa để tránh tạo mới không cần thiết
         if (meaningAdapter == null) {
             meaningAdapter = new MeaningAdapter(meanings);
             meaningsRecyclerView.setAdapter(meaningAdapter);
         } else {
-            meaningAdapter.updateData(meanings); // Thêm hàm update nếu cần refresh data
+            meaningAdapter.updateData(meanings);
         }
         findViewById(R.id.labelMeanings).setVisibility(View.VISIBLE);
         meaningsRecyclerView.setVisibility(View.VISIBLE);
@@ -277,7 +239,7 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
 
 
     private void displaySynonyms(List<Synonym> synonyms) {
-        synonymsContainer.removeAllViews(); // Clear previous views
+        synonymsContainer.removeAllViews();
         if (synonyms == null || synonyms.isEmpty()) {
             Log.w(TAG, "No synonyms found for this word.");
             findViewById(R.id.labelSynonyms).setVisibility(View.GONE);
@@ -290,14 +252,11 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
 
         LayoutInflater inflater = LayoutInflater.from(this);
         for (Synonym synonym : synonyms) {
-            // Inflate the chip layout
             TextView synonymView = (TextView) inflater.inflate(R.layout.item_dictionary_synonym, synonymsContainer, false);
-            final String synonymText = synonym.getSynonym(); // Lấy text của synonym
+            final String synonymText = synonym.getSynonym();
             synonymView.setText(synonymText);
 
-            // *** GÁN OnClickListener ***
             synonymView.setOnClickListener(v -> {
-                // Gọi hàm tìm kiếm khi synonym được click
                 searchAndDisplayWord(synonymText);
             });
 
@@ -307,16 +266,14 @@ public class DictionaryWordDetailActivity extends AppCompatActivity {
 
 
     private void playAudioFromUrl(ExoPlayer player, String url) {
-        // ... (Giữ nguyên code của bạn)
         if (player == null) {
             Log.e(TAG, "ExoPlayer is not initialized.");
             Toast.makeText(this, "Audio player error.", Toast.LENGTH_SHORT).show();
             return;
         }
-        // Basic URL check
         if (url != null && !url.isEmpty() && (url.startsWith("http://") || url.startsWith("https://"))) {
             try {
-                player.stop(); // Stop previous playback
+                player.stop();
                 player.setMediaItem(MediaItem.fromUri(url));
                 player.prepare();
                 player.play();

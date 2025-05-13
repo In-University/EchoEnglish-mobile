@@ -33,7 +33,7 @@ import retrofit2.Response;
 
 public class CreateFlashcardActivity extends AppCompatActivity {
 
-    private static final String ACTIVITY_TAG = "CreateFlashcard"; // Use a distinct TAG
+    private static final String ACTIVITY_TAG = "CreateFlashcard";
     // Tag for the Loading Dialog Fragment
     private static final String LOADING_DIALOG_TAG = "CreateFlashcardLoadingDialog";
 
@@ -43,8 +43,7 @@ public class CreateFlashcardActivity extends AppCompatActivity {
     public static final String EXTRA_FLASHCARD_NAME = "FLASHCARD_NAME";
     public static final String EXTRA_FLASHCARD_IMAGE_URL = "FLASHCARD_IMAGE_URL";
 
-    // Header Elements (Matches the XML layout)
-    private ImageView backButton; // Or View
+    private ImageView backButton;
     private TextView textScreenTitle;
 
 
@@ -52,7 +51,6 @@ public class CreateFlashcardActivity extends AppCompatActivity {
     private TextInputEditText editTextName;
     private TextInputEditText editTextImageUrl;
     private Button buttonCreate;
-    // Removed: private ProgressBar progressBar; // Use dialog instead
 
     private ApiService apiService;
 
@@ -69,15 +67,14 @@ public class CreateFlashcardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_flashcard);
 
         // Ánh xạ View (Header)
-        backButton = findViewById(R.id.backButton); // Find the custom back button
-        textScreenTitle = findViewById(R.id.textScreenTitle); // Find the custom title TextView
+        backButton = findViewById(R.id.backButton);
+        textScreenTitle = findViewById(R.id.textScreenTitle);
 
 
         textFieldLayoutName = findViewById(R.id.textFieldLayoutFlashcardName);
         editTextName = findViewById(R.id.editTextFlashcardName);
         editTextImageUrl = findViewById(R.id.editTextFlashcardImageUrl);
         buttonCreate = findViewById(R.id.buttonCreateFlashcardSubmit);
-        // Removed: progressBar = findViewById(R.id.progressBarCreateFlashcard);
 
         apiService = ApiClient.getApiService();
 
@@ -97,16 +94,13 @@ public class CreateFlashcardActivity extends AppCompatActivity {
             editTextName.setText(currentName);
             editTextImageUrl.setText(currentImageUrl);
 
-            // Set title and button text for edit mode
-            textScreenTitle.setText("Edit Flashcard Set"); // Translated title
-            buttonCreate.setText("Save Changes"); // Translated button text
+            textScreenTitle.setText("Edit Flashcard Set");
+            buttonCreate.setText("Save Changes");
         } else {
-            // Set title and button text for create mode
-            textScreenTitle.setText("Create New Flashcard Set"); // Translated title
-            buttonCreate.setText("Create Flashcard Set"); // Translated button text
+            textScreenTitle.setText("Create New Flashcard Set");
+            buttonCreate.setText("Create Flashcard Set");
         }
 
-        // Set listener for custom back button
         backButton.setOnClickListener(v -> finish());
 
 
@@ -119,11 +113,10 @@ public class CreateFlashcardActivity extends AppCompatActivity {
         });
     }
 
-    // --- Loading Logic using DialogFragment ---
 
     private synchronized void startApiCall() {
         loadingApiCount++;
-        if (loadingApiCount == 1) { // Only show dialog on the first active call
+        if (loadingApiCount == 1) {
             showLoading(true);
         }
     }
@@ -131,34 +124,29 @@ public class CreateFlashcardActivity extends AppCompatActivity {
     private synchronized void finishApiCall() {
         loadingApiCount--;
         if (loadingApiCount <= 0) {
-            loadingApiCount = 0; // Ensure it doesn't go negative
+            loadingApiCount = 0;
             showLoading(false);
         }
     }
 
     private void showLoading(boolean isLoading) {
         if (isLoading) {
-            // Show the loading dialog with message based on mode
-            String loadingMessage = isEditMode ? "Saving changes..." : "Creating flashcard..."; // Translated messages
+            String loadingMessage = isEditMode ? "Saving changes..." : "Creating flashcard...";
             LoadingDialogFragment.showLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG, loadingMessage);
 
-            // Disable interactive elements
             buttonCreate.setEnabled(false);
             editTextName.setEnabled(false);
             editTextImageUrl.setEnabled(false);
             backButton.setEnabled(false);
         } else {
-            // Hide the loading dialog
             LoadingDialogFragment.hideLoading(getSupportFragmentManager(), LOADING_DIALOG_TAG);
 
-            // Re-enable interactive elements
             buttonCreate.setEnabled(true);
             editTextName.setEnabled(true);
             editTextImageUrl.setEnabled(true);
             backButton.setEnabled(true);
         }
     }
-    // --- End Loading Logic ---
 
 
     private void attemptCreateFlashcard() {
@@ -166,7 +154,7 @@ public class CreateFlashcardActivity extends AppCompatActivity {
         String imageUrl = editTextImageUrl.getText().toString().trim();
 
         if (TextUtils.isEmpty(name)) {
-            textFieldLayoutName.setError("Flashcard set name cannot be empty."); // Translated error
+            textFieldLayoutName.setError("Flashcard set name cannot be empty.");
             return;
         } else {
             textFieldLayoutName.setError(null);
@@ -176,24 +164,21 @@ public class CreateFlashcardActivity extends AppCompatActivity {
         request.setName(name);
         request.setImageUrl(imageUrl);
 
-        startApiCall(); // Start counting API calls and show loading
+        startApiCall();
 
         apiService.createFlashcard(request).enqueue(new Callback<FlashcardDetailResponse>() {
             @Override
             public void onResponse(Call<FlashcardDetailResponse> call, Response<FlashcardDetailResponse> response) {
-                finishApiCall(); // Finish counting API calls and hide loading
+                finishApiCall();
                 if (response.isSuccessful()) {
-                    Toast.makeText(CreateFlashcardActivity.this, "Flashcard set created successfully!", Toast.LENGTH_SHORT).show(); // Translated
-                    finish(); // Close the activity
+                    Toast.makeText(CreateFlashcardActivity.this, "Flashcard set created successfully!", Toast.LENGTH_SHORT).show();
+                    finish();
                 } else {
-                    String errorMessage = "Failed to create: " + response.code(); // Translated error
+                    String errorMessage = "Failed to create: " + response.code();
                     Log.e(ACTIVITY_TAG, "Failed to create flashcard: " + response.code());
-                    // Attempt to read error body if available
                     try {
                         String errorBody = response.errorBody().string();
                         Log.e(ACTIVITY_TAG, "Error Body: " + errorBody);
-                        // You might parse errorBody for a user-friendly message if backend provides one
-                        // errorMessage += "\n" + errorBody; // Example: append error body details
                     } catch (Exception e) {
                         Log.e(ACTIVITY_TAG, "Error reading error body", e);
                     }
@@ -203,9 +188,9 @@ public class CreateFlashcardActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<FlashcardDetailResponse> call, Throwable t) {
-                finishApiCall(); // Finish counting API calls and hide loading
+                finishApiCall();
                 Log.e(ACTIVITY_TAG, "Network error creating flashcard", t);
-                Toast.makeText(CreateFlashcardActivity.this, "Network connection error.", Toast.LENGTH_SHORT).show(); // Translated
+                Toast.makeText(CreateFlashcardActivity.this, "Network connection error.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -215,16 +200,15 @@ public class CreateFlashcardActivity extends AppCompatActivity {
         String imageUrl = editTextImageUrl.getText().toString().trim();
 
         if (TextUtils.isEmpty(name)) {
-            textFieldLayoutName.setError("Flashcard set name cannot be empty."); // Translated error
+            textFieldLayoutName.setError("Flashcard set name cannot be empty.");
             return;
         } else {
             textFieldLayoutName.setError(null);
         }
 
-        // Ensure we have a valid ID for updating
         if (editingFlashcardId == null || editingFlashcardId == -1L) {
             Log.e(ACTIVITY_TAG, "Attempted to update with invalid Flashcard ID: " + editingFlashcardId);
-            Toast.makeText(this, "Error: Cannot update flashcard set.", Toast.LENGTH_SHORT).show(); // Translated
+            Toast.makeText(this, "Error: Cannot update flashcard set.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -232,24 +216,21 @@ public class CreateFlashcardActivity extends AppCompatActivity {
         updateRequest.setName(name);
         updateRequest.setImageUrl(imageUrl);
 
-        startApiCall(); // Start counting API calls and show loading
+        startApiCall();
 
         apiService.updateFlashcard(editingFlashcardId, updateRequest).enqueue(new Callback<FlashcardDetailResponse>() {
             @Override
             public void onResponse(Call<FlashcardDetailResponse> call, Response<FlashcardDetailResponse> response) {
-                finishApiCall(); // Finish counting API calls and hide loading
+                finishApiCall();
                 if (response.isSuccessful()) {
-                    Toast.makeText(CreateFlashcardActivity.this, "Flashcard set updated successfully.", Toast.LENGTH_SHORT).show(); // Translated
-                    finish(); // Close the activity
+                    Toast.makeText(CreateFlashcardActivity.this, "Flashcard set updated successfully.", Toast.LENGTH_SHORT).show();
+                    finish();
                 } else {
-                    String errorMessage = "Failed to update: " + response.code(); // Translated error
+                    String errorMessage = "Failed to update: " + response.code();
                     Log.e(ACTIVITY_TAG, "Failed to update flashcard: " + response.code());
-                    // Attempt to read error body if available
                     try {
                         String errorBody = response.errorBody().string();
                         Log.e(ACTIVITY_TAG, "Error Body: " + errorBody);
-                        // You might parse errorBody for a user-friendly message if backend provides one
-                        // errorMessage += "\n" + errorBody; // Example: append error body details
                     } catch (Exception e) {
                         Log.e(ACTIVITY_TAG, "Error reading error body", e);
                     }
@@ -259,9 +240,9 @@ public class CreateFlashcardActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<FlashcardDetailResponse> call, Throwable t) {
-                finishApiCall(); // Finish counting API calls and hide loading
+                finishApiCall();
                 Log.e(ACTIVITY_TAG, "Network error updating flashcard", t);
-                Toast.makeText(CreateFlashcardActivity.this, "Network error while updating.", Toast.LENGTH_SHORT).show(); // Translated
+                Toast.makeText(CreateFlashcardActivity.this, "Network error while updating.", Toast.LENGTH_SHORT).show();
             }
         });
     }

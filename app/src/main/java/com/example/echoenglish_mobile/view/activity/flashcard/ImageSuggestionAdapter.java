@@ -67,12 +67,11 @@ public class ImageSuggestionAdapter extends RecyclerView.Adapter<ImageSuggestion
             }
         }
 
-//        holder.itemView.setOnClickListener(v -> { // Listener đặt trên itemView (toàn bộ item)
-        holder.imageView.setOnClickListener(v -> { // Đặt listener vào ImageView
+        holder.imageView.setOnClickListener(v -> {
             if (listener != null) {
                 int currentPosition = holder.getAdapterPosition();
                 if (currentPosition != RecyclerView.NO_POSITION) {
-                    PexelsPhoto clickedImage = imageList.get(currentPosition); // Lấy lại ảnh đúng vị trí
+                    PexelsPhoto clickedImage = imageList.get(currentPosition);
                     Log.d("ImageAdapter", "ImageView clicked at position: " + currentPosition + ", Image ID: " + clickedImage.getId());
                     listener.onImageSelected(clickedImage);
                 }

@@ -2,11 +2,6 @@ package com.example.echoenglish_mobile.view.activity.flashcard.dto.response;
 
 import java.io.Serializable;
 
-// Removed Lombok annotations
-// import lombok.AllArgsConstructor;
-// import lombok.Builder;
-// import lombok.Data;
-// import lombok.NoArgsConstructor;
 
 public class VocabularyResponse implements Serializable {
     private static final long serialVersionUID = 1L;

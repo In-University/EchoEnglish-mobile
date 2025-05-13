@@ -4,13 +4,11 @@ public class Message {
     private String text;
     private boolean isUserMessage;
 
-    // Constructor
     public Message(String text, boolean isUserMessage) {
         this.text = text;
         this.isUserMessage = isUserMessage;
     }
 
-    // Getter và Setter
     public String getText() {
         return text;
     }

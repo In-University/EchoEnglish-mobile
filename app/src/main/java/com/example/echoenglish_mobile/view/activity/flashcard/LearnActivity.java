@@ -39,8 +39,6 @@ public class LearnActivity extends AppCompatActivity {
     private List<VocabularyResponse> vocabularies;
 
     private ApiService apiService;
-
-    // Handler để quản lý các PostDelayed callbacks (cho finish)
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
 
@@ -49,7 +47,6 @@ public class LearnActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_learn);
 
-        // Ánh xạ view
         viewPagerLearn = findViewById(R.id.viewPagerLearn);
         buttonKnow = findViewById(R.id.buttonKnow);
         buttonForget = findViewById(R.id.buttonForget);
@@ -61,7 +58,6 @@ public class LearnActivity extends AppCompatActivity {
             try {
                 Object extra = getIntent().getSerializableExtra(VOCABULARY_LIST_EXTRA);
                 if (extra instanceof ArrayList) {
-                    // Ép kiểu an toàn hơn một chút
                     vocabListFromIntent = (ArrayList<VocabularyResponse>) extra;
                 }
             } catch (Exception e) {
@@ -72,7 +68,7 @@ public class LearnActivity extends AppCompatActivity {
         if (vocabListFromIntent != null && !vocabListFromIntent.isEmpty()) {
             Log.d(TAG, "Loading vocabularies from Intent. Size: " + vocabListFromIntent.size());
             this.vocabularies = vocabListFromIntent;
-            Collections.shuffle(this.vocabularies); // Trộn thứ tự
+            Collections.shuffle(this.vocabularies);
 
             pagerAdapter = new LearnPagerAdapter(this, this.vocabularies);
             viewPagerLearn.setAdapter(pagerAdapter);
@@ -84,12 +80,10 @@ public class LearnActivity extends AppCompatActivity {
             return;
         }
 
-        // Cài đặt listener cho các nút "Biết" và "Quên"
         buttonKnow.setOnClickListener(v -> handleLearningClick(true));
         buttonForget.setOnClickListener(v -> handleLearningClick(false));
     }
 
-    // Phương thức xử lý chung cho nút Biết và Quên
     private void handleLearningClick(boolean isRemembered) {
         int currentItemIndex = viewPagerLearn.getCurrentItem();
 
@@ -97,27 +91,20 @@ public class LearnActivity extends AppCompatActivity {
             VocabularyResponse currentVocab = pagerAdapter.getItem(currentItemIndex);
 
             if (currentVocab != null && currentVocab.getId() != null) {
-                // Ghi nhận học tập
                 recordLearningProgress(currentVocab.getId(), isRemembered);
 
-                // Kiểm tra xem đây có phải là từ cuối cùng trong danh sách không
                 if (currentItemIndex == pagerAdapter.getItemCount() - 1) {
-                    // Đây là từ cuối cùng
 
-                    // --- Bắt đầu thêm logic vô hiệu hóa nút ---
                     buttonKnow.setEnabled(false);
                     buttonForget.setEnabled(false);
-                    // --- Kết thúc thêm logic vô hiệu hóa nút ---
 
                     Toast.makeText(this, "Hoàn thành bộ thẻ!", Toast.LENGTH_SHORT).show();
 
-                    // Thêm một chút delay trước khi finish để người dùng kịp đọc Toast
-                    mainHandler.postDelayed(() -> { // Sử dụng field Handler
-                        finish(); // Đóng Activity và quay về màn hình trước đó
-                    }, 800); // Delay 800ms (có thể điều chỉnh)
+                    mainHandler.postDelayed(() -> {
+                        finish();
+                    }, 800);
 
                 } else {
-                    // Vẫn còn từ khác, chuyển sang từ tiếp theo
                     viewPagerLearn.setCurrentItem(currentItemIndex + 1, true);
                 }
             } else {
@@ -130,7 +117,6 @@ public class LearnActivity extends AppCompatActivity {
         }
     }
 
-    // Phương thức ghi nhận tiến độ học tập qua API (Giữ nguyên)
     private void recordLearningProgress(long vocabularyId, boolean isRemembered) {
         if (apiService == null) {
             Log.e(TAG, "ApiService is not initialized.");
@@ -162,7 +148,6 @@ public class LearnActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Hủy bỏ bất kỳ PostDelayed nào đang chờ xử lý khi Activity bị hủy
         mainHandler.removeCallbacksAndMessages(null);
     }
 }
