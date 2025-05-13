@@ -1,71 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp" >
+    android:background="?android:colorBackground"
+    android:paddingTop="16dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"> <!-- Giữ padding ngang trên ConstraintLayout chính -->
 
     <!-- Top Indicator Bar -->
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <LinearLayout
+        android:id="@+id/top_indicator_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
             android:id="@+id/question_indicator_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Question 1/6"
-            android:textSize="18sp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:textStyle="bold"
-            android:layout_centerVertical="true"
-            android:layout_alignParentStart="true"/>
+            android:textColor="?android:attr/textColorPrimary"/>
 
-        <!-- Icon và TextView cho Timer Tổng -->
+        <!-- Spacer -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <!-- Timer Icon and TextView -->
         <ImageView
-            android:id="@+id/timer_icon"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_xml_timer"
-            app:tint="@color/blue"
+            app:tint="?attr/colorPrimary"
             android:layout_marginEnd="4dp"
-            android:layout_toStartOf="@id/timer_textview"
-            android:layout_centerVertical="true"
-            android:contentDescription="Timer Icon"/>
+            android:contentDescription="Timer Icon"
+            android:layout_gravity="center_vertical"/>
 
         <TextView
             android:id="@+id/timer_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="5:59"
-            android:textSize="18sp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:textStyle="bold"
-            android:textColor="@color/blue"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"/>
+            android:textColor="?attr/colorPrimary"/>
 
-    </RelativeLayout>
+    </LinearLayout>
 
+    <!-- Linear Progress Indicator -->
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/question_progress_indicator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="8dp"
-        tools:progress="10" />
+        app:trackCornerRadius="4dp"
+        app:indicatorColor="?attr/colorPrimary"
+        app:trackColor="?attr/colorPrimaryVariant"
+        app:trackThickness="8dp"
+        tools:progress="10"
+        app:layout_constraintTop_toBottomOf="@+id/top_indicator_bar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- NestedScrollView for main question/choices content -->
     <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
+        app:layout_constraintTop_toBottomOf="@+id/question_progress_indicator"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_buttons_bar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fillViewport="true"
+        android:paddingBottom="8dp"> <!-- Add padding bottom to scrollview -->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingVertical="8dp"> <!-- Add vertical padding -->
 
-            <!-- Part 1: Image -->
+            <!-- Part 1: Image (Optional) -->
             <ImageView
                 android:id="@+id/img_question_part1"
                 android:layout_width="match_parent"
@@ -79,7 +103,7 @@
                 tools:visibility="visible"
                 android:contentDescription="Question Image" />
 
-            <!-- Part 1: Audio Player -->
+            <!-- Part 1: Audio Player (Optional) -->
             <include
                 android:id="@+id/audio_player_part1"
                 layout="@layout/component_audio_player"
@@ -89,7 +113,7 @@
                 android:visibility="gone"
                 tools:visibility="visible" />
 
-            <!-- Part 5: Question Text -->
+            <!-- Part 5: Question Text (Optional) -->
             <TextView
                 android:id="@+id/question_textview_part5"
                 android:layout_width="match_parent"
@@ -99,118 +123,137 @@
                 android:textSize="18sp"
                 android:padding="12dp"
                 android:background="@drawable/background_rounded_corner"
-                android:backgroundTint="#F0F0F0"
-                android:textColor="@color/black"
+                android:backgroundTint="?attr/colorSurfaceVariant"
+                android:textColor="?android:attr/textColorPrimary"
                 android:gravity="center_vertical"
                 android:layout_marginVertical="8dp"
                 android:visibility="gone"/>
 
-
-            <!-- Answer Choices (Gán cứng thuộc tính) -->
-            <Button
+            <!-- Answer Choices (Using MaterialButton) -->
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_choice_a"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
-                app:backgroundTint="@null"
                 android:background="@drawable/button_background_default"
-                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:textColor="?android:attr/textColorPrimary"
                 android:paddingVertical="12dp"
                 android:gravity="start|center_vertical"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textAllCaps="false"
                 android:textSize="16sp"
-                tools:text="(A)" />
+                tools:text="(A) Choice A"
+                app:cornerRadius="8dp"/> <!-- Added corner radius -->
 
-
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_choice_b"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
                 android:background="@drawable/button_background_default"
-                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:textColor="?android:attr/textColorPrimary"
                 android:paddingVertical="12dp"
                 android:gravity="start|center_vertical"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                app:backgroundTint="@null"
                 android:textAllCaps="false"
                 android:textSize="16sp"
-                tools:text="(B)" />
+                tools:text="(B) Choice B"
+                app:cornerRadius="8dp"/> <!-- Added corner radius -->
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_choice_c"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
-                app:backgroundTint="@null"
                 android:background="@drawable/button_background_default"
-                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:textColor="?android:attr/textColorPrimary"
                 android:paddingVertical="12dp"
                 android:gravity="start|center_vertical"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textAllCaps="false"
                 android:textSize="16sp"
-                tools:text="(C)" />
+                tools:text="(C) Choice C"
+                app:cornerRadius="8dp"/> <!-- Added corner radius -->
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_choice_d"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
-                app:backgroundTint="@null"
                 android:background="@drawable/button_background_default"
-                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:textColor="?android:attr/textColorPrimary"
                 android:paddingVertical="12dp"
                 android:gravity="start|center_vertical"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textAllCaps="false"
                 android:textSize="16sp"
-                tools:text="(D)" />
-
-
+                tools:text="(D) Choice D"
+                app:cornerRadius="8dp"/> <!-- Added corner radius -->
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Buttons -->
+    <!-- Bottom Buttons Bar -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/bottom_buttons_bar"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        android:gravity="center_vertical">
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:background="?attr/colorSurfaceContainerLow"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_back"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Back"
-            android:layout_marginEnd="8dp"
-            android:visibility="invisible"
-            tools:visibility="visible"/>
-
-        <Button
-            android:id="@+id/btn_show_explanation"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Explanation"
-            app:icon="@drawable/ic_info"
-            app:iconGravity="textStart"/>
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        android:layout_marginEnd="1dp"
+        app:cornerRadius="12dp"
+        android:visibility="invisible"
+        tools:visibility="visible"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_show_explanation"
+            style="@style/Widget.Material3.Button.TextButton.Icon"
+            android:layout_width="0dp"
+        android:layout_weight="1.6"
+        android:layout_height="wrap_content"
+        android:text="Explanation"
+        android:textColor="?attr/colorPrimary"
+        app:cornerRadius="12dp"
+        app:icon="@drawable/ic_info"
+        app:iconGravity="textStart"
+        app:iconTint="?attr/colorPrimary" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_next"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Next"
-            android:layout_marginStart="8dp"/>
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:text="Next"
+        android:layout_marginStart="1dp"
+        app:cornerRadius="12dp" />
+
     </LinearLayout>
 
-</LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>

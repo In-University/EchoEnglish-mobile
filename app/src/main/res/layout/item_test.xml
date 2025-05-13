@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,7 +7,10 @@
     android:layout_marginHorizontal="8dp"
     android:layout_marginVertical="4dp"
     app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardElevation="1dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"> <!-- Add ripple effect on click -->
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -18,6 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/layout_test_details"
             android:layout_marginEnd="16dp"
             android:orientation="vertical">
 
@@ -27,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:textColor="@color/black"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 tools:text="ETS TOEIC 2023 Test 1" />
@@ -37,11 +41,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="14sp"
                 tools:text="ets-toeic-2023-test-1" />
         </LinearLayout>
-
 
         <LinearLayout
             android:id="@+id/layout_test_details"
@@ -52,13 +55,10 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <!-- You can add time estimate or difficulty later if needed -->
             <ImageView
                 android:id="@+id/img_play_test"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
                 android:src="@drawable/ic_play"
                 app:tint="@color/blue"
                 android:contentDescription="Start Test"/>
@@ -66,10 +66,12 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Start"/>
+                android:text="Start"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                android:textColor="?android:attr/textColorPrimary"/> <!-- Use theme primary text color -->
 
         </LinearLayout>
 
     </RelativeLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>
