@@ -31,48 +31,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#0D1258"
-        android:gravity="center"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageButton
+            android:id="@+id/btn_close"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            app:tint="#FFFFFF" />
 
         <ImageButton
             android:id="@+id/btn_pause"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginEnd="36dp"
+            android:layout_marginStart="130dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_media_pause"
-            app:tint="#FFFFFF" />
-
-        <ImageButton
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginEnd="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_rotate"
-            app:tint="#FFFFFF" />
-
-        <ImageButton
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginEnd="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_report_image"
-            app:tint="#FFFFFF" />
-
-        <ImageButton
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_dialog_alert"
-            app:tint="#FFFFFF" />
-
-        <ImageButton
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginStart="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_help"
             app:tint="#FFFFFF" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

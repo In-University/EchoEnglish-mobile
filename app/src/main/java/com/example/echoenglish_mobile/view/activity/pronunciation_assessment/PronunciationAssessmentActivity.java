@@ -453,7 +453,4 @@ public class PronunciationAssessmentActivity extends AppCompatActivity implement
     public void onFlashcardSelectedForWord(String word, FlashcardBasicResponse selectedFlashcard) {
         Toast.makeText(this, "Đang thêm '" + word + "' vào bộ '" + selectedFlashcard.getName() + "'...", Toast.LENGTH_LONG).show();
     }
-
-    // Xóa hàm releaseRemoteMediaPlayer() không còn dùng nữa
-    // private void releaseRemoteMediaPlayer() { ... }
 }

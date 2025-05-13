@@ -100,7 +100,7 @@ public class MainDocumentHubActivity extends AppCompatActivity implements NewsAd
 
     private void loadNewsData(int page) {
         if (isLoading || isLastPage) {
-            return; // Don't load if already loading or is the last page
+            return;
         }
 
         Log.d(TAG, "Loading page: " + page);
@@ -117,11 +117,10 @@ public class MainDocumentHubActivity extends AppCompatActivity implements NewsAd
                     PageResponse<NewsItem> pageResponse = response.body();
                     if (pageResponse.getContent() != null && !pageResponse.getContent().isEmpty()) {
                         newsAdapter.addNewsItems(pageResponse.getContent());
-                        currentPage = pageResponse.getNumber(); // Update current page from response
-                        isLastPage = pageResponse.isLast(); // Check if this is the last page
+                        currentPage = pageResponse.getNumber();
+                        isLastPage = pageResponse.isLast();
                         Log.d(TAG, "Loaded page: " + currentPage + ", Is last: " + isLastPage);
                     } else {
-                        // No more items or empty response
                         isLastPage = true;
                         Log.d(TAG, "No more items found.");
                     }
@@ -148,7 +147,6 @@ public class MainDocumentHubActivity extends AppCompatActivity implements NewsAd
     }
 
     private void showYoutubeImportPopup() {
-        // (Code for youtube popup remains the same)
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Import YouTube Link");
         builder.setMessage("Enter the YouTube video URL:");
@@ -167,7 +165,8 @@ public class MainDocumentHubActivity extends AppCompatActivity implements NewsAd
             if (!url.isEmpty()) {
                 Toast.makeText(this, "Importing: " + url, Toast.LENGTH_SHORT).show();
                 String videoId = getIDFromYoutubeLink(url);
-                if (!videoId.isEmpty()){
+//                if (!videoId.isEmpty()){
+                if (true){
                     Intent intent = new Intent(this, VideoYoutubeActivity.class);
                     intent.putExtra("VideoId", videoId);
                     startActivity(intent);

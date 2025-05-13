@@ -1,27 +1,35 @@
 package com.example.echoenglish_mobile.view.activity.video_youtube;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.model.response.TranscriptItem;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.example.echoenglish_mobile.network.ApiClient;
+import com.example.echoenglish_mobile.network.ApiService;
+import com.example.echoenglish_mobile.view.activity.video_youtube.dto.TranscriptContent;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class VideoYoutubeActivity extends AppCompatActivity implements TranscriptAdapter.OnTranscriptItemClickListener{
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class VideoYoutubeActivity extends AppCompatActivity implements TranscriptAdapter.OnTranscriptItemClickListener {
     private WebView youtubeWebView;
     private RecyclerView transcriptRecyclerView;
     private TranscriptAdapter transcriptAdapter;
@@ -29,7 +37,9 @@ public class VideoYoutubeActivity extends AppCompatActivity implements Transcrip
     private ImageButton btnPause;
     private boolean isPlaying = true;
 
-    private static String VIDEO_ID = "MY5SatbZMAo";
+    private ApiService apiService;
+    private String VIDEO_ID = "MY5SatbZMAo";
+    private static final String TAG = "VideoYoutubeActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,51 +49,62 @@ public class VideoYoutubeActivity extends AppCompatActivity implements Transcrip
         String intentVideoId = getIntent().getStringExtra("VideoId");
         if (intentVideoId != null && !intentVideoId.isEmpty()) {
             VIDEO_ID = intentVideoId;
+        } else {
+            Log.w(TAG, "VideoId not passed via Intent, using default: " + VIDEO_ID);
         }
 
         youtubeWebView = findViewById(R.id.youtube_web_view);
         transcriptRecyclerView = findViewById(R.id.transcript_recycler_view);
         btnPause = findViewById(R.id.btn_pause);
 
+        apiService = ApiClient.getApiService();
+
         setupYoutubeWebView();
 
-        // Set up RecyclerView
         transcriptItems = new ArrayList<>();
         transcriptAdapter = new TranscriptAdapter(this, transcriptItems, this);
         transcriptRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         transcriptRecyclerView.setAdapter(transcriptAdapter);
 
-        // Set up play/pause toggle
-        btnPause.setOnClickListener(new View.OnClickListener() {
+        btnPause.setOnClickListener(v -> {
+            isPlaying = !isPlaying;
+            btnPause.setImageResource(isPlaying ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
+            String jsCommand = isPlaying ? "player.playVideo();" : "player.pauseVideo();";
+            youtubeWebView.evaluateJavascript(jsCommand, null);
+        });
+
+        ImageButton btnClose = findViewById(R.id.btn_close);
+        btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isPlaying = !isPlaying;
-                btnPause.setImageResource(isPlaying ?
-                        android.R.drawable.ic_media_pause :
-                        android.R.drawable.ic_media_play);
-
-                // Execute JavaScript to control YouTube player
-                String jsCommand = isPlaying ? "player.playVideo()" : "player.pauseVideo()";
-                youtubeWebView.evaluateJavascript(jsCommand, null);
+                finish();
             }
         });
 
-        // Parse mock API response
-        parseMockApiResponse();
+        if (VIDEO_ID != null && !VIDEO_ID.isEmpty()) {
+            fetchTranscriptFromApi(VIDEO_ID);
+        } else {
+            Toast.makeText(this, "Video ID is missing.", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void setupYoutubeWebView() {
-        // Enable JavaScript
         WebSettings webSettings = youtubeWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         webSettings.setDomStorageEnabled(true);
+        webSettings.setMediaPlaybackRequiresUserGesture(false);
 
         youtubeWebView.setWebChromeClient(new WebChromeClient());
-        youtubeWebView.setWebViewClient(new WebViewClient());
+        youtubeWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                Log.d(TAG, "YouTube player page finished loading.");
+            }
+        });
 
-        // Load YouTube Embedded Player
-        String embedUrl = "<html><style>body, html { margin: 0; padding: 0; }</style><body>" +
+        String embedUrl = "<html><head><style>body,html{margin:0;padding:0;height:100%;overflow:hidden;}#player{height:100%;}</style></head><body>" +
                 "<div id='player'></div>" +
                 "<script>" +
                 "var tag = document.createElement('script');" +
@@ -98,61 +119,135 @@ public class VideoYoutubeActivity extends AppCompatActivity implements Transcrip
                 "    videoId: '" + VIDEO_ID + "'," +
                 "    playerVars: {" +
                 "      'playsinline': 1," +
+                "      'autoplay': 1," +
                 "      'controls': 1," +
-                "      'rel': 0" +
+                "      'rel': 0," +
+                "      'fs': 1" +
                 "    }," +
                 "    events: {" +
-                "      'onReady': onPlayerReady" +
+                "      'onReady': onPlayerReady," +
+                "      'onStateChange': onPlayerStateChange" +
                 "    }" +
                 "  });" +
                 "}" +
                 "function onPlayerReady(event) {" +
-                "  event.target.playVideo();" +
+                "   Android.onPlayerReady();" +
+                "}" +
+                "function onPlayerStateChange(event) {" +
+                "   Android.onPlayerStateChange(event.data);" +
                 "}" +
                 "</script></body></html>";
+        youtubeWebView.addJavascriptInterface(new YouTubePlayerInterface(this), "Android");
+        youtubeWebView.loadDataWithBaseURL("https://www.youtube.com", embedUrl, "text/html", "utf-8", null);
+    }
 
-        youtubeWebView.loadData(embedUrl, "text/html", "utf-8");
+    public class YouTubePlayerInterface {
+        Context mContext;
+        YouTubePlayerInterface(Context c) { mContext = c; }
+
+        @android.webkit.JavascriptInterface
+        public void onPlayerReady() {
+            Log.d(TAG, "Player is ready (called from JS)");
+            runOnUiThread(() -> {
+                isPlaying = true;
+                btnPause.setImageResource(android.R.drawable.ic_media_pause);
+            });
+        }
+
+        @android.webkit.JavascriptInterface
+        public void onPlayerStateChange(int playerState) {
+            Log.d(TAG, "Player state changed (called from JS): " + playerState);
+            runOnUiThread(() -> {
+                if (playerState == 1) { // PLAYING
+                    isPlaying = true;
+                    btnPause.setImageResource(android.R.drawable.ic_media_pause);
+                } else if (playerState == 2 || playerState == 0 || playerState == 5) { // PAUSED, ENDED, CUED
+                    isPlaying = false;
+                    btnPause.setImageResource(android.R.drawable.ic_media_play);
+                }
+            });
+        }
     }
 
     @Override
     public void onTranscriptItemClick(TranscriptItem item) {
-        double timestamp = item.getStartTime();
-        String jsSeekCommand = "player.seekTo(" + timestamp + ", true)";
-        youtubeWebView.evaluateJavascript(jsSeekCommand, null);
+        if (youtubeWebView != null && item != null) {
+            double timestamp = item.getStartTime();
+            String jsSeekCommand = "if(player && typeof player.seekTo === 'function'){ player.seekTo(" + timestamp + ", true); }";
+            youtubeWebView.evaluateJavascript(jsSeekCommand, null);
+            Log.d(TAG, "Seeking to: " + timestamp);
+            if (!isPlaying) {
+                isPlaying = true;
+                btnPause.setImageResource(android.R.drawable.ic_media_pause);
+                youtubeWebView.evaluateJavascript("if(player && typeof player.playVideo === 'function'){ player.playVideo(); }", null);
+            }
+        }
     }
 
-    private void parseMockApiResponse() {
-        String mockApiResponse = "{\"content\": [{\"text\": \"Translator: Riaki Poništ\\nReviewer: Peter van de Ven\",\"start\": 0.0,\"dur\": 7.0}," +
-                "{\"text\": \"Thank you so much.\",\"start\": 9.07,\"dur\": 1.74}," +
-                "{\"text\": \"I am a journalist.\",\"start\": 12.39,\"dur\": 1.809}," +
-                "{\"text\": \"My job is to talk to people\\nfrom all walks of life,\",\"start\": 14.539,\"dur\": 3.49}," +
-                "{\"text\": \"all over the world.\",\"start\": 18.239,\"dur\": 1.68}," +
-                "{\"text\": \"Today, I want to tell you\",\"start\": 19.999,\"dur\": 1.44}," +
-                "{\"text\": \"why I decided to do this with my life\\nand what I've learned.\",\"start\": 21.439,\"dur\": 4.301}," +
-                "{\"text\": \"My story begins in Caracas, Venezuela,\",\"start\": 26.58,\"dur\": 2.849}," +
-                "{\"text\": \"in South America, where I grew up;\",\"start\": 29.479,\"dur\": 2.42}," +
-                "{\"text\": \"a place that to me was,\\nand always will be,\",\"start\": 32.119,\"dur\": 2.881}," +
-                "{\"text\": \"filled with magic and wonder.\",\"start\": 35.0,\"dur\": 1.95}," +
-                "{\"text\": \"Frоm a very young age,\",\"start\": 37.74,\"dur\": 1.33}," +
-                "{\"text\": \"my parents wanted me\\nto have a wider view of the world.\",\"start\": 39.07,\"dur\": 3.53}]}";
+    private void fetchTranscriptFromApi(String videoId) {
+        Log.d(TAG, "Fetching transcript for video ID: " + videoId);
+        Toast.makeText(this, "Loading transcript...", Toast.LENGTH_SHORT).show();
 
-        try {
-            JSONObject jsonObject = new JSONObject(mockApiResponse);
-            JSONArray contentArray = jsonObject.getJSONArray("content");
-
-            for (int i = 0; i < contentArray.length(); i++) {
-                JSONObject item = contentArray.getJSONObject(i);
-                String text = item.getString("text");
-                double startTime = item.getDouble("start");
-                double duration = item.getDouble("dur");
-
-                TranscriptItem transcriptItem = new TranscriptItem(text, startTime, duration);
-                transcriptItems.add(transcriptItem);
+        apiService.getYoutubeTranscript(videoId).enqueue(new Callback<TranscriptContent>() {
+            @Override
+            public void onResponse(Call<TranscriptContent> call, Response<TranscriptContent> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    TranscriptContent transcriptContent = response.body();
+                    List<TranscriptItem> items = transcriptContent.getContent();
+                    if (items != null && !items.isEmpty()) {
+                        Log.d(TAG, "Transcript fetched successfully: " + items.size() + " items.");
+                        transcriptItems.clear();
+                        transcriptItems.addAll(items);
+                        transcriptAdapter.notifyDataSetChanged();
+                    } else {
+                        Log.w(TAG, "Transcript content is null or empty.");
+                        Toast.makeText(VideoYoutubeActivity.this, "No transcript available.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.e(TAG, "API Error: " + response.code() + " - " + response.message());
+                    try {
+                        Log.e(TAG, "Error Body: " + (response.errorBody() != null ? response.errorBody().string() : "null"));
+                    } catch (Exception e) { Log.e(TAG, "Error reading error body", e); }
+                    Toast.makeText(VideoYoutubeActivity.this, "Failed to load transcript: " + response.message(), Toast.LENGTH_LONG).show();
+                }
             }
 
-            transcriptAdapter.notifyDataSetChanged();
-        } catch (JSONException e) {
-            e.printStackTrace();
+            @Override
+            public void onFailure(Call<TranscriptContent> call, Throwable t) {
+                Log.e(TAG, "API Failure: ", t);
+                Toast.makeText(VideoYoutubeActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (youtubeWebView != null) {
+            youtubeWebView.onPause();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (youtubeWebView != null) {
+            youtubeWebView.onResume();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (youtubeWebView != null) {
+            youtubeWebView.removeJavascriptInterface("Android");
+            youtubeWebView.stopLoading();
+            ViewGroup parent = (ViewGroup) youtubeWebView.getParent();
+            if (parent != null) {
+                parent.removeView(youtubeWebView);
+            }
+            youtubeWebView.destroy();
+            youtubeWebView = null;
+        }
+        super.onDestroy();
     }
 }

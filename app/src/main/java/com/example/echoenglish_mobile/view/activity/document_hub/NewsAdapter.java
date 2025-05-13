@@ -67,7 +67,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
 
         public NewsViewHolder(@NonNull View itemView) {
             super(itemView);
-            newsImage = itemView.findViewById(R.id.newsImage);
             newsTime = itemView.findViewById(R.id.newsTime);
             newsSource = itemView.findViewById(R.id.newsSource);
             newsHeadline = itemView.findViewById(R.id.newsHeadline);
@@ -77,14 +76,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
             newsHeadline.setText(newsItem.getTitle());
             newsSource.setText(newsItem.getSource() != null ? newsItem.getSource().toUpperCase() : "UNKNOWN SOURCE");
             newsTime.setText(newsItem.getFormattedTimeAgo());
-
-            String imageUrl = newsItem.getImageUrl();
-            Glide.with(itemView.getContext())
-                    .load(imageUrl)
-                    .placeholder(R.drawable.image_background_intro)
-                    .error(R.drawable.image_background_intro)
-                    .centerCrop()
-                    .into(newsImage);
 
             itemView.setOnClickListener(v -> listener.onItemClick(newsItem));
         }

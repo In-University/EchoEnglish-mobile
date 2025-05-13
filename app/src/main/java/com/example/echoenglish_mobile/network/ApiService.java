@@ -37,6 +37,7 @@ import com.example.echoenglish_mobile.view.activity.quiz.model.TestHistory;
 import com.example.echoenglish_mobile.view.activity.quiz.model.TestPart;
 import com.example.echoenglish_mobile.view.activity.translate_text.TranslateRequest;
 import com.example.echoenglish_mobile.view.activity.translate_text.TranslateResponse;
+import com.example.echoenglish_mobile.view.activity.video_youtube.dto.TranscriptContent;
 
 import java.util.List;
 import java.util.Map;
@@ -219,4 +220,7 @@ public interface ApiService {
             @Query("page") int page,
             @Query("size") int size
     );
+
+    @GET("/document/youtube/{videoId}")
+    Call<TranscriptContent> getYoutubeTranscript(@Path("videoId") String videoId);
 }

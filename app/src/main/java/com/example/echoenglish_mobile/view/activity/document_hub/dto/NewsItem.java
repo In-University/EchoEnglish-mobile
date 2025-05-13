@@ -31,10 +31,6 @@ public class NewsItem {
     public String getSource() { return source; }
     public String getPublishedDate() { return publishedDate; }
 
-    public String getImageUrl() {
-        return null;
-    }
-
     public String getFormattedTimeAgo() {
         if (publishedDate == null || publishedDate.isEmpty()) {
             return "";

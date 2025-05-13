@@ -43,22 +43,11 @@ public class TranscriptAdapter extends RecyclerView.Adapter<TranscriptAdapter.Vi
         holder.transcriptText.setText(item.getText());
         holder.timestamp.setText(item.getFormattedTime());
 
-        // Set click listener for the entire item
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onTranscriptItemClick(item);
             }
         });
-
-//        holder.btnPlay.setOnClickListener(v -> {
-//            if (listener != null) {
-//                listener.onTranscriptItemClick(item);
-//            }
-//        });
-
-//        holder.btnTranslate.setOnClickListener(v -> {
-//            // Translation functionality would go here
-//        });
     }
 
     @Override
