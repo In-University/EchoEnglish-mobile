@@ -128,6 +128,7 @@ public class FlashcardDetailActivity extends AppCompatActivity implements Vocabu
         });
         buttonGame1.setOnClickListener(v -> openGameActivity(Game1Activity.class));
         buttonGame2.setOnClickListener(v -> openGameActivity(Game2Activity.class));
+        fabAddVocabulary.setOnClickListener(v -> openAddVocabularyActivity());
         // FAB listener được set trong onCreate
     }
 
