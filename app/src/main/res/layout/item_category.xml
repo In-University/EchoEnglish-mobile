@@ -11,7 +11,8 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
-    app:cardCornerRadius="8dp">
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"> <!-- Giảm nhẹ độ nổi so với card chính -->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,21 +21,41 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
+        <!-- Icon Container with Background -->
+        <FrameLayout
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/circle_background"
+            android:padding="12dp">
+
         <ImageView
             android:id="@+id/imageCategoryIcon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="24dp"
-            app:srcCompat="@drawable/ic_xml_launcher_background" />
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_xml_folder_24px"
+            android:contentDescription="Category Icon"/>
+    </FrameLayout>
 
-        <TextView
-            android:id="@+id/textCategoryName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="24sp"
-            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-            tools:text="Category Name" />
 
-    </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+    <TextView
+        android:id="@+id/textCategoryName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@android:color/black"
+        tools:text="Category Name" />
+    <!-- Đã bỏ " -->
+
+    <!-- Mũi tên chỉ hướng (tùy chọn, nhưng làm item trông như một liên kết) -->
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="8dp"
+        android:src="@drawable/ic_xml_arrow_forward_ios_24px"
+        android:contentDescription="Go to category"
+        app:tint="@android:color/darker_gray" />
+
+</LinearLayout>
+    </com.google.android.material.card.MaterialCardView>

@@ -1,7 +1,5 @@
 package com.example.echoenglish_mobile.view.activity.flashcard;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,109 +10,135 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.Glide; // Still needed for image loading
 import com.example.echoenglish_mobile.R;
-import com.example.echoenglish_mobile.network.ApiClient; // Import ApiClient
-import com.example.echoenglish_mobile.network.ApiService; // Import ApiService
-import com.example.echoenglish_mobile.util.PurchaseManager; // Import PurchaseManager
-import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse;
-import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningProgressResponse;
+import com.example.echoenglish_mobile.network.ApiClient; // Still needed for ApiService
+import com.example.echoenglish_mobile.network.ApiService; // Still needed for API call
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse; // Correct DTO for Flashcard Sets
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningProgressResponse; // Still needed for progress
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale; // Import Locale
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class PublicFlashcardAdapter extends RecyclerView.Adapter<PublicFlashcardAdapter.PublicFlashcardViewHolder> {
+// This adapter is intended to list Flashcard Sets (FlashcardBasicResponse)
+// It should use the item layout that represents a Flashcard Set (item_flashcard_public.xml)
+public class PublicFlashcardAdapter extends RecyclerView.Adapter<PublicFlashcardAdapter.FlashcardViewHolder> { // Renamed ViewHolder
 
-    private static final long CURRENT_USER_ID = 27L; // Hardcoded user ID
+    private static final long CURRENT_USER_ID = 27L; // Hardcoded user ID (still needed for progress API)
     private Context context;
-    private List<FlashcardBasicResponse> flashcardList;
-    private OnPublicFlashcardClickListener listener;
-    private PurchaseManager purchaseManager;
-    private ApiService apiService; // Thêm ApiService
-
+    private List<FlashcardBasicResponse> flashcardList; // Correct list type
+    // Updated interface to match Activity's listener implementation
     public interface OnPublicFlashcardClickListener {
-        void onPublicFlashcardClick(FlashcardBasicResponse flashcard, boolean isPurchased);
+        void onPublicFlashcardClick(FlashcardBasicResponse flashcard); // Listener for clicking a Flashcard Set
     }
+    private OnPublicFlashcardClickListener listener;
 
+    private ApiService apiService; // Keep ApiService for loading progress
 
-
+    // Updated constructor
     public PublicFlashcardAdapter(Context context, List<FlashcardBasicResponse> flashcardList, OnPublicFlashcardClickListener listener) {
         this.context = context;
-        this.flashcardList = flashcardList;
+        this.flashcardList = flashcardList != null ? flashcardList : new ArrayList<>(); // Handle null list
         this.listener = listener;
-        this.purchaseManager = new PurchaseManager(context); // Khởi tạo PurchaseManager
-        this.apiService = ApiClient.getApiService(); // Lấy ApiService
+        this.apiService = ApiClient.getApiService(); // Get ApiService
     }
 
     @NonNull
     @Override
-    public PublicFlashcardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public FlashcardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Inflate the CORRECT item layout for a Flashcard Set
         View view = LayoutInflater.from(context).inflate(R.layout.item_flashcard_public, parent, false);
-        return new PublicFlashcardViewHolder(view);
+        return new FlashcardViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PublicFlashcardViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull FlashcardViewHolder holder, int position) {
+        if (position < 0 || position >= flashcardList.size()) {
+            Log.w("PublicFlashcardAdapter", "onBindViewHolder: Invalid position " + position + ". List size: " + flashcardList.size());
+            return; // Avoid crashing on invalid position
+        }
         FlashcardBasicResponse flashcard = flashcardList.get(position);
-        boolean isPurchased = purchaseManager.isPurchased(flashcard.getId());
 
-        holder.textFlashcardNumber.setText(String.format(Locale.getDefault(), "#%d", position + 1));
-        holder.textViewName.setText(flashcard.getName());
-        // holder.textViewVocabCount.setText("? từ"); // Sẽ cập nhật khi có progress
-        // holder.progressBarCompletion.setProgress(0); // Reset progress
-        // holder.textViewProgressPercentage.setText("0%"); // Reset progress text
+        holder.textFlashcardNumber.setText(String.format(Locale.getDefault(), "#%d", position + 1)); // Item number
+        holder.textViewName.setText(flashcard.getName()); // Flashcard set name
 
+        // Load image using Glide
         Glide.with(context)
                 .load(flashcard.getImageUrl())
                 .placeholder(R.drawable.ic_placeholder_image)
                 .error(R.drawable.ic_placeholder_image)
                 .into(holder.imageView);
 
-        // Cập nhật icon khóa/mở
-        holder.imageViewLockStatus.setImageResource(isPurchased ? R.drawable.ic_xml_lock_open_24px : R.drawable.ic_xml_lock_24px);
+        // Removed lock icon update logic
 
-        // Gọi API lấy tiến độ
+        // Call API to load progress (Still needed per Flashcard Set)
         loadProgress(holder, flashcard.getId());
 
 
+        // Set click listener on the whole item view (the MaterialCardView)
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onPublicFlashcardClick(flashcard, isPurchased);
+                // Pass the Flashcard Set item object
+                int currentPosition = holder.getAdapterPosition(); // Get current position reliably
+                if (currentPosition != RecyclerView.NO_POSITION && currentPosition < flashcardList.size()) {
+                    listener.onPublicFlashcardClick(flashcardList.get(currentPosition)); // Updated call
+                } else {
+                    Log.w("PublicFlashcardAdapter", "Item click: Invalid adapter position or list size mismatch.");
+                }
             }
         });
     }
 
-    // Hàm gọi API lấy tiến độ cho từng item
-    private void loadProgress(PublicFlashcardViewHolder holder, Long flashcardId) {
-        // Reset UI trước khi gọi API
+    // Function to call API to get progress for each Flashcard Set
+    private void loadProgress(FlashcardViewHolder holder, Long flashcardId) {
+        // Reset UI before calling API
         holder.textViewVocabCount.setText("...");
         holder.progressBarCompletion.setProgress(0);
         holder.textViewProgressPercentage.setText("");
-        holder.progressBarCompletion.setVisibility(View.INVISIBLE); // Ẩn progress bar nhỏ khi đang load
+        holder.progressBarCompletion.setVisibility(View.INVISIBLE); // Hide small progress bar when loading
         holder.textViewProgressPercentage.setVisibility(View.INVISIBLE);
 
-        if (flashcardId == null) return;
+        if (flashcardId == null) {
+            Log.w("PublicFlashcardAdapter", "loadProgress: flashcardId is null, skipping API call.");
+            holder.textViewVocabCount.setText("? words"); // Show default
+            holder.progressBarCompletion.setVisibility(View.INVISIBLE);
+            holder.textViewProgressPercentage.setVisibility(View.INVISIBLE);
+            return;
+        }
+
+        // Add check to ensure holder is still bound to the correct item before making API call (optimization)
+        // This requires storing the flashcardId in the holder or tagging the call, but for simplicity,
+        // we rely on checking position/ID in the callback.
 
         apiService.getLearningProgress(CURRENT_USER_ID, flashcardId).enqueue(new Callback<LearningProgressResponse>() {
             @Override
             public void onResponse(Call<LearningProgressResponse> call, Response<LearningProgressResponse> response) {
-                if (response.isSuccessful() && response.body() != null && holder.getAdapterPosition() != RecyclerView.NO_POSITION) { // Kiểm tra holder còn hợp lệ
+                // Check if holder is still valid AND associated data matches before updating UI
+                int currentPosition = holder.getAdapterPosition();
+                // Add null checks for flashcardList and the item itself
+                if (currentPosition == RecyclerView.NO_POSITION || flashcardList == null || currentPosition >= flashcardList.size() || flashcardList.get(currentPosition) == null || !flashcardList.get(currentPosition).getId().equals(flashcardId) ) {
+                    Log.w("PublicFlashcardAdapter", "Progress response for old/invalid holder position or mismatched ID. Skipping UI update.");
+                    return; // Avoid updating wrong or recycled views
+                }
+
+                if (response.isSuccessful() && response.body() != null) {
                     LearningProgressResponse progress = response.body();
-                    holder.textViewVocabCount.setText(String.format(Locale.getDefault(), "%d từ", progress.getTotalVocabularies()));
-                    int percentage = (int) progress.getCompletionPercentage(); // Lấy phần nguyên
+                    holder.textViewVocabCount.setText(String.format(Locale.getDefault(), "%d words", progress.getTotalVocabularies())); // Translated
+                    int percentage = (int) progress.getCompletionPercentage(); // Get integer part
                     holder.progressBarCompletion.setProgress(percentage);
                     holder.textViewProgressPercentage.setText(String.format(Locale.getDefault(), "%d%%", percentage));
-                    // Hiển thị lại progress bar và text
+                    // Show progress bar and text again
                     holder.progressBarCompletion.setVisibility(View.VISIBLE);
                     holder.textViewProgressPercentage.setVisibility(View.VISIBLE);
                 } else {
-                    // Lỗi hoặc không có dữ liệu progress, giữ nguyên "?" hoặc hiển thị lỗi
-                    holder.textViewVocabCount.setText("? từ");
+                    // Error or no progress data, keep "?" or show error
+                    holder.textViewVocabCount.setText("? words"); // Translated
                     holder.progressBarCompletion.setVisibility(View.INVISIBLE);
                     holder.textViewProgressPercentage.setVisibility(View.INVISIBLE);
                     Log.w("PublicFlashcardAdapter", "Failed to get progress for " + flashcardId + ": " + response.code());
@@ -123,8 +147,14 @@ public class PublicFlashcardAdapter extends RecyclerView.Adapter<PublicFlashcard
 
             @Override
             public void onFailure(Call<LearningProgressResponse> call, Throwable t) {
-                // Lỗi mạng, giữ nguyên "?" hoặc hiển thị lỗi
-                holder.textViewVocabCount.setText("? từ");
+                // Network error, keep "?" or show error
+                int currentPosition = holder.getAdapterPosition();
+                // Add null checks for flashcardList and the item itself
+                if (currentPosition == RecyclerView.NO_POSITION || flashcardList == null || currentPosition >= flashcardList.size() || flashcardList.get(currentPosition) == null || !flashcardList.get(currentPosition).getId().equals(flashcardId) ) {
+                    Log.w("PublicFlashcardAdapter", "Progress failure for old/invalid holder position or mismatched ID. Skipping UI update.");
+                    return; // Avoid updating wrong or recycled views
+                }
+                holder.textViewVocabCount.setText("? words"); // Translated
                 holder.progressBarCompletion.setVisibility(View.INVISIBLE);
                 holder.textViewProgressPercentage.setVisibility(View.INVISIBLE);
                 Log.e("PublicFlashcardAdapter", "Error getting progress for " + flashcardId, t);
@@ -138,30 +168,30 @@ public class PublicFlashcardAdapter extends RecyclerView.Adapter<PublicFlashcard
         return flashcardList == null ? 0 : flashcardList.size();
     }
 
+    // Method to update the adapter data
     public void updateData(List<FlashcardBasicResponse> newFlashcards) {
-        this.flashcardList = newFlashcards;
-        notifyDataSetChanged(); // Nên dùng DiffUtil
+        this.flashcardList = newFlashcards != null ? newFlashcards : new ArrayList<>(); // Handle null list
+        // Using notifyDataSetChanged is simple but less efficient than DiffUtil for updates.
+        // For simplicity here, we keep it as is, but recommend DiffUtil for better performance.
+        notifyDataSetChanged();
     }
 
-    public List<FlashcardBasicResponse> getCurrentList() {
-        return this.flashcardList;
-    }
 
-
-    // ViewHolder
-    static class PublicFlashcardViewHolder extends RecyclerView.ViewHolder {
+    // ViewHolder - Matches the item_flashcard_public.xml structure
+    static class FlashcardViewHolder extends RecyclerView.ViewHolder {
         TextView textFlashcardNumber, textViewName, textViewVocabCount, textViewProgressPercentage;
-        ImageView imageView, imageViewLockStatus;
+        ImageView imageView;
+        // Removed imageViewLockStatus
         ProgressBar progressBarCompletion;
 
-        PublicFlashcardViewHolder(@NonNull View itemView) {
+        FlashcardViewHolder(@NonNull View itemView) {
             super(itemView);
             textFlashcardNumber = itemView.findViewById(R.id.textFlashcardNumber);
             textViewName = itemView.findViewById(R.id.textViewFlashcardName);
             textViewVocabCount = itemView.findViewById(R.id.textViewVocabCount);
             textViewProgressPercentage = itemView.findViewById(R.id.textViewProgressPercentage);
             imageView = itemView.findViewById(R.id.imageViewFlashcard);
-            imageViewLockStatus = itemView.findViewById(R.id.imageViewLockStatus);
+            // Removed imageViewLockStatus = itemView.findViewById(R.id.imageViewLockStatus);
             progressBarCompletion = itemView.findViewById(R.id.progressBarCompletion);
         }
     }

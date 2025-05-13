@@ -38,7 +38,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            tools:srcCompat="@drawable/ic_placeholder_image"/>
+            tools:srcCompat="@tools:sample/backgrounds/scenic"
+        android:contentDescription="Flashcard set cover image" /> <!-- Translated -->
+
 
         <TextView
             android:id="@+id/textViewFlashcardName"
@@ -49,10 +51,10 @@
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
             android:maxLines="2"
             android:ellipsize="end"
-            app:layout_constraintEnd_toStartOf="@+id/imageViewLockStatus"
-            app:layout_constraintStart_toEndOf="@+id/imageViewFlashcard"
-            app:layout_constraintTop_toTopOf="@+id/imageViewFlashcard"
-            tools:text="Intermediate English Vocabulary" />
+            app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageViewFlashcard"
+        app:layout_constraintTop_toTopOf="@+id/imageViewFlashcard"
+        tools:text="Intermediate English Vocabulary" />
 
         <TextView
             android:id="@+id/textViewVocabCount"
@@ -63,7 +65,7 @@
             android:textColor="?android:attr/textColorSecondary"
             app:layout_constraintStart_toStartOf="@+id/textViewFlashcardName"
             app:layout_constraintTop_toBottomOf="@+id/textViewFlashcardName"
-            tools:text="35 từ" />
+            tools:text="35 words" /> <!-- Translated -->
 
         <ProgressBar
             android:id="@+id/progressBarCompletion"
@@ -72,36 +74,28 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:max="100"
-            app:layout_constraintEnd_toEndOf="@+id/textViewFlashcardName"
-            app:layout_constraintStart_toStartOf="@+id/textViewFlashcardName"
-            app:layout_constraintTop_toBottomOf="@+id/textViewVocabCount"
-            tools:progress="60" />
+            app:layout_constraintEnd_toStartOf="@+id/textViewProgressPercentage"
+        app:layout_constraintStart_toStartOf="@+id/textViewFlashcardName"
+        app:layout_constraintTop_toBottomOf="@+id/textViewVocabCount"
+        tools:progress="60" />
+
 
         <TextView
             android:id="@+id/textViewProgressPercentage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="8dp"
             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
             android:textColor="?android:attr/textColorSecondary"
             app:layout_constraintBottom_toBottomOf="@+id/progressBarCompletion"
-            app:layout_constraintEnd_toEndOf="@+id/progressBarCompletion"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/progressBarCompletion"
             app:layout_constraintTop_toTopOf="@+id/progressBarCompletion"
+            app:layout_constraintVertical_bias="0.0"
             tools:text="60%" />
 
-
-        <ImageView
-            android:id="@+id/imageViewLockStatus"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginEnd="8dp"
-            android:padding="4dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textViewFlashcardName"
-            app:layout_constraintBottom_toBottomOf="@+id/progressBarCompletion"
-            app:srcCompat="@drawable/ic_xml_lock_24px"
-            android:tintMode="src_in"
-            app:tint="?attr/colorPrimary"
-            android:contentDescription="Trạng thái khóa"/>
+        <!-- Removed imageViewLockStatus -->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
