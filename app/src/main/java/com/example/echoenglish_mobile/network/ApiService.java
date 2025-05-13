@@ -223,4 +223,7 @@ public interface ApiService {
 
     @GET("/document/youtube/{videoId}")
     Call<TranscriptContent> getYoutubeTranscript(@Path("videoId") String videoId);
+
+    @PUT("/users/{id}")
+    Call<User> updateUser(@Path("id") Long userId, @Body User updatedUser);
 }

@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 public class User implements Serializable {
     // Không cần id khi gửi request đăng ký
+    private Long id;
     private String name;
     private String email;
     private String password;
@@ -13,12 +14,30 @@ public class User implements Serializable {
     private Boolean active; // Sẽ là false khi đăng ký
 
     public User() {}
-    public User(String name, String email, String password, Boolean active) {
+
+    public User(String name, String email, String password, Boolean active) { // Đky k cần id
         this.name = name;
         this.email = email;
         this.password = password;
         this.active = active;
         this.avatar = "https://cdn.kona-blue.com/upload/kona-blue_com/post/images/2024/09/18/457/avatar-mac-dinh-11.jpg"; // Mặc định avatar khi tạo user mới
+    }
+
+    public User(Long id, String name, String email, String password, String avatar, Boolean active) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.avatar = avatar;
+        this.active = active;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {

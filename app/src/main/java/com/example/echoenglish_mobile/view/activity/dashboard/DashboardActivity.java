@@ -359,8 +359,9 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
 
         popup.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.menu_settings) {
-                Toast.makeText(DashboardActivity.this, "Chức năng cài đặt chưa khả dụng", Toast.LENGTH_SHORT).show();
+            if (id == R.id.menu_profile) {
+                Intent intent = new Intent(DashboardActivity.this, EditProfileActivity.class);
+                startActivity(intent);
                 return true;
             } else if (id == R.id.menu_logout) {
                 performLogout();
