@@ -14,6 +14,8 @@ import com.bumptech.glide.Glide; // Still needed for image loading
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.network.ApiClient; // Still needed for ApiService
 import com.example.echoenglish_mobile.network.ApiService; // Still needed for API call
+import com.example.echoenglish_mobile.util.MyApp;
+import com.example.echoenglish_mobile.util.SharedPrefManager;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse; // Correct DTO for Flashcard Sets
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.LearningProgressResponse; // Still needed for progress
 
@@ -30,7 +32,7 @@ import retrofit2.Response;
 // It should use the item layout that represents a Flashcard Set (item_flashcard_public.xml)
 public class PublicFlashcardAdapter extends RecyclerView.Adapter<PublicFlashcardAdapter.FlashcardViewHolder> { // Renamed ViewHolder
 
-    private static final long CURRENT_USER_ID = 27L; // Hardcoded user ID (still needed for progress API)
+    private Long currentUserId = SharedPrefManager.getInstance(MyApp.getAppContext()).getUserInfo().getId();
     private Context context;
     private List<FlashcardBasicResponse> flashcardList; // Correct list type
     // Updated interface to match Activity's listener implementation
@@ -116,7 +118,7 @@ public class PublicFlashcardAdapter extends RecyclerView.Adapter<PublicFlashcard
         // This requires storing the flashcardId in the holder or tagging the call, but for simplicity,
         // we rely on checking position/ID in the callback.
 
-        apiService.getLearningProgress(CURRENT_USER_ID, flashcardId).enqueue(new Callback<LearningProgressResponse>() {
+        apiService.getLearningProgress(currentUserId, flashcardId).enqueue(new Callback<LearningProgressResponse>() {
             @Override
             public void onResponse(Call<LearningProgressResponse> call, Response<LearningProgressResponse> response) {
                 // Check if holder is still valid AND associated data matches before updating UI

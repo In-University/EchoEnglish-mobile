@@ -14,6 +14,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
+import com.example.echoenglish_mobile.util.SharedPrefManager;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.LearningRecordRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
 
@@ -27,10 +28,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LearnActivity extends AppCompatActivity {
-
+    private Long currentUserId = SharedPrefManager.getInstance(this).getUserInfo().getId();
     private static final String TAG = "LearnActivity";
     public static final String VOCABULARY_LIST_EXTRA = "VOCABULARY_LIST";
-    private static final long CURRENT_USER_ID = 27L; // User ID cứng
 
     private ViewPager2 viewPagerLearn;
     private Button buttonKnow;
@@ -138,7 +138,7 @@ public class LearnActivity extends AppCompatActivity {
         }
 
         LearningRecordRequest request = new LearningRecordRequest();
-        request.setUserId(CURRENT_USER_ID);
+        request.setUserId(currentUserId);
         request.setVocabularyId(vocabularyId);
         request.setIsRemembered(isRemembered);
 

@@ -26,6 +26,7 @@ import com.bumptech.glide.Glide;
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
+import com.example.echoenglish_mobile.util.SharedPrefManager;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.LearningRecordRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
 import com.google.android.flexbox.FlexboxLayout;
@@ -42,11 +43,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class Game1Activity extends AppCompatActivity implements TextToSpeech.OnInitListener {
-
+    private Long currentUserId = SharedPrefManager.getInstance(this).getUserInfo().getId();
     public static final String EXTRA_VOCAB_LIST = "VOCABULARY_LIST";
     private static final String TAG = "Game1Activity";
-
-    private static final long CURRENT_USER_ID = 27L;
 
     private TextView textGame1Progress;
     private ImageView imageGame1Word;
@@ -438,7 +437,7 @@ public class Game1Activity extends AppCompatActivity implements TextToSpeech.OnI
         }
 
         LearningRecordRequest request = new LearningRecordRequest();
-        request.setUserId(CURRENT_USER_ID);
+        request.setUserId(currentUserId);
         request.setVocabularyId(vocabularyId);
         request.setIsRemembered(isRemembered);
 

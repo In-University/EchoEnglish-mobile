@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.echoenglish_mobile.util.SharedPrefManager;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.VocabularyCreateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.VocabularyUpdateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse;
@@ -51,9 +52,10 @@ import retrofit2.Response;
 
 public class AddVocabularyActivity extends AppCompatActivity implements ImageSuggestionAdapter.OnImageSelectedListener {
 
+    private Long currentUserId = SharedPrefManager.getInstance(this).getUserInfo().getId();
     private static final String ACTIVITY_TAG = "AddVocabActivity";
     private static final long TEXT_CHANGED_DELAY = 700;
-    private static final Long DEFAULT_USER_ID_TO_FETCH = 27L;
+
     private static final String LOADING_DIALOG_TAG = "AddVocabularyLoadingDialog";
 
     public static final String EXTRA_EDIT_MODE = "IS_EDIT_MODE";
@@ -114,12 +116,12 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
             setupEditModeUI();
             // Load user flashcards to populate the dropdown (IT WILL BE ENABLED IN EDIT MODE NOW)
             // The preselection will happen in loadUserFlashcards's callback
-            loadUserFlashcards(DEFAULT_USER_ID_TO_FETCH);
+            loadUserFlashcards(currentUserId);
         } else {
             isEditMode = false;
             selectedFlashcardId = parentFlashcardId != -1L ? parentFlashcardId : null;
             setupAddModeUI();
-            loadUserFlashcards(DEFAULT_USER_ID_TO_FETCH);
+            loadUserFlashcards(currentUserId);
         }
 
         setupRecyclerView();

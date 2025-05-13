@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 import android.widget.ScrollView;
 
 // Import MaterialCardView
+import com.example.echoenglish_mobile.util.SharedPrefManager;
 import com.google.android.material.card.MaterialCardView;
 
 import com.example.echoenglish_mobile.R;
@@ -35,6 +36,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SpacedRepetitionActivity extends AppCompatActivity {
+    private Long currentUserId = SharedPrefManager.getInstance(this).getUserInfo().getId();
 
     private static final String TAG = "SpacedRepetitionAct";
     // Tag for the Loading Dialog Fragment
@@ -42,7 +44,7 @@ public class SpacedRepetitionActivity extends AppCompatActivity {
 
 
     // TODO: Get actual user ID from login/session management
-    private static final long CURRENT_USER_ID = 27L; // Example user ID
+
 
 
     // Header Elements
@@ -203,7 +205,7 @@ public class SpacedRepetitionActivity extends AppCompatActivity {
     private void loadMemoryLevels() {
         startApiCall(); // Bắt đầu đếm API call
 
-        apiService.getMemoryLevels(CURRENT_USER_ID).enqueue(new Callback<MemoryLevelsResponse>() {
+        apiService.getMemoryLevels(currentUserId).enqueue(new Callback<MemoryLevelsResponse>() {
             @Override
             public void onResponse(Call<MemoryLevelsResponse> call, Response<MemoryLevelsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -240,7 +242,7 @@ public class SpacedRepetitionActivity extends AppCompatActivity {
     private void loadDueReviewCount() {
         startApiCall(); // Bắt đầu đếm API call
 
-        apiService.getDueReviewCount(CURRENT_USER_ID).enqueue(new Callback<DueReviewCountResponse>() {
+        apiService.getDueReviewCount(currentUserId).enqueue(new Callback<DueReviewCountResponse>() {
             @Override
             public void onResponse(Call<DueReviewCountResponse> call, Response<DueReviewCountResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -309,7 +311,7 @@ public class SpacedRepetitionActivity extends AppCompatActivity {
 
         // Khởi tạo ReviewActivity và truyền user ID
         Intent reviewIntent = new Intent(this, ReviewActivity.class);
-        reviewIntent.putExtra(ReviewActivity.USER_ID_EXTRA, CURRENT_USER_ID); // Pass user ID
+        reviewIntent.putExtra(ReviewActivity.USER_ID_EXTRA, currentUserId); // Pass user ID
         startActivity(reviewIntent);
     }
 }

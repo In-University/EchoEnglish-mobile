@@ -20,6 +20,8 @@ import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.model.Word;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
+import com.example.echoenglish_mobile.util.MyApp;
+import com.example.echoenglish_mobile.util.SharedPrefManager;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.VocabularyCreateRequest;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.FlashcardBasicResponse;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyResponse;
@@ -35,7 +37,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class AddWordToFlashcardDialog extends DialogFragment {
-
+    private Long currentUserId = SharedPrefManager.getInstance(MyApp.getAppContext()).getUserInfo().getId();
     private static final String TAG = "AddToFlashcardDialog";
     private static final String ARG_WORD = "word_to_add";
 
@@ -133,7 +135,6 @@ public class AddWordToFlashcardDialog extends DialogFragment {
                 }
             });
 
-            Long currentUserId = getCurrentUserId();
             if (currentUserId != null && apiService != null) {
                 loadUserFlashcards(currentUserId, alertDialog);
             } else {
@@ -248,9 +249,6 @@ public class AddWordToFlashcardDialog extends DialogFragment {
     }
 
 
-    private Long getCurrentUserId() {
-        return 27L;
-    }
 
     @Override
     public void onDetach() {
