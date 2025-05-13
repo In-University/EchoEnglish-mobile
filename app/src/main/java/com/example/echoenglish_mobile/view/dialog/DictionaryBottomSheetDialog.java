@@ -1,5 +1,4 @@
 package com.example.echoenglish_mobile.view.dialog;
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,10 +9,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.model.Meaning;
 import com.example.echoenglish_mobile.model.Word;
@@ -27,16 +24,13 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-
 import java.util.List;
 import java.util.Objects;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class DictionaryBottomSheetDialog extends BottomSheetDialogFragment {
-
     public static final String TAG = "DictionaryBottomSheet";
     private static final String ARG_SELECTED_WORD = "selected_word";
 
@@ -46,12 +40,14 @@ public class DictionaryBottomSheetDialog extends BottomSheetDialogFragment {
     private ImageButton btnUkPronunciationAudio;
     private ImageButton btnUsPronunciationAudio;
     private LinearLayout meaningsContainer;
+    private TextView tvAddToFlashcard;
 
     // --- Data ---
     private String selectedWord;
     private ApiService apiService;
     private Call<Word> currentApiCall;
     private ExoPlayer exoPlayer;
+    private Word currentWordDetail;
 
     public static DictionaryBottomSheetDialog newInstance(String selectedWord) {
         DictionaryBottomSheetDialog fragment = new DictionaryBottomSheetDialog();
@@ -97,10 +93,11 @@ public class DictionaryBottomSheetDialog extends BottomSheetDialogFragment {
         btnUkPronunciationAudio = view.findViewById(R.id.btnUkPronunciationAudio);
         btnUsPronunciationAudio = view.findViewById(R.id.btnUsPronunciationAudio);
         meaningsContainer = view.findViewById(R.id.meaningsContainer);
+        tvAddToFlashcard = view.findViewById(R.id.tvAddToFlashcard);
 
         tvPronunciation.setText("Loading...");
         tvPronunciation.setVisibility(View.INVISIBLE);
-
+        tvAddToFlashcard.setVisibility(View.GONE);
 
         return view;
     }
@@ -123,6 +120,8 @@ public class DictionaryBottomSheetDialog extends BottomSheetDialogFragment {
         meaningsContainer.removeAllViews();
         meaningsContainer.setVisibility(View.GONE);
         tvPronunciation.setVisibility(View.INVISIBLE);
+        tvAddToFlashcard.setVisibility(View.GONE);
+        currentWordDetail = null;
         disableAudioButtonsOnError();
 
         if (currentApiCall != null) {
@@ -137,7 +136,21 @@ public class DictionaryBottomSheetDialog extends BottomSheetDialogFragment {
                 meaningsContainer.setVisibility(View.VISIBLE);
 
                 if (response.isSuccessful() && response.body() != null) {
-                    updateUI(response.body());
+                    currentWordDetail = response.body();
+                    updateUI(currentWordDetail);
+                    tvAddToFlashcard.setVisibility(View.VISIBLE);
+                    tvAddToFlashcard.setOnClickListener(v -> {
+                        if (currentWordDetail != null && currentWordDetail.getWord() != null && getParentFragmentManager() != null) {
+                            Toast.makeText(getContext(), "Clicked Add to Flashcard for: " + currentWordDetail.getWord(), Toast.LENGTH_SHORT).show();
+                            AddWordToFlashcardDialog dialog = AddWordToFlashcardDialog.newInstance(currentWordDetail);
+                            dialog.show(getParentFragmentManager(), "AddWordToFlashcardDialogTag");
+                        } else {
+                            Log.e(TAG, "Cannot show AddToFlashcardDialog: currentWordDetail or word is null, or FragmentManager is null.");
+                            if(getContext() != null) {
+                                Toast.makeText(getContext(), "Error: Could not prepare flashcard.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
                 } else {
                     Log.e(TAG, "API Error: " + response.code() + " - " + response.message());
                     handleApiError(response.code());
@@ -159,6 +172,8 @@ public class DictionaryBottomSheetDialog extends BottomSheetDialogFragment {
                     Log.e(TAG, "Network or unknown error", t);
                     meaningsContainer.addView(errorText);
                     disableAudioButtonsOnError();
+                    tvAddToFlashcard.setVisibility(View.GONE); // << Ẩn khi có lỗi
+                    currentWordDetail = null; // Reset
                 }
                 currentApiCall = null;
             }
@@ -166,6 +181,7 @@ public class DictionaryBottomSheetDialog extends BottomSheetDialogFragment {
     }
 
     private void updateUI(Word wordDetail) {
+        // currentWordDetail đã được gán trước khi gọi hàm này
         tvWord.setText(wordDetail.getWord());
 
         String ukPhonetic = formatPhonetic(wordDetail.getUkPronunciation());
@@ -205,7 +221,6 @@ public class DictionaryBottomSheetDialog extends BottomSheetDialogFragment {
                 TextView tvLevel = meaningView.findViewById(R.id.tvLevel);
                 TextView tvDefinition = meaningView.findViewById(R.id.tvDefinition);
 
-                // Dùng Objects.requireNonNullElse để tránh NullPointerException nếu getPartOfSpeech trả về null
                 tvPartOfSpeech.setText(Objects.requireNonNullElse(meaning.getPartOfSpeech(), "").toUpperCase());
                 tvDefinition.setText(formatDefinition(count + 1, meaning.getDefinition()));
 
@@ -232,7 +247,7 @@ public class DictionaryBottomSheetDialog extends BottomSheetDialogFragment {
     private void setupPronunciationButton(ImageButton button, final String audioUrl) {
         if (audioUrl != null && !audioUrl.isEmpty()) {
             button.setEnabled(true);
-            button.setAlpha(1.0f); // Đảm bảo button rõ ràng
+            button.setAlpha(1.0f);
             button.setOnClickListener(v -> playAudio(audioUrl));
             Log.e(TAG, "setupPronunciationButton::::: ");
         } else {
@@ -302,6 +317,8 @@ public class DictionaryBottomSheetDialog extends BottomSheetDialogFragment {
         tvPronunciation.setText("IPA not found");
         tvPronunciation.setVisibility(View.VISIBLE);
         disableAudioButtonsOnError();
+        tvAddToFlashcard.setVisibility(View.GONE);
+        currentWordDetail = null; // Reset
     }
 
     private void disableAudioButtonsOnError() {
@@ -332,5 +349,6 @@ public class DictionaryBottomSheetDialog extends BottomSheetDialogFragment {
             exoPlayer.release();
             exoPlayer = null;
         }
+        currentWordDetail = null;
     }
 }

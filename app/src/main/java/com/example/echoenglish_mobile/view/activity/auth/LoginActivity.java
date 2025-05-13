@@ -59,6 +59,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void attemptLogin() {
+        SharedPrefManager.getInstance(this).clear();
         etEmail.setError(null);
         etPassword.setError(null);
         String email = etEmail.getText().toString().trim();
