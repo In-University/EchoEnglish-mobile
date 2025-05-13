@@ -21,6 +21,7 @@ import com.example.echoenglish_mobile.model.response.TranscriptItem;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
 import com.example.echoenglish_mobile.view.activity.video_youtube.dto.TranscriptContent;
+import com.example.echoenglish_mobile.view.dialog.DictionaryBottomSheetDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class VideoYoutubeActivity extends AppCompatActivity implements TranscriptAdapter.OnTranscriptItemClickListener {
+public class VideoYoutubeActivity extends AppCompatActivity implements TranscriptAdapter.OnTranscriptItemClickListener, TranscriptAdapter.OnWordClickListener {
     private WebView youtubeWebView;
     private RecyclerView transcriptRecyclerView;
     private TranscriptAdapter transcriptAdapter;
@@ -62,7 +63,7 @@ public class VideoYoutubeActivity extends AppCompatActivity implements Transcrip
         setupYoutubeWebView();
 
         transcriptItems = new ArrayList<>();
-        transcriptAdapter = new TranscriptAdapter(this, transcriptItems, this);
+        transcriptAdapter = new TranscriptAdapter(this, transcriptItems, this, this);
         transcriptRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         transcriptRecyclerView.setAdapter(transcriptAdapter);
 
@@ -139,6 +140,12 @@ public class VideoYoutubeActivity extends AppCompatActivity implements Transcrip
                 "</script></body></html>";
         youtubeWebView.addJavascriptInterface(new YouTubePlayerInterface(this), "Android");
         youtubeWebView.loadDataWithBaseURL("https://www.youtube.com", embedUrl, "text/html", "utf-8", null);
+    }
+
+    @Override
+    public void onWordClicked(String word) {
+        DictionaryBottomSheetDialog dialog = DictionaryBottomSheetDialog.newInstance(word);
+        dialog.show(getSupportFragmentManager(), DictionaryBottomSheetDialog.TAG);
     }
 
     public class YouTubePlayerInterface {

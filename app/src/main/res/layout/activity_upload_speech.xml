@@ -7,16 +7,33 @@
     android:orientation="vertical"
     android:background="#F1F5F9">
 
-    <TextView
+    <!-- Header with back button -->
+    <RelativeLayout
+        android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Analyze Speech Sentence"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="#0F172A"
-        android:padding="16dp"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="16dp"
         android:background="#FFFFFF"
-        android:elevation="2dp"/>
+        android:elevation="4dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_xml_arrow_back_ios_24px"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Speech Analysis"
+            android:textSize="18sp"
+            android:textColor="#1E293B"
+            android:fontFamily="sans-serif-medium" />
+    </RelativeLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -33,10 +50,11 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Target Word"
-                android:textColor="#334155"
+                android:text="Audio name"
+                android:textColor="#1E293B"
                 android:textSize="16sp"
-                android:layout_marginBottom="8dp"/>
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="8dp" />
 
             <EditText
                 android:id="@+id/etTargetWord"
@@ -55,10 +73,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Audio File"
-                android:textColor="#334155"
+                android:textColor="#1E293B"
                 android:textSize="16sp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="8dp"/>
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="8dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"

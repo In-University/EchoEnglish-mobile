@@ -24,6 +24,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,16 +42,14 @@ public class AnalyzeResultActivity extends AppCompatActivity {
 
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
-    private TextView tvSummary, tvPronunciationCount, tvWritingCount, tvOverallAccuracy;
-    private Spinner spinnerFilter;
-    private TextView tvSortBy;
-    private AnalyzeViewPagerAdapter pagerAdapter; // Adapter chính của ViewPager2
+    private TextView tvSummary, tvPronunciationCount, tvWritingCount;
+    private AnalyzeViewPagerAdapter pagerAdapter;
     private ApiService apiService;
 
     private List<SentenceAnalysisResult> pronunciationData = new ArrayList<>();
     private List<WritingResult> writingData = new ArrayList<>();
 
-    private final String[] tabTitles = new String[]{"Phát âm", "Viết"};
+    private final String[] tabTitles = new String[]{"Pronunciation", "Writing"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,13 +62,9 @@ public class AnalyzeResultActivity extends AppCompatActivity {
         tvSummary = findViewById(R.id.tvSummary);
         tvPronunciationCount = findViewById(R.id.tvPronunciationCount);
         tvWritingCount = findViewById(R.id.tvWritingCount);
-        tvOverallAccuracy = findViewById(R.id.tvOverallAccuracy);
-        spinnerFilter = findViewById(R.id.spinnerFilter);
-        tvSortBy = findViewById(R.id.tvSortBy);
 
         apiService = ApiClient.getApiService();
         setupHeaderData();
-        setupSpinner();
 
         pagerAdapter = new AnalyzeViewPagerAdapter(this, pronunciationData, new ArrayList<>()); // Truyền danh sách rỗng ban đầu
         viewPager.setAdapter(pagerAdapter);
@@ -83,20 +79,12 @@ public class AnalyzeResultActivity extends AppCompatActivity {
     private void setupHeaderData() {
         int totalExercises = 14;
         int pronunciationExercises = 0; 
-        int writingExercises = 0;       // Giữ nguyên hoặc cập nhật từ API writing
-        int overallAccuracyPercent = 85;// Giữ nguyên hoặc cập nhật từ API summary
+        int writingExercises = 0;
+        int overallAccuracyPercent = 85;
 
-        tvSummary.setText(String.format(Locale.getDefault(), "Bạn đã hoàn thành %d bài luyện tập trong tuần này", totalExercises));
+        tvSummary.setText(String.format(Locale.getDefault(), "You have completed %d practice exercises this week", totalExercises));
         tvPronunciationCount.setText(String.valueOf(pronunciationExercises));
         tvWritingCount.setText(String.valueOf(writingExercises));
-        tvOverallAccuracy.setText(String.format(Locale.getDefault(), "%d%%", overallAccuracyPercent));
-    }
-
-    private void setupSpinner() {
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.filter_options, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerFilter.setAdapter(adapter);
     }
 
     private void fetchPronunciationResults() {
@@ -165,9 +153,9 @@ public class AnalyzeResultActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e(TAG, "Lỗi khi gọi API viết: ", t);
-                showError("Lỗi mạng khi tải dữ liệu viết.");
-                pagerAdapter.setWritingResults(new ArrayList<>());// Xóa dữ liệu cũ
+                Log.e(TAG, "Error when calling the writing API: ", t);
+                showError("Network error while loading writing data.");
+                pagerAdapter.setWritingResults(new ArrayList<>());
             }
         });
     }
@@ -180,15 +168,13 @@ public class AnalyzeResultActivity extends AppCompatActivity {
             String title = "N/A";
             String dateStr = "";
             String formattedDate = "N/A"; 
-            String type = "N/A";
+            String type = "Essay";
             int wordCount = 0;
             String feedbackJson = null;
 
             try {
-                if (resultObject.has("inputContext")) {
-                    title = resultObject.getString("inputContext");
-                } else if (resultObject.has("taskInfo") && resultObject.getJSONObject("taskInfo").has("title")) {
-                    title = resultObject.getJSONObject("taskInfo").getString("title");
+                if (resultObject.has("topic")) {
+                    title = resultObject.getString("topic");
                 }
                 if (title.length() > 60) { 
                     title = title.substring(0, 57) + "...";
@@ -197,15 +183,18 @@ public class AnalyzeResultActivity extends AppCompatActivity {
 
                 if (resultObject.has("date")) {
                     dateStr = resultObject.getString("date");
-//                    try {
-//                        LocalDateTime dateTime = LocalDateTime.parse(dateStr, sourceDateFormatter);
-//                        formattedDate = dateTime.format(targetDateFormatter);
-//                    } catch (DateTimeParseException e) {
-//                        Log.w(TAG, "Không thể định dạng ngày: " + dateStr, e);
-//                        formattedDate = dateStr; // Nếu không parse được, hiển thị chuỗi gốc
-//                    }
-                    formattedDate = dateStr;
+                    DateTimeFormatter sourceDateFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+                    DateTimeFormatter targetDateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy · HH:mm");
+
+                    try {
+                        OffsetDateTime offsetDateTime = OffsetDateTime.parse(dateStr, sourceDateFormatter);
+                        formattedDate = offsetDateTime.format(targetDateFormatter);
+                    } catch (DateTimeParseException e) {
+                        Log.w(TAG, "Cannot format date: " + dateStr, e);
+                        formattedDate = dateStr;
+                    }
                 }
+
 
                 if (resultObject.has("exerciseType")) {
                     type = resultObject.getString("exerciseType");
@@ -213,8 +202,6 @@ public class AnalyzeResultActivity extends AppCompatActivity {
 
                 if (resultObject.has("wordCount")) {
                     wordCount = resultObject.getInt("wordCount");
-                } else if (resultObject.has("word_count")){
-                    wordCount = resultObject.getInt("word_count");
                 }
                 if (resultObject.has("feedback")) { 
                     Object feedbackObj = resultObject.get("feedback");
@@ -224,7 +211,7 @@ public class AnalyzeResultActivity extends AppCompatActivity {
                 }
                 writingData.add(new WritingResult(title, formattedDate, type, wordCount, feedbackJson));
             } catch (JSONException e) {
-                Log.e(TAG, "Lỗi khi parse một item trong JSON viết: " + resultObject.toString(), e);
+                Log.e(TAG, "Error parsing writing result: " + resultObject.toString(), e);
             }
         }
     }

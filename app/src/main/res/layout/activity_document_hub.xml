@@ -12,26 +12,28 @@
         android:layout_height="60dp"
         android:background="#FFFFFF"
         android:paddingHorizontal="16dp">
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_xml_arrow_back_ios_24px"
+            android:contentDescription="Back" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="13dp"
+            android:layout_marginBottom="18dp"
+            android:layout_toEndOf="@+id/btnBack"
             android:text="My Feed"
-            android:textSize="20sp"
             android:textColor="#2C3E50"
-            android:textStyle="bold"
-            android:layout_centerVertical="true"
-            android:layout_alignParentStart="true"/>
-        <ImageButton
-            android:id="@+id/searchButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_search"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:padding="10dp"
-            android:scaleType="centerInside"
-            app:tint="#566573" />
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
     </RelativeLayout>
 
     <View
@@ -129,7 +131,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"> <!-- HOẶC MỘT CHIỀU CAO CỐ ĐỊNH CHO HÀNG NGANG -->
+        android:layout_height="wrap_content">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/newsRecyclerView"
@@ -151,4 +153,25 @@
             android:visibility="gone"
             tools:visibility="visible" />
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/videoSectionTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="Latest Videos"
+        android:layout_marginStart="16dp"
+        android:textColor="#34495E"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/videosRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"/>
 </LinearLayout>

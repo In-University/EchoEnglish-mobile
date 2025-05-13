@@ -72,17 +72,9 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
     private Handler sliderHandler = new Handler(Looper.getMainLooper());
     private Runnable sliderRunnable;
 
-    // Explicitly declare all CardView members
-    private CardView flashcardsCard;
-    private CardView translateCard;
-    private CardView grammarCard;
-    private CardView quizCard;
-    private CardView speechAnalyzeCard;
-    private CardView documentHubCard;
-    private CardView writingCard;
-    private CardView reportCard;
-
-    private final Handler mainHandler = new Handler(Looper.getMainLooper()); // Use this handler for re-enabling cards
+    private CardView flashcardsCard, translateCard,  grammarCard, quizCard, conversationCard;
+    private CardView speechAnalyzeCard, documentHubCard, writingCard, reportCard;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper()); // Use this handler for re-enabling card
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +131,9 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         documentHubCard = findViewById(R.id.documentHubCard);
         reportCard = findViewById(R.id.reportCard);
         writingCard = findViewById(R.id.writingCard);
-        ivProfile = findViewById(R.id.ivProfile);
+        conversationCard = findViewById(R.id.conversationCard);
+        // Find the ImageView for the profile picture
+        ivProfile = findViewById(R.id.ivProfile); // Make sure ivProfile is found here
         viewPagerBanners = findViewById(R.id.viewPagerBanners);
 
         // Ensure CardViews are clickable even if not enabled (for accessibility focus etc.)
@@ -157,6 +151,10 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
         if (documentHubCard != null) documentHubCard.setOnClickListener(this);
         if (writingCard != null) writingCard.setOnClickListener(this);
         if (reportCard != null) reportCard.setOnClickListener(this);
+        if (translateCard != null) translateCard.setOnClickListener(this);
+        if (conversationCard != null) conversationCard.setOnClickListener(this);
+
+        // Add click listener for the profile image
         if (ivProfile != null) ivProfile.setOnClickListener(this);
     }
 
@@ -241,6 +239,13 @@ public class DashboardActivity extends AppCompatActivity implements SearchFragme
                 return;
             }
             intent = new Intent(DashboardActivity.this, AnalyzeResultActivity.class);
+        } else if (id == R.id.translateCard) {
+            intent = new Intent(DashboardActivity.this, TranslateTextActivity.class);
+        } else if (id == R.id.conversationCard) {
+            intent = new Intent(DashboardActivity.this, ConversationCategoriesActivity.class);
+        } else if (id == R.id.ivProfile) { // Handle click on profile avatar
+            showProfilePopupMenu(v); // Call the method to show the popup
+            return; // Consume the click event
         }
 
 

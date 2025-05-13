@@ -14,6 +14,9 @@ import com.example.echoenglish_mobile.model.SentenceAnalysisResult;
 import com.example.echoenglish_mobile.model.SentenceSummary;
 import com.example.echoenglish_mobile.model.response.SentenceAnalysisMetadata;
 import com.example.echoenglish_mobile.view.activity.pronunciation_assessment.SummaryResultsActivity;
+import com.example.echoenglish_mobile.view.fragment.FluencyResultFragment;
+import com.example.echoenglish_mobile.view.fragment.IntonationResultFragment;
+import com.example.echoenglish_mobile.view.fragment.PronunciationFragment;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,7 +47,7 @@ public class SpeakingResultAdapter extends RecyclerView.Adapter<SpeakingResultAd
 
     @Override
     public void onBindViewHolder(@NonNull SpeakingViewHolder holder, int position) {
-        final SentenceAnalysisResult result = analysisResults.get(position); // Đặt là final để dùng trong listener
+        final SentenceAnalysisResult result = analysisResults.get(position);
 
         if (result == null) {
             holder.itemView.setVisibility(View.GONE);
@@ -75,15 +78,17 @@ public class SpeakingResultAdapter extends RecyclerView.Adapter<SpeakingResultAd
         holder.tvCategory.setText("Free speech");
 
         if (summary != null) {
-//            holder.tvScore.setText(String.format(Locale.getDefault(), "%.0f%%", summary.getAccuracyScore()));
-//            holder.tvPronunciation.setText(String.format(Locale.getDefault(), "%.0f%%", summary.getPronAccuracyScore()));
-//            holder.tvRhythm.setText(String.format(Locale.getDefault(), "%.0f%%", summary.getPronFluencyScore()));
-//            holder.tvAccuracy.setText(String.format(Locale.getDefault(), "%.0f%%", summary.getPronCompletenessScore()));
+            double pronunciationScore = PronunciationFragment.calculateAverageSimilarity(result);
+            double fluencyScore = FluencyResultFragment.calculateFluencyScore(result);
+            double overallScore = (pronunciationScore + fluencyScore) / 2.0;
+
+            holder.tvPronunciation.setText(String.format(Locale.getDefault(), "%.0f%%", pronunciationScore));
+            holder.tvRhythm.setText(String.format(Locale.getDefault(), "%.0f%%", fluencyScore));
+            holder.tvOverall.setText(String.format(Locale.getDefault(), "%.0f%%", overallScore));
         } else {
-            holder.tvScore.setText("0%");
             holder.tvPronunciation.setText("0%");
             holder.tvRhythm.setText("0%");
-            holder.tvAccuracy.setText("0%");
+            holder.tvOverall.setText("0%");
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -110,17 +115,16 @@ public class SpeakingResultAdapter extends RecyclerView.Adapter<SpeakingResultAd
     }
 
     static class SpeakingViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvDate, tvCategory, tvScore, tvPronunciation, tvRhythm, tvAccuracy;
+        TextView tvTitle, tvDate, tvCategory, tvPronunciation, tvRhythm, tvOverall;
 
         public SpeakingViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvSpeakingItemTitle);
             tvDate = itemView.findViewById(R.id.tvSpeakingDate);
             tvCategory = itemView.findViewById(R.id.tvSpeakingCategory);
-            tvScore = itemView.findViewById(R.id.tvSpeakingScore);
             tvPronunciation = itemView.findViewById(R.id.tvPronunciation);
             tvRhythm = itemView.findViewById(R.id.tvRhythm);
-            tvAccuracy = itemView.findViewById(R.id.tvAccuracy);
+            tvOverall = itemView.findViewById(R.id.tvOverall);
         }
     }
 }

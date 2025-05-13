@@ -44,8 +44,7 @@ public class AnalyzeViewPagerAdapter extends RecyclerView.Adapter<AnalyzeViewPag
         int topBottomPadding = (int) (8 * context.getResources().getDisplayMetrics().density); // 8dp
         recyclerView.setPadding(padding, topBottomPadding, padding, topBottomPadding);
         recyclerView.setClipToPadding(false);
-        recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER); // Tắt hiệu ứng overscroll nếu muốn
-        recyclerView.setId(View.generateViewId()); // Đặt ID duy nhất
+        recyclerView.setId(View.generateViewId());
 
         return new PageViewHolder(recyclerView);
     }
@@ -55,7 +54,7 @@ public class AnalyzeViewPagerAdapter extends RecyclerView.Adapter<AnalyzeViewPag
         RecyclerView currentPageRecyclerView = holder.recyclerView;
 
         currentPageRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        currentPageRecyclerView.setHasFixedSize(true); // Tối ưu hóa nếu item size không đổi
+        currentPageRecyclerView.setHasFixedSize(true);
 
         if (position == SPEAKING_PAGE) {
             SpeakingResultAdapter speakingAdapter = new SpeakingResultAdapter(context, this.pronunciationResults);
@@ -90,7 +89,4 @@ public class AnalyzeViewPagerAdapter extends RecyclerView.Adapter<AnalyzeViewPag
             this.recyclerView = (RecyclerView) itemView;
         }
     }
-
-    // --- Giữ lại hàm tạo dữ liệu giả cho Writing nếu cần ---
-    // private List<WritingResult> createFakeWritingData() { ... }
 }
