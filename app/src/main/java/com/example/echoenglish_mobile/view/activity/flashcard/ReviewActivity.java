@@ -1,25 +1,37 @@
 package com.example.echoenglish_mobile.view.activity.flashcard;
 
+import android.animation.AnimatorInflater;
+import android.animation.ObjectAnimator;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout; // Import LinearLayout
-import android.widget.ProgressBar;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.viewpager2.widget.ViewPager2; // Import ViewPager2
 
 import com.bumptech.glide.Glide;
 import com.example.echoenglish_mobile.R;
 import com.example.echoenglish_mobile.network.ApiClient;
 import com.example.echoenglish_mobile.network.ApiService;
 import com.example.echoenglish_mobile.view.activity.flashcard.dto.request.LearningRecordRequest;
-import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyReviewResponse; // Import DTO review
+import com.example.echoenglish_mobile.view.activity.flashcard.dto.response.VocabularyReviewResponse;
+import com.example.echoenglish_mobile.view.dialog.LoadingDialogFragment;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView; // Still used inside the item layout
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -31,32 +43,35 @@ public class ReviewActivity extends AppCompatActivity {
 
     private static final String TAG = "ReviewActivity";
     public static final String USER_ID_EXTRA = "USER_ID";
+    // Removed LOADING_DIALOG_TAG as DialogFragment is removed
 
-    // TODO: Get actual user ID from login/session management
-    private long userId = -1L; // Will be set from Intent
+    private long userId = -1L;
 
-    // Views
-    private Toolbar toolbar;
+    private ImageView backButton;
+    private TextView textScreenTitle;
     private TextView textReviewProgress;
-    private TextView textReviewWord;
-    private TextView textReviewPhonetic;
-    private ImageView imageReviewVocabulary;
-    private TextView textReviewDefinition;
-    private TextView textReviewExample;
-    private TextView textReviewMemoryLevel; // Optional UI
-    private TextView textReviewFlashcardInfo; // Optional UI
+
+    // Changed from ConstraintLayout reviewCardContainer
+    private ViewPager2 viewPagerReview; // Using ViewPager2
+
     private Button buttonForgetReview;
     private Button buttonRememberReview;
-    private ProgressBar progressBarReview; // For loading the list
-    private TextView textReviewEmptyMessage; // Message when list is empty
-    private View cardReviewVocabulary; // The card view displaying vocabulary info
-    private LinearLayout layoutReviewButtons; // Layout containing Remember/Forget buttons
+    private LinearLayout layoutReviewButtons;
 
+    private TextView textReviewEmptyMessage;
 
-    // Logic
     private ApiService apiService;
-    private List<VocabularyReviewResponse> dueWordsList; // Danh sách từ cần ôn tập
-    private int currentIndex = 0; // Index của từ hiện tại trong danh sách
+    private List<VocabularyReviewResponse> dueWordsList;
+    private ReviewCardPagerAdapter pagerAdapter; // Adapter for ViewPager2
+
+    // Removed flip animations as they are handled within the Fragment now
+    // private ObjectAnimator flipRightIn;
+    // private ObjectAnimator flipRightOut;
+
+    // Removed loadingApiCount field
+
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,202 +79,248 @@ public class ReviewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_review);
 
         findViews();
-        setupToolbar();
+        setupCustomHeader();
         apiService = ApiClient.getApiService();
 
-        // Get user ID from Intent
         userId = getIntent().getLongExtra(USER_ID_EXTRA, -1L);
         if (userId == -1L) {
             Log.e(TAG, "Invalid User ID received.");
-            Toast.makeText(this, "Lỗi: Không thể tải dữ liệu ôn tập.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error: Cannot load review data.", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
 
-        // Load the list of words due for review
+        // Initial manual loading state
+        setUiState(UiState.LOADING);
+
         loadDueWordsForReview(userId);
 
-        // Set listeners for Remember and Forget buttons
         buttonRememberReview.setOnClickListener(v -> handleRememberForgetClick(true));
         buttonForgetReview.setOnClickListener(v -> handleRememberForgetClick(false));
+
+        // Set up ViewPager2 page change listener to update the progress text
+        viewPagerReview.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                // Update progress text when page changes
+                updateProgressText(position);
+                // Optionally reset card flip state when page changes
+                // getFragmentAtPosition(position).resetFlipState(); // This requires adapter/fragment logic
+            }
+        });
+
+        // Removed reviewCardContainer click listener (flip is handled by Fragment)
+        // Removed loadFlipAnimations (handled by Fragment)
     }
 
-    // Find all views
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: Reloading review list.");
+        setUiState(UiState.LOADING);
+        loadDueWordsForReview(userId);
+    }
+
     private void findViews() {
-        toolbar = findViewById(R.id.toolbarReview);
+        backButton = findViewById(R.id.backButton);
+        textScreenTitle = findViewById(R.id.textScreenTitle);
         textReviewProgress = findViewById(R.id.textReviewProgress);
-        textReviewWord = findViewById(R.id.textReviewWord);
-        textReviewPhonetic = findViewById(R.id.textReviewPhonetic);
-        imageReviewVocabulary = findViewById(R.id.imageReviewVocabulary);
-        textReviewDefinition = findViewById(R.id.textReviewDefinition);
-        textReviewExample = findViewById(R.id.textReviewExample);
-        textReviewMemoryLevel = findViewById(R.id.textReviewMemoryLevel);
-        textReviewFlashcardInfo = findViewById(R.id.textReviewFlashcardInfo);
+
+        // Find ViewPager2 instead of the card container
+        viewPagerReview = findViewById(R.id.viewPagerReview);
+
+        layoutReviewButtons = findViewById(R.id.layoutReviewButtons);
         buttonForgetReview = findViewById(R.id.buttonForgetReview);
         buttonRememberReview = findViewById(R.id.buttonRememberReview);
-        progressBarReview = findViewById(R.id.progressBarReview);
+
         textReviewEmptyMessage = findViewById(R.id.textReviewEmptyMessage);
-        cardReviewVocabulary = findViewById(R.id.cardReviewVocabulary); // The main card
-        layoutReviewButtons = findViewById(R.id.layoutReviewButtons); // The buttons layout
     }
 
-    // Setup Toolbar
-    private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Ôn tập từ vựng");
+    private void setupCustomHeader() {
+        textScreenTitle.setText("Review Vocabulary");
+        backButton.setOnClickListener(v -> onBackPressed());
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Check if the list is loaded and not finished
+        if (dueWordsList != null && viewPagerReview != null && viewPagerReview.getAdapter() != null &&
+                viewPagerReview.getCurrentItem() < viewPagerReview.getAdapter().getItemCount()) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Quit Review?")
+                    .setMessage("Are you sure you want to leave the review session?")
+                    .setPositiveButton("Leave", (dialog, which) -> {
+                        ReviewActivity.super.onBackPressed();
+                    })
+                    .setNegativeButton("Stay", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .show();
+        } else {
+            super.onBackPressed();
         }
     }
 
-    // Handle back button on Toolbar
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
+
+    // Enum for managing UI states
+    private enum UiState {
+        LOADING, CONTENT, EMPTY, FINISHED // FINISHED might be similar to EMPTY but with a different message
     }
 
-    // Show/hide loading indicator
-    private void showLoading(boolean isLoading) {
-        progressBarReview.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        // Hide other content while loading
-        cardReviewVocabulary.setVisibility(isLoading ? View.INVISIBLE : View.VISIBLE);
-        layoutReviewButtons.setVisibility(isLoading ? View.INVISIBLE : View.VISIBLE);
-        textReviewProgress.setVisibility(isLoading ? View.INVISIBLE : View.VISIBLE);
-        textReviewEmptyMessage.setVisibility(View.GONE); // Hide empty message when loading
+    // Method to manage overall UI state manually
+    private void setUiState(UiState state) {
+        viewPagerReview.setVisibility(View.GONE);
+        layoutReviewButtons.setVisibility(View.GONE);
+        textReviewProgress.setVisibility(View.GONE);
+        textReviewEmptyMessage.setVisibility(View.GONE);
+        setButtonsEnabled(false); // Disable buttons by default in all states except CONTENT fully ready
+        backButton.setEnabled(true); // Back button usually enabled
+
+        switch (state) {
+            case LOADING:
+                textReviewProgress.setVisibility(View.VISIBLE);
+                textReviewProgress.setText("Loading...");
+                backButton.setEnabled(false); // Disable back during initial load
+                break;
+            case CONTENT:
+                viewPagerReview.setVisibility(View.VISIBLE);
+                layoutReviewButtons.setVisibility(View.VISIBLE);
+                textReviewProgress.setVisibility(View.VISIBLE); // Progress text is part of content state
+                setButtonsEnabled(true); // Enable buttons when content is ready
+                break;
+            case EMPTY:
+                textReviewEmptyMessage.setVisibility(View.VISIBLE);
+                textReviewEmptyMessage.setText("No words are currently due for review.");
+                break;
+            case FINISHED:
+                textReviewEmptyMessage.setVisibility(View.VISIBLE);
+                textReviewEmptyMessage.setText("Review session completed!");
+                break;
+        }
+        Log.d(TAG, "UI State changed to: " + state);
+    }
+
+    // Helper to enable/disable Remember/Forget buttons specifically
+    private void setButtonsEnabled(boolean enabled) {
+        buttonRememberReview.setEnabled(enabled);
+        buttonForgetReview.setEnabled(enabled);
     }
 
 
-    // Load the list of words due for review from API
+    // Update the progress text (e.g., "5 / 20")
+    private void updateProgressText(int currentPosition) {
+        if (dueWordsList != null) {
+            textReviewProgress.setText(String.format(Locale.getDefault(), "%d / %d",
+                    currentPosition + 1, dueWordsList.size()));
+        }
+    }
+
+
     private void loadDueWordsForReview(long userId) {
-        showLoading(true);
-
         apiService.getDueVocabulariesForReview(userId).enqueue(new Callback<List<VocabularyReviewResponse>>() {
             @Override
             public void onResponse(Call<List<VocabularyReviewResponse>> call, Response<List<VocabularyReviewResponse>> response) {
-                showLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
                     dueWordsList = response.body();
-                    if (dueWordsList.isEmpty()) {
-                        // Show empty message and hide other UI
-                        textReviewEmptyMessage.setVisibility(View.VISIBLE);
-                        cardReviewVocabulary.setVisibility(View.GONE);
-                        layoutReviewButtons.setVisibility(View.GONE);
-                        textReviewProgress.setVisibility(View.GONE);
-                        Toast.makeText(ReviewActivity.this, "Không có từ nào cần ôn tập lúc này.", Toast.LENGTH_LONG).show();
+                    if (!dueWordsList.isEmpty()) {
+                        // List loaded successfully and is not empty
+                        setupViewPager(dueWordsList); // Setup ViewPager with the list
+                        setUiState(UiState.CONTENT); // Show content UI
+                        updateProgressText(0); // Set initial progress text
                     } else {
-                        // Display the first word
-                        currentIndex = 0; // Start from the beginning
-                        displayCurrentWord();
+                        // List is empty
+                        dueWordsList = new ArrayList<>(); // Ensure it's an empty list
+                        setUiState(UiState.EMPTY); // Show empty state UI
                     }
                 } else {
-                    Log.e(TAG, "Lỗi tải từ cần ôn tập: " + response.code() + " - " + response.message());
-                    Toast.makeText(ReviewActivity.this, "Lỗi tải danh sách ôn tập.", Toast.LENGTH_LONG).show();
-                    // Show error state
-                    textReviewEmptyMessage.setText("Lỗi tải dữ liệu.");
-                    textReviewEmptyMessage.setVisibility(View.VISIBLE);
-                    cardReviewVocabulary.setVisibility(View.GONE);
-                    layoutReviewButtons.setVisibility(View.GONE);
-                    textReviewProgress.setVisibility(View.GONE);
+                    Log.e(TAG, "Failed to load due review list: " + response.code() + " - " + response.message());
+                    dueWordsList = new ArrayList<>(); // Use empty list on failure
+                    setUiState(UiState.EMPTY); // Show empty state UI (will display default empty message)
+                    Toast.makeText(ReviewActivity.this, "Failed to load review list.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<VocabularyReviewResponse>> call, Throwable t) {
-                showLoading(false);
-                Log.e(TAG, "Lỗi mạng khi tải từ cần ôn tập", t);
-                Toast.makeText(ReviewActivity.this, "Lỗi mạng khi tải danh sách ôn tập.", Toast.LENGTH_LONG).show();
-                // Show network error state
-                textReviewEmptyMessage.setText("Lỗi kết nối mạng.");
-                textReviewEmptyMessage.setVisibility(View.VISIBLE);
-                cardReviewVocabulary.setVisibility(View.GONE);
-                layoutReviewButtons.setVisibility(View.GONE);
-                textReviewProgress.setVisibility(View.GONE);
+                Log.e(TAG, "Network error loading due review list", t);
+                dueWordsList = new ArrayList<>(); // Use empty list on network error
+                setUiState(UiState.EMPTY); // Show empty state UI (will display default empty message)
+                Toast.makeText(ReviewActivity.this, "Network error loading review list.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // Display the word at the current index
-    private void displayCurrentWord() {
-        if (dueWordsList == null || currentIndex >= dueWordsList.size()) {
-            endReviewSession();
+    // Setup ViewPager2 with the loaded vocabulary list
+    private void setupViewPager(List<VocabularyReviewResponse> vocabList) {
+        if (vocabList == null || vocabList.isEmpty()) {
+            Log.w(TAG, "Attempted to setup ViewPager with empty or null list.");
+            setUiState(UiState.EMPTY);
             return;
         }
-
-        VocabularyReviewResponse currentWord = dueWordsList.get(currentIndex);
-
-        // Update progress text
-        textReviewProgress.setText(String.format(Locale.getDefault(), "%d / %d",
-                currentIndex + 1, dueWordsList.size()));
-
-        // Update UI with word details
-        textReviewWord.setText(currentWord.getWord());
-        textReviewPhonetic.setText(currentWord.getPhonetic());
-        textReviewDefinition.setText(currentWord.getDefinition());
-        textReviewExample.setText(currentWord.getExample());
-
-        // Load image (if available)
-        if (currentWord.getImageUrl() != null && !currentWord.getImageUrl().isEmpty()) {
-            Glide.with(this)
-                    .load(currentWord.getImageUrl())
-                    .placeholder(R.drawable.ic_placeholder_image)
-                    .error(R.drawable.ic_placeholder_image)
-                    .into(imageReviewVocabulary);
-            imageReviewVocabulary.setVisibility(View.VISIBLE);
-        } else {
-            imageReviewVocabulary.setVisibility(View.GONE);
-        }
-
-        // Update optional fields
-        textReviewMemoryLevel.setText(String.format(Locale.getDefault(), "Cấp độ ghi nhớ: Level %d", currentWord.getRememberCount()));
-
-        // ** XÓA HOẶC COMMENT CÁC DÒNG NÀY **
-        // if (currentWord.getFlashcardName() != null && !currentWord.getFlashcardName().isEmpty()) {
-        //     textReviewFlashcardInfo.setText(String.format(Locale.getDefault(), "Thuộc bộ thẻ: %s", currentWord.getFlashcardName()));
-        //     textReviewFlashcardInfo.setVisibility(View.VISIBLE);
-        // } else {
-        //      textReviewFlashcardInfo.setVisibility(View.GONE);
-        // }
-
-        // ** ĐẢM BẢO TextView này luôn ẩn nếu không dùng đến **
-        // Nếu bạn đã ánh xạ textReviewFlashcardInfo, hãy đảm bảo nó luôn ẩn hoặc remove nó khỏi layout nếu không cần
-        if (textReviewFlashcardInfo != null) { // Kiểm tra null an toàn hơn
-            textReviewFlashcardInfo.setVisibility(View.GONE);
-        }
-
-
-        // Enable buttons for interaction
-        layoutReviewButtons.setVisibility(View.VISIBLE);
-        buttonRememberReview.setEnabled(true);
-        buttonForgetReview.setEnabled(true);
+        pagerAdapter = new ReviewCardPagerAdapter(this, vocabList);
+        viewPagerReview.setAdapter(pagerAdapter);
+        // Optionally disable swipe if you only want button navigation after seeing back
+        // viewPagerReview.setUserInputEnabled(false); // Uncomment to disable swipe
     }
+
 
     // Handle click on Remember or Forget button
     private void handleRememberForgetClick(boolean isRemembered) {
-        if (dueWordsList == null || currentIndex >= dueWordsList.size()) {
-            // Should not happen if buttons are disabled correctly
+        // Ensure buttons are enabled before processing (should be disabled by setUiEnabled)
+        if (!buttonRememberReview.isEnabled()) {
+            Log.w(TAG, "Remember/Forget click ignored, buttons are disabled.");
             return;
         }
 
-        // Disable buttons while processing
-        buttonRememberReview.setEnabled(false);
-        buttonForgetReview.setEnabled(false);
+        int currentPosition = viewPagerReview.getCurrentItem();
+        if (dueWordsList == null || pagerAdapter == null || currentPosition < 0 || currentPosition >= dueWordsList.size()) {
+            Log.w(TAG, "Remember/Forget click ignored, adapter state invalid or index out of bounds.");
+            Toast.makeText(this, "Error processing word.", Toast.LENGTH_SHORT).show();
+            // Maybe end session if state is bad?
+            // endReviewSession();
+            return;
+        }
 
-        VocabularyReviewResponse currentWord = dueWordsList.get(currentIndex);
+        setButtonsEnabled(false); // Disable buttons while processing
+
+        VocabularyReviewResponse currentWord = dueWordsList.get(currentPosition);
+        if (currentWord.getId() == null) {
+            Log.e(TAG, "Current word ID is null, cannot record progress.");
+            Toast.makeText(this, "Error: Cannot record progress for this word.", Toast.LENGTH_SHORT).show();
+            // Move to next word visually despite error if needed
+            if (currentPosition < dueWordsList.size() - 1) {
+                viewPagerReview.setCurrentItem(currentPosition + 1, true);
+            } else {
+                endReviewSession(); // End if it was the last word
+            }
+            setButtonsEnabled(true); // Re-enable buttons if moved
+            return;
+        }
 
         // Record learning progress via API
         recordLearningApiCall(currentWord.getId(), isRemembered);
 
-        // Move to the next word after a short delay (allowing API call to start)
-        // A delay provides a smoother transition and doesn't block the UI immediately.
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            currentIndex++; // Move to next word index
-            displayCurrentWord(); // Display the next word (or end session)
-        }, 300); // Delay for 300 milliseconds
+        // Move to the next word after a short delay for smoother transition
+        // The ViewPager2 page change listener will update the progress text automatically
+        mainHandler.postDelayed(() -> {
+            if (currentPosition < dueWordsList.size() - 1) {
+                viewPagerReview.setCurrentItem(currentPosition + 1, true);
+                setButtonsEnabled(true); // Re-enable buttons for the next word
+            } else {
+                endReviewSession(); // End if it was the last word
+            }
+        }, 500); // Delay for visual transition
     }
 
-    // Call API to record learning (Remember/Forget)
+    // Record learning progress via API
     private void recordLearningApiCall(long vocabularyId, boolean isRemembered) {
+        if (apiService == null) {
+            Log.e(TAG, "ApiService is not initialized. Cannot record learning progress.");
+            return;
+        }
+        // No startApiCall/finishApiCall here - API call runs in background
+
         LearningRecordRequest request = new LearningRecordRequest();
         request.setUserId(userId);
         request.setVocabularyId(vocabularyId);
@@ -268,22 +329,28 @@ public class ReviewActivity extends AppCompatActivity {
         apiService.recordLearning(request).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
+                // API finished
                 if (response.isSuccessful()) {
-                    Log.i(TAG, "Ghi nhận ôn tập thành công cho vocab ID: " + vocabularyId + ", isRemembered: " + isRemembered);
-                    // Optional: Show a small confirmation message
-                    // Toast.makeText(ReviewActivity.this, isRemembered ? "Đã nhớ!" : "Đã quên.", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "Learning recorded successfully for vocab ID: " + vocabularyId + ", isRemembered: " + isRemembered);
                 } else {
-                    Log.w(TAG, "Ghi nhận ôn tập thất bại cho vocab ID: " + vocabularyId + ": " + response.code() + " - " + response.message());
-                    // Optional: Show an error message
-                    // Toast.makeText(ReviewActivity.this, "Lỗi ghi nhận ôn tập.", Toast.LENGTH_SHORT).show();
+                    String errorBody = "";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorBody = response.errorBody().string();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error reading error body", e);
+                    }
+                    Log.w(TAG, "Failed to record learning for vocab ID: " + vocabularyId + ": " + response.code() + " - " + response.message() + " Body: " + errorBody);
+                    // Toast.makeText(ReviewActivity.this, "Failed to record progress.", Toast.LENGTH_SHORT).show(); // Optional
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Log.e(TAG, "Lỗi mạng khi ghi nhận ôn tập cho vocab ID: " + vocabularyId, t);
-                // Optional: Show an error message
-                // Toast.makeText(ReviewActivity.this, "Lỗi mạng khi ghi nhận.", Toast.LENGTH_SHORT).show();
+                // API finished (failure)
+                Log.e(TAG, "Network error recording learning for vocab ID: " + vocabularyId, t);
+                Toast.makeText(ReviewActivity.this, "Network error saving progress.", Toast.LENGTH_SHORT).show(); // Optional
             }
         });
     }
@@ -291,16 +358,22 @@ public class ReviewActivity extends AppCompatActivity {
     // End the review session
     private void endReviewSession() {
         Log.d(TAG, "Review session ended.");
-        Toast.makeText(this, "Hoàn thành buổi ôn tập!", Toast.LENGTH_LONG).show();
-        // Optionally, navigate back or show a summary screen
-        finish(); // Close the ReviewActivity
+        Toast.makeText(this, "Review session completed!", Toast.LENGTH_LONG).show();
+        setUiState(UiState.FINISHED); // Show finished state message
+
+        // Finish activity after a delay
+        mainHandler.postDelayed(this::finish, 2000);
     }
 
-    // Optional: Handle back press during review (e.g., show confirmation dialog)
+
     @Override
-    public void onBackPressed() {
-        // You might want to show a dialog like "Are you sure you want to exit? Progress will be lost."
-        // For now, just call super.onBackPressed()
-        super.onBackPressed();
+    protected void onDestroy() {
+        super.onDestroy();
+        // Remove any pending PostDelayed callbacks
+        mainHandler.removeCallbacksAndMessages(null);
+        // Unregister ViewPager2 callback to prevent leaks
+        if (viewPagerReview != null) {
+            viewPagerReview.unregisterOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {}); // Using empty anonymous callback to unregister
+        }
     }
 }

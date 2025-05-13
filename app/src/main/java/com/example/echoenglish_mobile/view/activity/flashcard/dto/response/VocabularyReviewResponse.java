@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class VocabularyReviewResponse {
+public class VocabularyReviewResponse implements Serializable {
     // Vocabulary Details (similar to VocabularyResponse)
     private Long id;
     private String word;

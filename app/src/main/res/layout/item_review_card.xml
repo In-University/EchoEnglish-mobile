@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="24dp"> <!-- Keep margin here for spacing in ViewPager -->
+
+    <!-- Front of the card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardReviewFront"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+    android:elevation="0dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/textReviewWord"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            android:textStyle="bold"
+            android:gravity="center"
+            tools:text="Vocabulary Word"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/textReviewPhonetic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:gravity="center"
+            tools:text="/ˈvəʊkəbləri wɜːd/"
+            android:layout_marginBottom="8dp"/>
+
+        <ImageView
+            android:id="@+id/imageReviewVocabulary"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            tools:srcCompat="@tools:sample/backgrounds/scenic"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/textReviewMemoryLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            tools:text="Memory Level: Level 1"
+            android:layout_gravity="end"/>
+
+        <TextView
+            android:id="@+id/textReviewFlashcardInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            tools:text="From set: TOEIC 600"
+            android:layout_gravity="end"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
+
+    <!-- Back of the card -->
+<com.google.android.material.card.MaterialCardView
+android:id="@+id/cardReviewBack"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+app:cardCornerRadius="16dp"
+app:cardElevation="0dp"
+    android:elevation="0dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:visibility="gone"
+    android:rotationY="180">
+
+<LinearLayout
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="vertical"
+android:padding="16dp"
+android:gravity="center">
+
+<TextView
+    android:id="@+id/textReviewDefinition"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+    tools:text="Definition of the vocabulary word."
+    android:layout_marginBottom="8dp"/>
+
+<TextView
+    android:id="@+id/textReviewExample"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:textStyle="italic"
+    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+    tools:text="Example sentence using the word."
+    android:layout_marginBottom="8dp"/>
+
+</LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    </FrameLayout>

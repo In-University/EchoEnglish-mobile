@@ -10,4 +10,6 @@
 
     <dimen name="grid_item_margin">4dp</dimen>
     <dimen name="card_stroke_width">4dp</dimen>
+
+    <dimen name="camera_distance">8000dp</dimen>
 </resources>
