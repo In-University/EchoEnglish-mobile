@@ -362,7 +362,7 @@ public class AddVocabularyActivity extends AppCompatActivity implements ImageSug
     private void preselectFlashcard() {
         Long idToSelect = null;
         if (isEditMode && editingVocabulary != null) {
-            idToSelect = editingVocabulary.getFlashcardId(); // Use the correct getter
+            idToSelect = parentFlashcardId; // Use the correct getter
             Log.d(ACTIVITY_TAG, "Edit mode preselect target ID: " + idToSelect + " from editingVocabulary");
         } else if (parentFlashcardId != null && parentFlashcardId != -1L) {
             idToSelect = parentFlashcardId;
