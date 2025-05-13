@@ -40,6 +40,7 @@ public class ConversationCategoriesActivity extends AppCompatActivity {
 
         // --- Daily Conversation ---
         List<ConversationScenario> dailyScenarios = new ArrayList<>();
+        dailyScenarios.add(new ConversationScenario("demo_presentation", "Personal Introduction", "Practice introducing yourself with your name and what you do", "ic_coffee", "Beginner", "5-10 min"));
         dailyScenarios.add(new ConversationScenario("daily_coffee_shop", "Coffee Shop Chat", "Practice ordering coffee and casual conversation", "ic_coffee", "Beginner", "5-10 min"));
         dailyScenarios.add(new ConversationScenario("daily_restaurant", "Restaurant Ordering", "Practice ordering food and interacting with staff", "ic_restaurant", "Beginner", "5-10 min"));
         dailyScenarios.add(new ConversationScenario("daily_shopping", "Shopping Conversation", "Practice shopping-related inquiries", "ic_shopping", "Intermediate", "10-15 min"));
@@ -151,6 +152,18 @@ public class ConversationCategoriesActivity extends AppCompatActivity {
         // Using multi-line String literals (Java 15+) for readability.
         // If using older Java, escape quotes (\") and newlines (\n).
         switch (scenarioId) {
+            case "demo_presentation":
+                return """
+                {
+                  "aiResponse": "Hi there! Let's get to know each other. Can you tell me your name and what you do?",
+                  "updatedChecklist": [
+                    {"id": "say_name", "description": "Say your name clearly.", "completed": false},
+                    {"id": "share_job_or_study", "description": "Briefly mention what you do (job or study).", "completed": false},
+                    {"id": "say_where_from", "description": "Mention where you're from (optional).", "completed": false}
+                  ],
+                  "allTasksCompleted": false
+                }
+                """;
             case "daily_coffee_shop":
                 return """
                 {

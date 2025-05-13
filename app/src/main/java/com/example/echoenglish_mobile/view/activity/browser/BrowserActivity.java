@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.echoenglish_mobile.R;
@@ -32,6 +33,7 @@ public class BrowserActivity extends AppCompatActivity implements ShortcutAdapte
     private static final String TAG = "BrowserActivity";
     private static final String BROWSER_FRAGMENT_TAG = "BrowserFragmentInstance";
     public static final String EXTRA_URL = "EXTRA_URL";
+    ImageView btnClose;
     private EditText urlEditText;
     private RecyclerView shortcutRecyclerView;
     private ShortcutAdapter shortcutAdapter;
@@ -43,12 +45,14 @@ public class BrowserActivity extends AppCompatActivity implements ShortcutAdapte
         setContentView(R.layout.activity_browser);
 
         urlEditText = findViewById(R.id.urlEditText);
+        btnClose = findViewById(R.id.btnClose);
         shortcutRecyclerView = findViewById(R.id.shortcutRecyclerView);
         String initialUrl = getIntent().getStringExtra(EXTRA_URL);
         if (initialUrl != null && !initialUrl.isEmpty()) {
             urlEditText.setText(initialUrl);
             loadUrlInFragment(initialUrl);
         }
+        btnClose.setOnClickListener(v -> finish());
         setupUrlBarListener();
         setupRecyclerView();
         loadInitialShortcuts();
@@ -87,10 +91,10 @@ public class BrowserActivity extends AppCompatActivity implements ShortcutAdapte
 
     private void loadInitialShortcuts() {
         shortcutList.clear();
-        shortcutList.add(new ShortcutAdapter.Shortcut("CNN", "https://cnn.com", R.drawable.background_button_blue));
-        shortcutList.add(new ShortcutAdapter.Shortcut("Reuters", "https://reuters.com", R.drawable.background_button_blue));
-        shortcutList.add(new ShortcutAdapter.Shortcut("Guardian", "https://theguardian.com", R.drawable.background_button_blue));
-        shortcutList.add(new ShortcutAdapter.Shortcut("New York T", "https://nytimes.com", R.drawable.background_button_blue));
+        shortcutList.add(new ShortcutAdapter.Shortcut("CNN", "https://cnn.com", R.drawable.logo_cnn));
+        shortcutList.add(new ShortcutAdapter.Shortcut("Reuters", "https://reuters.com", R.drawable.logo_reuter));
+        shortcutList.add(new ShortcutAdapter.Shortcut("Guardian", "https://theguardian.com", R.drawable.logo_guardian));
+        shortcutList.add(new ShortcutAdapter.Shortcut("The New York Times", "https://nytimes.com", R.drawable.logo_newyorktimes));
         shortcutAdapter.notifyDataSetChanged();
     }
 

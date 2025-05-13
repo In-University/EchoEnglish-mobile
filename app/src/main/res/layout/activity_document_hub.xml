@@ -131,7 +131,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"> <!-- HOẶC MỘT CHIỀU CAO CỐ ĐỊNH CHO HÀNG NGANG -->
+        android:layout_height="wrap_content">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/newsRecyclerView"
@@ -153,4 +153,25 @@
             android:visibility="gone"
             tools:visibility="visible" />
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/videoSectionTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="Latest Videos"
+        android:layout_marginStart="16dp"
+        android:textColor="#34495E"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/videosRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"/>
 </LinearLayout>

@@ -97,8 +97,6 @@
             </LinearLayout>
             <!-- Kết thúc container cho Banner -->
 
-
-            <!-- TextView "Resources" và các phần tử bên dưới -->
             <TextView
                 android:id="@+id/textView4"
                 android:layout_width="match_parent"
@@ -109,7 +107,7 @@
                 android:textColor="#000000"
                 android:textSize="16sp"
                 android:textStyle="bold" />
-            <!-- ... Các phần tử khác trong ScrollView ... -->
+            <!-- Resources -->
             <GridLayout
                 android:id="@+id/featuresGridLayout"
                 android:layout_width="match_parent"
@@ -185,7 +183,7 @@
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"
-                            android:src="@drawable/ic_attachment" />
+                            android:src="@drawable/ic_writing" />
                         <TextView style="@style/FunctionTextStyle" android:text="Writing" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -194,7 +192,7 @@
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"
-                            android:src="@drawable/ic_attachment" />
+                            android:src="@drawable/ic_dashboard" />
                         <TextView style="@style/FunctionTextStyle" android:text="Report" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -203,7 +201,7 @@
                     style="@style/ModernFunctionCardStyle">
                     <LinearLayout style="@style/CardInnerLayoutStyle">
                         <ImageView style="@style/FunctionIconStyle"
-                            android:src="@drawable/ic_attachment" />
+                            android:src="@drawable/ic_conversation" />
                         <TextView style="@style/FunctionTextStyle" android:text="Conversation" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
