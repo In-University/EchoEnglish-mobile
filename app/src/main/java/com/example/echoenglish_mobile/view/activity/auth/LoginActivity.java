@@ -106,7 +106,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     Log.d(TAG, "Login successful");
                     Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
-                    navigateToDashboardActivity();
+                    navigateToHomeActivity();
                 } else {
                     String errorMessage = parseError(response);
                     Log.w(TAG, "Login failed: " + errorMessage);
@@ -122,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void navigateToDashboardActivity() {
+    private void navigateToHomeActivity() {
         Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Xóa toàn bộ stack cũ
         startActivity(intent);

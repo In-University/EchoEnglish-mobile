@@ -14,6 +14,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button btnLogin;
     private Button btnSignup;
+    private Button btnLoginGuest; // Changed variable name to match XML ID
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnLogin = findViewById(R.id.btnLogin);
         btnSignup = findViewById(R.id.btnSignup);
+        btnLoginGuest = findViewById(R.id.btnLoginGuest); // Changed ID to match XML
 
         btnLogin.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -33,6 +35,10 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        btnLoginGuest.setOnClickListener(v -> {
+            navigateToHomeActivity();
+        });
+
         checkIfLoggedIn();
 
     }
@@ -40,11 +46,14 @@ public class MainActivity extends AppCompatActivity {
     private void checkIfLoggedIn() {
         String token = SharedPrefManager.getInstance(this).getAuthToken();
         if (token != null && !token.isEmpty()) {
-            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
+            navigateToHomeActivity();
         }
     }
 
+    private void navigateToHomeActivity() {
+        Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
 }

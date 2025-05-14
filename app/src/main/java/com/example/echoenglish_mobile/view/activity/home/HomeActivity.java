@@ -186,6 +186,10 @@ public class HomeActivity extends AppCompatActivity implements SearchFragment.Se
         Intent intent = null;
 
         if (id == R.id.flashcardsCard) {
+            if (!isUserLoggedIn()) {
+                ForbiddenHandler.handleForbidden();
+                return;
+            }
             intent = new Intent(HomeActivity.this, SpacedRepetitionActivity.class);
         } else if (id == R.id.translateCard) {
             intent = new Intent(HomeActivity.this, TranslateTextActivity.class);
@@ -309,14 +313,14 @@ public class HomeActivity extends AppCompatActivity implements SearchFragment.Se
             if (!TextUtils.isEmpty(avatarUrl)) {
                 Glide.with(this)
                         .load(avatarUrl)
-                        .placeholder(R.drawable.image_profile)
-                        .error(R.drawable.image_profile)
+                        .placeholder(R.drawable.ic_xml_launcher_foreground)
+                        .error(R.drawable.ic_xml_launcher_foreground)
                         .into(ivProfile);
             } else {
-                ivProfile.setImageResource(R.drawable.image_profile);
+                ivProfile.setImageResource(R.drawable.ic_xml_launcher_foreground);
             }
         } else {
-            ivProfile.setImageResource(R.drawable.image_profile);
+            ivProfile.setImageResource(R.drawable.ic_xml_launcher_foreground);
         }
     }
 
