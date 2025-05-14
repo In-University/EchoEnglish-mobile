@@ -313,14 +313,14 @@ public class HomeActivity extends AppCompatActivity implements SearchFragment.Se
             if (!TextUtils.isEmpty(avatarUrl)) {
                 Glide.with(this)
                         .load(avatarUrl)
-                        .placeholder(R.drawable.ic_xml_launcher_foreground)
-                        .error(R.drawable.ic_xml_launcher_foreground)
+                        .placeholder(R.drawable.image_guest)
+                        .error(R.drawable.image_guest)
                         .into(ivProfile);
             } else {
-                ivProfile.setImageResource(R.drawable.ic_xml_launcher_foreground);
+                ivProfile.setImageResource(R.drawable.image_guest);
             }
         } else {
-            ivProfile.setImageResource(R.drawable.ic_xml_launcher_foreground);
+            ivProfile.setImageResource(R.drawable.image_guest);
         }
     }
 
