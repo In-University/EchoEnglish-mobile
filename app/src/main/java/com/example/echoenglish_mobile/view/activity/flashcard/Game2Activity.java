@@ -45,7 +45,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnInitListener {
-    private Long currentUserId = SharedPrefManager.getInstance(this).getUserInfo().getId();
+
+    private Long currentUserId;
 
     public static final String EXTRA_VOCAB_LIST = "VOCABULARY_LIST";
     private static final String TAG = "Game2Activity";
@@ -57,7 +58,6 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
     private TextView textViewListenInstruction;
     private GridLayout gridGame2Answers;
     private MaterialButton buttonGame2Skip;
-
 
     private List<VocabularyResponse> vocabularyList;
     private int currentQuestionIndex = 0;
@@ -82,13 +82,21 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
         setContentView(R.layout.activity_game2);
         setTitle("Game: Listen & Match Image");
 
+        currentUserId = SharedPrefManager.getInstance(this).getUserInfo().getId();
+        if (currentUserId == null) {
+            Log.e(TAG, "User ID is null. Cannot proceed with game.");
+            Toast.makeText(this, "Error: User not logged in or ID not found.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
         gameContent = findViewById(R.id.gameContent);
+
         textGame2Progress = findViewById(R.id.textGame2Progress);
         buttonGame2PlaySound = findViewById(R.id.buttonGame2PlaySound);
         textViewListenInstruction = findViewById(R.id.textViewListenInstruction);
         gridGame2Answers = findViewById(R.id.gridGame2Answers);
         buttonGame2Skip = findViewById(R.id.buttonGame2Skip);
-
 
         apiService = ApiClient.getApiService();
 
@@ -115,7 +123,6 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
 
         setGameControlsEnabled(false);
 
-
         buttonGame2PlaySound.setOnClickListener(v -> speakWord());
         buttonGame2Skip.setOnClickListener(v -> {
             setGameControlsEnabled(false);
@@ -126,7 +133,6 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
             goToNextQuestion();
         });
     }
-
 
     private void loadSounds() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -156,29 +162,25 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
                 int result = tts.setLanguage(Locale.US);
                 if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Log.e(TAG, "TTS Language not supported");
-                    Toast.makeText(this, "TTS language (US English) not supported.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "TTS language (US English) not supported. Audio unavailable.", Toast.LENGTH_LONG).show();
                     handleTTSInitializationFailure("Language not supported.");
                 } else {
                     ttsInitialized = true;
-                    buttonGame2PlaySound.setEnabled(true);
                     Log.d(TAG, "TTS Initialized successfully.");
-
                     loadQuestion();
-                    setGameControlsEnabled(true);
-
                 }
             } else {
                 Log.e(TAG, "TTS Initialization failed with status: " + status);
-                Toast.makeText(this, "TTS initialization failed.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "TTS initialization failed. Audio unavailable.", Toast.LENGTH_LONG).show();
                 handleTTSInitializationFailure("Initialization failed.");
             }
         });
     }
 
     private void handleTTSInitializationFailure(String message) {
+        ttsInitialized = false;
         buttonGame2PlaySound.setEnabled(false);
         Log.e(TAG, "TTS functionality disabled due to failure: " + message);
-        Toast.makeText(this, "Vocabulary audio function unavailable.", Toast.LENGTH_LONG).show();
     }
 
 
@@ -203,14 +205,16 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
 
         boolean removed = false;
         for(int i = 0; i < wrongOptionsPool.size(); i++) {
-            if (wrongOptionsPool.get(i).getId().equals(currentCorrectVocab.getId())) {
+            if (wrongOptionsPool.get(i) != null && currentCorrectVocab != null &&
+                    wrongOptionsPool.get(i).getId() != null && currentCorrectVocab.getId() != null &&
+                    wrongOptionsPool.get(i).getId().equals(currentCorrectVocab.getId())) {
                 wrongOptionsPool.remove(i);
                 removed = true;
                 break;
             }
         }
         if (!removed && vocabularyList.contains(currentCorrectVocab)) {
-            Log.w(TAG, "Could not remove currentCorrectVocab from wrongOptionsPool by ID: " + currentCorrectVocab.getId());
+            Log.w(TAG, "Could not remove currentCorrectVocab from wrongOptionsPool by ID: " + (currentCorrectVocab != null ? currentCorrectVocab.getId() : "null"));
         }
 
         Collections.shuffle(wrongOptionsPool);
@@ -219,9 +223,14 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
         int addedWrong = 0;
         for (int i = 0; i < wrongOptionsPool.size() && addedWrong < neededWrong; i++) {
             VocabularyResponse wrongOption = wrongOptionsPool.get(i);
+            if (wrongOption == null || wrongOption.getId() == null) {
+                Log.w(TAG, "Skipping null or invalid wrong option from pool.");
+                continue;
+            }
+
             boolean alreadyAdded = false;
             for (VocabularyResponse option : currentOptions) {
-                if (option.getId().equals(wrongOption.getId())) {
+                if (option != null && option.getId() != null && option.getId().equals(wrongOption.getId())) {
                     alreadyAdded = true;
                     break;
                 }
@@ -234,7 +243,7 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
 
         if (currentOptions.size() < 4) {
             Log.e(TAG, "Could not generate 4 unique options! Needed " + 4 + ", got " + currentOptions.size());
-            Toast.makeText(this, "Error generating options. Not enough unique vocabularies.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error generating options. Not enough unique vocabularies.", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -243,17 +252,30 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
 
         LayoutInflater inflater = LayoutInflater.from(this);
         for (VocabularyResponse option : currentOptions) {
+            if (option == null) {
+                Log.w(TAG, "Skipping null option when inflating cards.");
+                continue;
+            }
+
             MaterialCardView cardView = (MaterialCardView) inflater.inflate(R.layout.item_game2_answer, gridGame2Answers, false);
 
             ImageView imageView = cardView.findViewById(R.id.imageGame2Answer);
             TextView textView = cardView.findViewById(R.id.textGame2AnswerDefinition);
 
             textView.setText(option.getDefinition());
-            Glide.with(this)
-                    .load(option.getImageUrl())
-                    .placeholder(R.drawable.ic_placeholder_image)
-                    .error(R.drawable.ic_placeholder_image)
-                    .into(imageView);
+            String imageUrl = option.getImageUrl();
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                Glide.with(this)
+                        .load(imageUrl)
+                        .placeholder(R.drawable.ic_placeholder_image)
+                        .error(R.drawable.ic_placeholder_image)
+                        .into(imageView);
+            } else {
+                Glide.with(this)
+                        .load(R.drawable.ic_placeholder_image)
+                        .into(imageView);
+                Log.w(TAG, "Image URL is null or empty for vocab ID: " + option.getId());
+            }
 
             cardView.setTag(option);
 
@@ -279,6 +301,8 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
 
             gridGame2Answers.addView(cardView);
         }
+
+        speakWord();
     }
 
     private void speakWord() {
@@ -287,14 +311,14 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
             if (wordToSpeak != null && !wordToSpeak.isEmpty()) {
                 tts.stop();
                 tts.speak(wordToSpeak, TextToSpeech.QUEUE_FLUSH, null, "Speak_" + currentCorrectVocab.getId());
+                Log.d(TAG, "Speaking: " + wordToSpeak);
             } else {
-                Log.w(TAG, "speakWord: currentCorrectVocab or its word is null/empty.");
+                Log.w(TAG, "speakWord: currentCorrectVocab or its word is null/empty for vocab ID: " + (currentCorrectVocab != null ? currentCorrectVocab.getId() : "null"));
             }
         } else if (!ttsInitialized) {
             Log.w(TAG, "speakWord called but TTS not initialized.");
         }
     }
-
 
     private void highlightCorrectAnswer() {
         for (int i = 0; i < gridGame2Answers.getChildCount(); i++) {
@@ -302,18 +326,22 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
             if (child instanceof MaterialCardView) {
                 MaterialCardView cardView = (MaterialCardView) child;
                 VocabularyResponse option = (VocabularyResponse) cardView.getTag();
-                if (option != null && currentCorrectVocab != null && option.getId() != null && option.getId().equals(currentCorrectVocab.getId())) {
+                if (option != null && currentCorrectVocab != null &&
+                        option.getId() != null && currentCorrectVocab.getId() != null &&
+                        option.getId().equals(currentCorrectVocab.getId())) {
                     cardView.setStrokeWidth(getResources().getDimensionPixelSize(R.dimen.card_stroke_width));
                     cardView.setStrokeColor(ContextCompat.getColor(this, R.color.highlight_blue));
+                    Log.d(TAG, "Highlighted correct answer for vocab ID: " + currentCorrectVocab.getId());
                     break;
                 }
+            } else {
+                Log.w(TAG, "Child view in grid is not a MaterialCardView.");
             }
         }
     }
 
     private void checkAnswer(VocabularyResponse selectedOption, CardView selectedCardView) {
-        disableAnswerButtons();
-        buttonGame2PlaySound.setEnabled(false);
+        setGameControlsEnabled(false); // Disable controls during feedback delay
 
         boolean isCorrect = selectedOption != null && currentCorrectVocab != null &&
                 selectedOption.getId() != null && currentCorrectVocab.getId() != null &&
@@ -322,39 +350,50 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
         if (soundPool != null) {
             if (isCorrect) {
                 if (soundCorrect != 0) soundPool.play(soundCorrect, 1, 1, 0, 0, 1);
+                Log.d(TAG, "Playing correct sound.");
             } else {
                 if (soundIncorrect != 0) soundPool.play(soundIncorrect, 1, 1, 0, 0, 1);
+                Log.d(TAG, "Playing incorrect sound.");
             }
+        } else {
+            Log.w(TAG, "SoundPool is null, cannot play feedback sound.");
+        }
+
+        if (selectedCardView instanceof MaterialCardView) {
+            MaterialCardView mcv = (MaterialCardView) selectedCardView;
+            mcv.setCardBackgroundColor(ContextCompat.getColor(this, isCorrect ? R.color.correct_green : R.color.incorrect_red));
+            mcv.setStrokeWidth(0);
+            mcv.setStrokeColor(ContextCompat.getColor(this, android.R.color.transparent));
+        } else {
+            selectedCardView.setBackgroundColor(ContextCompat.getColor(this, isCorrect ? R.color.correct_green : R.color.incorrect_red));
+        }
+
+        Toast.makeText(this, isCorrect ? "Correct!" : "Incorrect!", Toast.LENGTH_SHORT).show();
+
+        if (!isCorrect) {
+            highlightCorrectAnswer();
         }
 
         long currentVocabId = currentCorrectVocab != null && currentCorrectVocab.getId() != null ? currentCorrectVocab.getId() : -1L;
-
-        if (isCorrect) {
-            selectedCardView.setCardBackgroundColor(ContextCompat.getColor(this, R.color.correct_green));
-            score++;
-            Toast.makeText(this, "Correct!", Toast.LENGTH_SHORT).show();
-            if (currentVocabId != -1L) recordLearningProgress(currentVocabId, true);
-
+        if (currentVocabId != -1L) {
+            recordLearningProgress(currentVocabId, isCorrect);
         } else {
-            selectedCardView.setCardBackgroundColor(ContextCompat.getColor(this, R.color.incorrect_red));
-            Toast.makeText(this, "Incorrect!", Toast.LENGTH_SHORT).show();
-            highlightCorrectAnswer();
-            if (currentVocabId != -1L) recordLearningProgress(currentVocabId, false);
+            Log.e(TAG, "currentCorrectVocab or its ID is null, cannot record learning progress.");
         }
 
         mainHandler.postDelayed(this::goToNextQuestion, 1500);
     }
 
-    private void disableAnswerButtons() {
+    private void setGameControlsEnabled(boolean enabled) {
         for (int i = 0; i < gridGame2Answers.getChildCount(); i++) {
             View child = gridGame2Answers.getChildAt(i);
-            child.setClickable(false);
+            child.setClickable(enabled);
+            // Removed child.setAlpha(enabled ? 1.0f : 0.7f);
         }
-    }
 
-    private void setGameControlsEnabled(boolean enabled) {
-        buttonGame2Skip.setEnabled(enabled);
         buttonGame2PlaySound.setEnabled(enabled && ttsInitialized);
+
+        buttonGame2Skip.setEnabled(enabled);
 
         Log.d(TAG, "Game controls enabled: " + enabled);
     }
@@ -362,7 +401,11 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
 
     private void goToNextQuestion() {
         currentQuestionIndex++;
-        loadQuestion();
+        if (currentQuestionIndex < vocabularyList.size()) {
+            loadQuestion();
+        } else {
+            endGame();
+        }
     }
 
     private void endGame() {
@@ -376,8 +419,16 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
     }
 
     private void recordLearningProgress(long vocabularyId, boolean isRemembered) {
+        if (currentUserId == null) {
+            Log.e(TAG, "currentUserId is null in recordLearningProgress. Cannot record.");
+            return;
+        }
         if (apiService == null) {
             Log.e(TAG, "ApiService is not initialized. Cannot record learning progress.");
+            return;
+        }
+        if (vocabularyId == -1L) {
+            Log.e(TAG, "Invalid vocabularyId (-1) passed to recordLearningProgress. Cannot record.");
             return;
         }
 
@@ -418,6 +469,7 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
                     .setTitle("Quit Game?")
                     .setMessage("Are you sure you want to leave the game? Your progress for this round will not be saved.")
                     .setPositiveButton("Leave", (dialog, which) -> {
+                        mainHandler.removeCallbacksAndMessages(null);
                         Game2Activity.super.onBackPressed();
                     })
                     .setNegativeButton("Stay", (dialog, which) -> {
@@ -425,6 +477,7 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
                     })
                     .show();
         } else {
+            mainHandler.removeCallbacksAndMessages(null);
             super.onBackPressed();
         }
     }
@@ -432,6 +485,7 @@ public class Game2Activity extends AppCompatActivity implements TextToSpeech.OnI
     @Override
     protected void onDestroy() {
         mainHandler.removeCallbacksAndMessages(null);
+
         if (tts != null) {
             tts.stop();
             tts.shutdown();
