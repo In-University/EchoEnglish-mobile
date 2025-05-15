@@ -50,23 +50,13 @@
                     android:orientation="horizontal">
 
                     <ImageButton
-                        android:id="@+id/btn_play_word"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:background="@android:color/transparent"
-                        android:contentDescription="Play word pronunciation"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/ic_image_volume" />
-
-                    <ImageButton
-                        android:id="@+id/btn_slow_play"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:id="@+id/btnClose"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:layout_marginStart="8dp"
                         android:background="@android:color/transparent"
-                        android:contentDescription="Play slow pronunciation"
                         android:scaleType="centerInside"
-                        android:src="@drawable/ic_image_volume" />
+                        android:src="@drawable/ic_close" />
                 </LinearLayout>
             </LinearLayout>
 

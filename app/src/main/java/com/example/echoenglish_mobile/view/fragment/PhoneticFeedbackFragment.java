@@ -32,8 +32,7 @@ public class PhoneticFeedbackFragment extends DialogFragment {
     // UI Components
     private PhonemeTextView tvWord;
     private TableLayout tablePhonemes;
-    private ImageButton btnPlayWord;
-    private ImageButton btnSlowPlay;
+    private ImageButton btnClose;
 
     // Data
     private String word;
@@ -64,18 +63,19 @@ public class PhoneticFeedbackFragment extends DialogFragment {
         // Initialize views
         tvWord = view.findViewById(R.id.tv_word);
         tablePhonemes = view.findViewById(R.id.table_pronunciation);
-        btnPlayWord = view.findViewById(R.id.btn_play_word);
-        btnSlowPlay = view.findViewById(R.id.btn_slow_play);
-
-        // Set click listeners
-        btnPlayWord.setOnClickListener(v -> playWordAudio());
-        btnSlowPlay.setOnClickListener(v -> playSlowAudio());
+        btnClose = view.findViewById(R.id.btnClose);
         if (getArguments() != null && getArguments().containsKey(ARG_COMPARISON_LIST)) {
             phonemeComparisons = (List<PhonemeComparison>) getArguments().getSerializable(ARG_COMPARISON_LIST);
             word = getArguments().getString(ARG_WORD, "");
         } else {
             loadData(); // fake data
         }
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
 
         updateUI();
     }
@@ -148,11 +148,8 @@ public class PhoneticFeedbackFragment extends DialogFragment {
         TextView tvPhoneme = rowView.findViewById(R.id.tv_phoneme);
         TextView tvResult = rowView.findViewById(R.id.tv_result);
         TextView tvWrongPhoneme = rowView.findViewById(R.id.tv_wrong_phoneme);
-        ImageButton btnPlayPhoneme = rowView.findViewById(R.id.btn_play_phoneme);
 
         tvPhoneme.setText("/" + dto.getCorrectPhoneme() + "/");
-
-        btnPlayPhoneme.setOnClickListener(v -> playPhonemeAudio(dto.getCorrectPhoneme()));
 
         boolean isCorrect = dto.getResult().equals("correct");
         if (isCorrect) {
@@ -164,20 +161,7 @@ public class PhoneticFeedbackFragment extends DialogFragment {
             tvWrongPhoneme.setText("/" + dto.getActualPhoneme() + "/");
         }
 
-        // Thêm dòng vào TableLayout
         tablePhonemes.addView(rowView);
-    }
-
-    private void playPhonemeAudio(String phoneme) {
-        showToast("Playing pronunciation for phoneme: " + phoneme);
-    }
-
-    private void playWordAudio() {
-        showToast("Playing pronunciation for: " + word);
-    }
-
-    private void playSlowAudio() {
-        showToast("Playing slow pronunciation for: " + word);
     }
 
     private void showToast(String message) {

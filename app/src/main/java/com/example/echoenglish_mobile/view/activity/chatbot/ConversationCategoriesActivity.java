@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,13 +23,16 @@ import java.util.List;
 public class ConversationCategoriesActivity extends AppCompatActivity {
 
     private List<ConversationCategory> categories;
-    private ImageView btnBack;
+    private ImageView btnBack, btnAddCustomContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
         btnBack = findViewById(R.id.btnBack);
+        btnAddCustomContext = findViewById(R.id.btnAddCustomContext);
+        btnAddCustomContext.setOnClickListener(v -> showAddContextDialog());
+
         btnBack.setOnClickListener(v -> finish());
         initData();
         setupRecyclerViews();
@@ -138,6 +142,40 @@ public class ConversationCategoriesActivity extends AppCompatActivity {
         }
 
         startActivity(intent);
+    }
+    private void showAddContextDialog() {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("Enter Custom Context");
+
+        final android.widget.EditText input = new android.widget.EditText(this);
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT);
+        input.setHint("Enter context here");
+
+        android.widget.FrameLayout container = new android.widget.FrameLayout(this);
+        android.widget.FrameLayout.LayoutParams params = new  android.widget.FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        int horizontalMargin = (int) (20 * getResources().getDisplayMetrics().density);
+        int verticalMargin = (int) (10 * getResources().getDisplayMetrics().density);
+        params.setMargins(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin);
+        input.setLayoutParams(params);
+        container.addView(input);
+        builder.setView(container);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String context = input.getText().toString().trim();
+            if (!context.isEmpty()) {
+                Intent intent = new Intent(ConversationCategoriesActivity.this, ConversationActivity.class);
+                intent.putExtra(ConversationActivity.EXTRA_CONTEXT, context);
+                startActivity(intent);
+            } else {
+                Toast.makeText(ConversationCategoriesActivity.this, "Context cannot be empty", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+        builder.show();
     }
 
     private String getInitialJsonForScenario(String scenarioId) {

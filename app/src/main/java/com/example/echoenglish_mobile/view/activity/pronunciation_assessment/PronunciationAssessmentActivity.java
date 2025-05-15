@@ -153,7 +153,6 @@ public class PronunciationAssessmentActivity extends AppCompatActivity {
                 } else if (playbackState == Player.STATE_READY) {
                     setAudioButtonsEnabled(false);
                 } else if (playbackState == Player.STATE_BUFFERING) {
-                    Toast.makeText(PronunciationAssessmentActivity.this, "Buffering audio...", Toast.LENGTH_SHORT).show();
                     setAudioButtonsEnabled(false);
                 }
             }
@@ -341,9 +340,8 @@ public class PronunciationAssessmentActivity extends AppCompatActivity {
             // Đặt media item và chuẩn bị phát
             exoPlayer.setMediaItem(mediaItem);
             exoPlayer.prepare();
-            exoPlayer.play(); // Bắt đầu phát
-            // Listener sẽ xử lý trạng thái (buffering, playing, ended, error)
-        } catch (Exception e) { // Bắt các lỗi phân tích URL hoặc lỗi khác
+            exoPlayer.play();
+        } catch (Exception e) {
             Log.e(LOG_TAG, "Error preparing ExoPlayer for URL: " + url, e);
             Toast.makeText(this, "Error preparing audio", Toast.LENGTH_SHORT).show();
             setAudioButtonsEnabled(true); // Enable lại nút nếu có lỗi chuẩn bị
@@ -405,13 +403,11 @@ public class PronunciationAssessmentActivity extends AppCompatActivity {
 
     private void analyzeSpeech() {
         File audioFile = new File(localOutputFile);
-        // Check cơ bản file tồn tại và có dữ liệu
         if (!audioFile.exists() || audioFile.length() == 0) {
             Toast.makeText(this, "Recording not found or empty.", Toast.LENGTH_SHORT).show();
             fabPlayRecording.setVisibility(View.GONE);
             return;
         }
-        // Giả định currentWord và word không null/trống ở đây
 
         RequestBody audioRequestBody = RequestBody.create(MediaType.parse("audio/3gp"), audioFile);
         MultipartBody.Part audioPart = MultipartBody.Part.createFormData("audio_file", audioFile.getName(), audioRequestBody);

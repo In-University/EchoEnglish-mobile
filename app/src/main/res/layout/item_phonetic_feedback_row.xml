@@ -21,15 +21,6 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <ImageButton
-            android:id="@+id/btn_play_phoneme"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="20dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="Play phoneme"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_image_volume" />
     </LinearLayout>
 
     <LinearLayout
