@@ -1,11 +1,13 @@
 package com.example.echoenglish_mobile.view.activity.video_youtube;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,11 +85,18 @@ public class TranscriptAdapter extends RecyclerView.Adapter<TranscriptAdapter.Vi
                 }
             };
             spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannableString.setSpan(
+                    new ForegroundColorSpan(Color.BLACK),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
         }
 
         holder.transcriptText.setText(spannableString);
         holder.transcriptText.setMovementMethod(LinkMovementMethod.getInstance());
         holder.transcriptText.setHighlightColor(android.graphics.Color.TRANSPARENT);
+
 
 
         holder.itemView.setOnClickListener(v -> {
